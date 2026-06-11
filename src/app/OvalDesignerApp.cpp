@@ -1,13 +1,23 @@
 #include "OvalDesignerApp.h"
 #include "Project.h"
 #include "ProjectSerializer.h"
+#include "ui/MainWindow.h"
 
 namespace ExpressDesigner {
 
 ExpressDesignerApp::ExpressDesignerApp(QObject* parent) : QObject(parent) {}
-ExpressDesignerApp::~ExpressDesignerApp() { closeProject(); }
 
-void ExpressDesignerApp::initialize() {}
+ExpressDesignerApp::~ExpressDesignerApp()
+{
+    closeProject();
+    delete m_mainWindow;
+}
+
+void ExpressDesignerApp::initialize()
+{
+    m_mainWindow = new MainWindow();
+    m_mainWindow->show();
+}
 
 void ExpressDesignerApp::openProject(const QString& filePath)
 {
@@ -31,6 +41,8 @@ void ExpressDesignerApp::closeProject()
         m_project = nullptr;
     }
 }
+
+MainWindow* ExpressDesignerApp::mainWindow() const { return m_mainWindow; }
 
 Project* ExpressDesignerApp::currentProject() const { return m_project; }
 bool ExpressDesignerApp::hasProject() const { return m_project != nullptr; }
