@@ -68,16 +68,16 @@ void MainWindow::setupMenuBar()
 {
     // File menu
     QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(tr("&New Project"), this, &MainWindow::onNewProject, QKeySequence::New);
-    fileMenu->addAction(tr("&Open Project..."), this, &MainWindow::onOpenProject, QKeySequence::Open);
-    fileMenu->addAction(tr("&Save Project"), this, &MainWindow::onSaveProject, QKeySequence::Save);
-    fileMenu->addAction(tr("Save Project &As..."), this, &MainWindow::onSaveProjectAs, QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
+    fileMenu->addAction(tr("&New Project"), QKeySequence::New, this, &MainWindow::onNewProject);
+    fileMenu->addAction(tr("&Open Project..."), QKeySequence::Open, this, &MainWindow::onOpenProject);
+    fileMenu->addAction(tr("&Save Project"), QKeySequence::Save, this, &MainWindow::onSaveProject);
+    fileMenu->addAction(tr("Save Project &As..."), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), this, &MainWindow::onSaveProjectAs);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("&Import Object..."), this, &MainWindow::onImportObject);
     fileMenu->addAction(tr("&Export Object..."), this, &MainWindow::onExportObject);
     fileMenu->addAction(tr("Export All to &Rhino..."), this, &MainWindow::onExportAllRhino);
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("E&xit"), this, &QWidget::close, QKeySequence::Quit);
+    fileMenu->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
 
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu(tr("&Edit"));
@@ -92,8 +92,8 @@ void MainWindow::setupMenuBar()
 
     // View menu
     QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
-    viewMenu->addAction(tr("Zoom &In"), this, &MainWindow::onZoomIn, QKeySequence::ZoomIn);
-    viewMenu->addAction(tr("Zoom &Out"), this, &MainWindow::onZoomOut, QKeySequence::ZoomOut);
+    viewMenu->addAction(tr("Zoom &In"), QKeySequence::ZoomIn, this, &MainWindow::onZoomIn);
+    viewMenu->addAction(tr("Zoom &Out"), QKeySequence::ZoomOut, this, &MainWindow::onZoomOut);
     viewMenu->addAction(tr("Zoom &All"), this, &MainWindow::onZoomAll);
     viewMenu->addSeparator();
     viewMenu->addAction(tr("Toggle &Control Points"), this, &MainWindow::onToggleControlPoints);
