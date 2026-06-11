@@ -43,17 +43,11 @@ endif()
 # SISL Configuration
 if(USE_SISL)
     find_package(SISL QUIET)
-    if(NOT SISL_FOUND)
-        message(STATUS "SISL not found as system package - will build from source")
-        set(SISL_BUILD_DIR ${CMAKE_BINARY_DIR}/sisl)
-        # SISL stub for now - actual SISL integration via FetchContent
-        include(FetchContent)
-        FetchContent_Declare(
-            sisl
-            GIT_REPOSITORY https://github.com/SINTEF-Geometry/SISL.git
-            GIT_TAG master
-        )
-        # Note: SISL is a C library; wrap appropriately
+    if(SISL_FOUND)
+        message(STATUS "Using system SISL package")
+    else()
+        message(STATUS "SISL not found as system package - using local build from third_party/sisl")
+        add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/sisl ${CMAKE_BINARY_DIR}/sisl EXCLUDE_FROM_ALL)
     endif()
     add_compile_definitions(USE_SISL=1)
 endif()
