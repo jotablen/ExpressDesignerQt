@@ -945,7 +945,10 @@ src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/build.make
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Charts.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6OpenGLWidgets.dll.a
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Widgets.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6OpenGL.dll.a
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Gui.dll.a
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Core.dll.a
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/linkLibs.rsp

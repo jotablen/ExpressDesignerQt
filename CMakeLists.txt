@@ -22,6 +22,7 @@ find_package(Qt6 REQUIRED COMPONENTS
 find_package(Qt6 COMPONENTS Charts QUIET)
 if(Qt6Charts_FOUND)
     add_compile_definitions(HAS_QT_CHARTS=1)
+    set(HAS_QT_CHARTS ON CACHE BOOL "Qt Charts available")
     message(STATUS "Qt Charts found - chart visualization enabled")
 else()
     message(STATUS "Qt Charts NOT found - chart visualization will use stub")
