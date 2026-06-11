@@ -1,8 +1,10 @@
 #include "ProjectSerializer.h"
+#include "Project.h"
 #include "BaseObject.h"
 #include "CustomObject.h"
 #include "CustomOperation.h"
 #include "ObjectFactory.h"
+#include "HistoryManager.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>

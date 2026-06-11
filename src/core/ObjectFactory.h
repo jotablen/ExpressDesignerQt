@@ -7,7 +7,6 @@ namespace ExpressDesigner {
 
 class CustomObject;
 class CustomOperation;
-class QObject;
 
 class ObjectFactory {
 public:

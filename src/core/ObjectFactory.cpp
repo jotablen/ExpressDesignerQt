@@ -53,7 +53,7 @@ CustomOperation* ObjectFactory::createOperation(OperationType type, const QStrin
     case OperationType::PropagateWF:
         return new PropagateWFOperation(name, parent);
     default:
-        return new CustomOperation(type, name, parent);
+        return nullptr;
     }
 }
 
@@ -69,7 +69,7 @@ CustomOperation* ObjectFactory::createOperationFromJson(const QJsonObject& json,
     else if (subType == QLatin1String("propagateWF"))
         op = new PropagateWFOperation(name, parent);
     else
-        op = new CustomOperation(OperationType::Custom, name, parent);
+        op = nullptr;
 
     if (op)
         op->loadFromJson(json);
