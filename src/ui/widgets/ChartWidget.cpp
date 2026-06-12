@@ -2,7 +2,12 @@
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
+#include <QtCharts/QValueAxis>
 #include <core/CustomObject.h>
+#include <core/PointObject.h>
+#include <core/LineObject.h>
+#include <core/ArcObject.h>
+#include <core/CurveObject.h>
 
 namespace ExpressDesigner {
 
@@ -12,22 +17,67 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
     if (!chart || !project) return;
     chart->removeAllSeries();
 
+    // Remove all axes too (removeAllSeries keeps existing axes)
+    const auto axes = chart->axes();
+    for (auto* axis : axes)
+        chart->removeAxis(axis);
+
+    bool addedAny = false;
+    double minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+
     auto addCurve = [&](CustomObject* obj) {
         if (!obj || !obj->isVisible()) return;
+        const auto& pts = obj->controlPoints();
+        if (pts.isEmpty()) return;
+
         auto* series = new QLineSeries();
         series->setName(obj->name());
-        const auto& pts = obj->controlPoints();
-        if (pts.size() >= 2 || obj->objectType() == ObjectType::Point) {
-            for (const auto& p : pts)
-                series->append(p.x(), p.y());
+        for (const auto& p : pts) {
+            series->append(p.x(), p.y());
+            minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
+            minY = qMin(minY, p.y()); maxY = qMax(maxY, p.y());
         }
         chart->addSeries(series);
+        addedAny = true;
+
+        // Show control points as scatter
+        if (showControlPoints && pts.size() > 1) {
+            auto* scatter = new QScatterSeries();
+            scatter->setName(obj->name() + QStringLiteral(" (pts)"));
+            scatter->setMarkerSize(6);
+            for (const auto& p : pts)
+                scatter->append(p.x(), p.y());
+            chart->addSeries(scatter);
+        }
     };
 
     for (auto* obj : project->dataObjects())
         addCurve(obj);
     for (auto* obj : project->resultObjects())
         addCurve(obj);
+
+    if (addedAny) {
+        // Add slight padding
+        double dx = (maxX - minX) * 0.1;
+        double dy = (maxY - minY) * 0.1;
+        if (qFuzzyCompare(dx, 0.0)) dx = 1.0;
+        if (qFuzzyCompare(dy, 0.0)) dy = 1.0;
+
+        auto* axisX = new QValueAxis();
+        axisX->setRange(minX - dx, maxX + dx);
+        axisX->setLabelFormat(QStringLiteral("%.1f"));
+        chart->addAxis(axisX, Qt::AlignBottom);
+
+        auto* axisY = new QValueAxis();
+        axisY->setRange(minY - dy, maxY + dy);
+        axisY->setLabelFormat(QStringLiteral("%.1f"));
+        chart->addAxis(axisY, Qt::AlignLeft);
+
+        for (auto* series : chart->series()) {
+            series->attachAxis(axisX);
+            series->attachAxis(axisY);
+        }
+    }
 }
 
 } // namespace ExpressDesigner

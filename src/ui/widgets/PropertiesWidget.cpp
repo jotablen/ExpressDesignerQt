@@ -9,6 +9,8 @@
 #include <core/ObjectTypes.h>
 #include <core/ArcObject.h>
 #include <core/PointObject.h>
+#include <core/LineObject.h>
+#include <core/CurveObject.h>
 
 namespace ExpressDesigner {
 
@@ -17,329 +19,184 @@ PropertiesWidget::PropertiesWidget(QWidget* parent) : QWidget(parent)
     m_tabs = new QTabWidget(this);
     m_tabs->setTabPosition(QTabWidget::South);
     m_tabs->setStyleSheet(QStringLiteral("QTabWidget::pane { border: 1px solid #C4C4C3; }"));
-
-    setupProjectTab();
-    setupPointTab();
-    setupLineTab();
-    setupArcTab();
-    setupCurveTab();
-    setupObjectsTab();
-    setupCalcOvalTab();
-    setupPropagateTab();
-
-    auto* layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0, 0);
-    layout->addWidget(m_tabs);
+    setupProjectTab(); setupPointTab(); setupLineTab(); setupArcTab(); setupCurveTab();
+    setupObjectsTab(); setupCalcOvalTab(); setupPropagateTab();
+    auto* layout = new QVBoxLayout(this); layout->setContentsMargins(0, 0, 0, 0); layout->addWidget(m_tabs);
     m_tabs->setCurrentIndex(0);
 }
 
-// ========== PROJECT TAB ==========
-void PropertiesWidget::setupProjectTab()
-{
-    auto* tab = new QWidget();
-    auto* layout = new QVBoxLayout(tab);
-
-    auto* nameRow = new QHBoxLayout();
-    auto* nameLabel = new QLabel(QStringLiteral("Project Name"), tab);
-    QFont boldFont = nameLabel->font(); boldFont.setBold(true); nameLabel->setFont(boldFont);
-    nameRow->addWidget(nameLabel); layout->addLayout(nameRow);
-
-    m_prjNameEdit = new QLineEdit(tab); layout->addWidget(m_prjNameEdit);
-
-    auto* xGroup = new QGroupBox(QStringLiteral(" X Axis Scale "), tab);
-    auto* xLayout = new QFormLayout(xGroup);
-    m_prjXMinEdit = new QLineEdit(QStringLiteral("0"), xGroup); m_prjXMinEdit->setEnabled(false);
-    xLayout->addRow(QStringLiteral("&Min:"), m_prjXMinEdit);
-    m_prjXMaxEdit = new QLineEdit(QStringLiteral("0"), xGroup); m_prjXMaxEdit->setEnabled(false);
-    xLayout->addRow(QStringLiteral("M&ax:"), m_prjXMaxEdit);
-    layout->addWidget(xGroup);
-    m_prjXAutoCheck = new QCheckBox(QStringLiteral("Auto scale X axis"), tab); m_prjXAutoCheck->setEnabled(false);
-    layout->addWidget(m_prjXAutoCheck);
-
-    auto* yGroup = new QGroupBox(QStringLiteral(" Y Axis Scale "), tab);
-    auto* yLayout = new QFormLayout(yGroup);
-    m_prjYMinEdit = new QLineEdit(QStringLiteral("0"), yGroup); m_prjYMinEdit->setEnabled(false);
-    yLayout->addRow(QStringLiteral("&Min:"), m_prjYMinEdit);
-    m_prjYMaxEdit = new QLineEdit(QStringLiteral("0"), yGroup); m_prjYMaxEdit->setEnabled(false);
-    yLayout->addRow(QStringLiteral("M&ax:"), m_prjYMaxEdit);
-    layout->addWidget(yGroup);
-    m_prjYAutoCheck = new QCheckBox(QStringLiteral("Auto scale Y axis"), tab); m_prjYAutoCheck->setEnabled(false);
-    layout->addWidget(m_prjYAutoCheck);
-
-    auto* btnRow = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow->addStretch(); btnRow->addWidget(restoreBtn); btnRow->addWidget(saveBtn);
-    layout->addLayout(btnRow);
-    layout->addStretch();
+void PropertiesWidget::setupProjectTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* nr = new QHBoxLayout(); auto* nl = new QLabel(QStringLiteral("Project Name"), tab);
+    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nr->addWidget(nl); l->addLayout(nr);
+    m_prjNameEdit = new QLineEdit(tab); l->addWidget(m_prjNameEdit);
+    auto* xg = new QGroupBox(QStringLiteral(" X Axis Scale "), tab); auto* xl = new QFormLayout(xg);
+    m_prjXMinEdit = new QLineEdit(QStringLiteral("0"), xg); m_prjXMinEdit->setEnabled(false); xl->addRow(QStringLiteral("&Min:"), m_prjXMinEdit);
+    m_prjXMaxEdit = new QLineEdit(QStringLiteral("0"), xg); m_prjXMaxEdit->setEnabled(false); xl->addRow(QStringLiteral("M&ax:"), m_prjXMaxEdit);
+    l->addWidget(xg); m_prjXAutoCheck = new QCheckBox(QStringLiteral("Auto scale X axis"), tab); m_prjXAutoCheck->setEnabled(false); l->addWidget(m_prjXAutoCheck);
+    auto* yg = new QGroupBox(QStringLiteral(" Y Axis Scale "), tab); auto* yl = new QFormLayout(yg);
+    m_prjYMinEdit = new QLineEdit(QStringLiteral("0"), yg); m_prjYMinEdit->setEnabled(false); yl->addRow(QStringLiteral("&Min:"), m_prjYMinEdit);
+    m_prjYMaxEdit = new QLineEdit(QStringLiteral("0"), yg); m_prjYMaxEdit->setEnabled(false); yl->addRow(QStringLiteral("M&ax:"), m_prjYMaxEdit);
+    l->addWidget(yg); m_prjYAutoCheck = new QCheckBox(QStringLiteral("Auto scale Y axis"), tab); m_prjYAutoCheck->setEnabled(false); l->addWidget(m_prjYAutoCheck);
+    auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Project"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::onSaveProject);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestoreProject);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSaveProject);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestoreProject);
 }
 
-// ========== POINT TAB ==========
-void PropertiesWidget::setupPointTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* nameRow = new QHBoxLayout();
-    auto* nameLabel = new QLabel(QStringLiteral("Point Name"), tab);
-    QFont bf = nameLabel->font(); bf.setBold(true); nameLabel->setFont(bf);
-    nameRow->addWidget(nameLabel);
-    m_ptWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab);
-    QFont sf = m_ptWFStatusLabel->font(); sf.setBold(true); m_ptWFStatusLabel->setFont(sf);
-    m_ptWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;"));
-    nameRow->addStretch(); nameRow->addWidget(m_ptWFStatusLabel); layout->addLayout(nameRow);
-    m_ptNameEdit = new QLineEdit(tab); layout->addWidget(m_ptNameEdit);
-    auto* riRow = new QHBoxLayout();
-    riRow->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
-    m_ptRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); riRow->addWidget(m_ptRefIndexEdit);
-    layout->addLayout(riRow);
-    auto* ptGroup = new QGroupBox(QStringLiteral(" Point Coordinates "), tab);
-    auto* ptLayout = new QFormLayout(ptGroup);
-    m_ptXEdit = new QLineEdit(QStringLiteral("0"), ptGroup); ptLayout->addRow(QStringLiteral(" &X:"), m_ptXEdit);
-    m_ptYEdit = new QLineEdit(QStringLiteral("0"), ptGroup); ptLayout->addRow(QStringLiteral(" &Y:"), m_ptYEdit);
-    layout->addWidget(ptGroup);
-    m_ptFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); layout->addWidget(m_ptFlipNCheck);
-    auto* btnRow = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow->addStretch(); btnRow->addWidget(restoreBtn); btnRow->addWidget(saveBtn);
-    layout->addLayout(btnRow); layout->addStretch();
+void PropertiesWidget::setupPointTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* nr = new QHBoxLayout(); auto* nl = new QLabel(QStringLiteral("Point Name"), tab);
+    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nr->addWidget(nl);
+    m_ptWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_ptWFStatusLabel->font(); sf.setBold(true); m_ptWFStatusLabel->setFont(sf);
+    m_ptWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_ptWFStatusLabel); l->addLayout(nr);
+    m_ptNameEdit = new QLineEdit(tab); l->addWidget(m_ptNameEdit);
+    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    m_ptRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_ptRefIndexEdit); l->addLayout(rr);
+    auto* pg = new QGroupBox(QStringLiteral(" Point Coordinates "), tab); auto* pl = new QFormLayout(pg);
+    m_ptXEdit = new QLineEdit(QStringLiteral("0"), pg); pl->addRow(QStringLiteral(" &X:"), m_ptXEdit);
+    m_ptYEdit = new QLineEdit(QStringLiteral("0"), pg); pl->addRow(QStringLiteral(" &Y:"), m_ptYEdit); l->addWidget(pg);
+    m_ptFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); l->addWidget(m_ptFlipNCheck);
+    auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Point"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::onSavePoint);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestorePoint);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSavePoint);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestorePoint);
 }
 
-// ========== LINE TAB ==========
-void PropertiesWidget::setupLineTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* nameRow = new QHBoxLayout();
-    auto* nl = new QLabel(QStringLiteral("Line Name"), tab);
-    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nameRow->addWidget(nl);
-    m_lnWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab);
-    QFont sf = m_lnWFStatusLabel->font(); sf.setBold(true); m_lnWFStatusLabel->setFont(sf);
-    m_lnWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;"));
-    nameRow->addStretch(); nameRow->addWidget(m_lnWFStatusLabel); layout->addLayout(nameRow);
-    m_lnNameEdit = new QLineEdit(tab); layout->addWidget(m_lnNameEdit);
-    auto* riRow = new QHBoxLayout();
-    riRow->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
-    m_lnRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); riRow->addWidget(m_lnRefIndexEdit);
-    layout->addLayout(riRow);
-    auto* p1G = new QGroupBox(QStringLiteral(" First Point Coordinates "), tab);
-    auto* p1L = new QFormLayout(p1G);
-    m_lnP1XEdit = new QLineEdit(QStringLiteral("0"), p1G); p1L->addRow(QStringLiteral(" &X:"), m_lnP1XEdit);
-    m_lnP1YEdit = new QLineEdit(QStringLiteral("0"), p1G); p1L->addRow(QStringLiteral(" &Y:"), m_lnP1YEdit);
-    layout->addWidget(p1G);
-    auto* p2G = new QGroupBox(QStringLiteral(" Second Point Coordinates "), tab);
-    auto* p2L = new QFormLayout(p2G);
-    m_lnP2XEdit = new QLineEdit(QStringLiteral("0"), p2G); p2L->addRow(QStringLiteral(" &X:"), m_lnP2XEdit);
-    m_lnP2YEdit = new QLineEdit(QStringLiteral("0"), p2G); p2L->addRow(QStringLiteral(" &Y:"), m_lnP2YEdit);
-    layout->addWidget(p2G);
-    m_lnFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); layout->addWidget(m_lnFlipNCheck);
-    auto* btnRow = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow->addStretch(); btnRow->addWidget(restoreBtn); btnRow->addWidget(saveBtn);
-    layout->addLayout(btnRow); layout->addStretch();
+void PropertiesWidget::setupLineTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* nr = new QHBoxLayout(); auto* nl = new QLabel(QStringLiteral("Line Name"), tab);
+    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nr->addWidget(nl);
+    m_lnWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_lnWFStatusLabel->font(); sf.setBold(true); m_lnWFStatusLabel->setFont(sf);
+    m_lnWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_lnWFStatusLabel); l->addLayout(nr);
+    m_lnNameEdit = new QLineEdit(tab); l->addWidget(m_lnNameEdit);
+    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    m_lnRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_lnRefIndexEdit); l->addLayout(rr);
+    auto* p1g = new QGroupBox(QStringLiteral(" First Point Coordinates "), tab); auto* p1l = new QFormLayout(p1g);
+    m_lnP1XEdit = new QLineEdit(QStringLiteral("0"), p1g); p1l->addRow(QStringLiteral(" &X:"), m_lnP1XEdit);
+    m_lnP1YEdit = new QLineEdit(QStringLiteral("0"), p1g); p1l->addRow(QStringLiteral(" &Y:"), m_lnP1YEdit); l->addWidget(p1g);
+    auto* p2g = new QGroupBox(QStringLiteral(" Second Point Coordinates "), tab); auto* p2l = new QFormLayout(p2g);
+    m_lnP2XEdit = new QLineEdit(QStringLiteral("0"), p2g); p2l->addRow(QStringLiteral(" &X:"), m_lnP2XEdit);
+    m_lnP2YEdit = new QLineEdit(QStringLiteral("0"), p2g); p2l->addRow(QStringLiteral(" &Y:"), m_lnP2YEdit); l->addWidget(p2g);
+    m_lnFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); l->addWidget(m_lnFlipNCheck);
+    auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Line"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::onSaveLine);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestoreLine);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSaveLine);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestoreLine);
 }
 
-// ========== ARC TAB ==========
-void PropertiesWidget::setupArcTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* nameRow = new QHBoxLayout();
-    auto* nl = new QLabel(QStringLiteral("Arc Name"), tab);
-    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nameRow->addWidget(nl);
-    m_arcWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab);
-    QFont sf = m_arcWFStatusLabel->font(); sf.setBold(true); m_arcWFStatusLabel->setFont(sf);
-    m_arcWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;"));
-    nameRow->addStretch(); nameRow->addWidget(m_arcWFStatusLabel); layout->addLayout(nameRow);
-    m_arcNameEdit = new QLineEdit(tab); layout->addWidget(m_arcNameEdit);
-    auto* riRow = new QHBoxLayout();
-    riRow->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
-    m_arcRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); riRow->addWidget(m_arcRefIndexEdit);
-    layout->addLayout(riRow);
-    auto* cG = new QGroupBox(QStringLiteral(" Center Point Coordinates "), tab);
-    auto* cL = new QFormLayout(cG);
-    m_arcXEdit = new QLineEdit(QStringLiteral("0"), cG); cL->addRow(QStringLiteral(" &X:"), m_arcXEdit);
-    m_arcYEdit = new QLineEdit(QStringLiteral("0"), cG); cL->addRow(QStringLiteral(" &Y:"), m_arcYEdit);
-    layout->addWidget(cG);
-    auto* aG = new QGroupBox(QStringLiteral(" Arc Parameters   "), tab);
-    auto* aL = new QFormLayout(aG);
-    m_arcRadiusEdit = new QLineEdit(QStringLiteral("0"), aG); aL->addRow(QStringLiteral(" Ra&dius:"), m_arcRadiusEdit);
-    m_arcStartAngleEdit = new QLineEdit(QStringLiteral("0"), aG); aL->addRow(QStringLiteral(" &Start Angle:"), m_arcStartAngleEdit);
-    m_arcEndAngleEdit = new QLineEdit(QStringLiteral("0"), aG); aL->addRow(QStringLiteral(" &End Angle:"), m_arcEndAngleEdit);
-    layout->addWidget(aG);
-    auto* amntRow = new QHBoxLayout();
-    amntRow->addWidget(new QLabel(QStringLiteral(" &Number of control points:"), tab));
-    m_arcAmntPtsEdit = new QLineEdit(QStringLiteral("0"), tab); amntRow->addWidget(m_arcAmntPtsEdit);
-    layout->addLayout(amntRow);
-    m_arcFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); layout->addWidget(m_arcFlipNCheck);
-    auto* btnRow = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow->addStretch(); btnRow->addWidget(restoreBtn); btnRow->addWidget(saveBtn);
-    layout->addLayout(btnRow); layout->addStretch();
+void PropertiesWidget::setupArcTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* nr = new QHBoxLayout(); auto* nl = new QLabel(QStringLiteral("Arc Name"), tab);
+    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nr->addWidget(nl);
+    m_arcWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_arcWFStatusLabel->font(); sf.setBold(true); m_arcWFStatusLabel->setFont(sf);
+    m_arcWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_arcWFStatusLabel); l->addLayout(nr);
+    m_arcNameEdit = new QLineEdit(tab); l->addWidget(m_arcNameEdit);
+    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    m_arcRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_arcRefIndexEdit); l->addLayout(rr);
+    auto* cg = new QGroupBox(QStringLiteral(" Center Point Coordinates "), tab); auto* cl = new QFormLayout(cg);
+    m_arcXEdit = new QLineEdit(QStringLiteral("0"), cg); cl->addRow(QStringLiteral(" &X:"), m_arcXEdit);
+    m_arcYEdit = new QLineEdit(QStringLiteral("0"), cg); cl->addRow(QStringLiteral(" &Y:"), m_arcYEdit); l->addWidget(cg);
+    auto* ag = new QGroupBox(QStringLiteral(" Arc Parameters   "), tab); auto* al = new QFormLayout(ag);
+    m_arcRadiusEdit = new QLineEdit(QStringLiteral("0"), ag); al->addRow(QStringLiteral(" Ra&dius:"), m_arcRadiusEdit);
+    m_arcStartAngleEdit = new QLineEdit(QStringLiteral("0"), ag); al->addRow(QStringLiteral(" &Start Angle:"), m_arcStartAngleEdit);
+    m_arcEndAngleEdit = new QLineEdit(QStringLiteral("0"), ag); al->addRow(QStringLiteral(" &End Angle:"), m_arcEndAngleEdit); l->addWidget(ag);
+    auto* ar = new QHBoxLayout(); ar->addWidget(new QLabel(QStringLiteral(" &Number of control points:"), tab));
+    m_arcAmntPtsEdit = new QLineEdit(QStringLiteral("0"), tab); ar->addWidget(m_arcAmntPtsEdit); l->addLayout(ar);
+    m_arcFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); l->addWidget(m_arcFlipNCheck);
+    auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Arc"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::onSaveArc);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestoreArc);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSaveArc);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestoreArc);
 }
 
-// ========== CURVE TAB ==========
-void PropertiesWidget::setupCurveTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* nameRow = new QHBoxLayout();
-    auto* nl = new QLabel(QStringLiteral("Curve Name"), tab);
-    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nameRow->addWidget(nl);
-    m_cvWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab);
-    QFont sf = m_cvWFStatusLabel->font(); sf.setBold(true); m_cvWFStatusLabel->setFont(sf);
-    m_cvWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;"));
-    nameRow->addStretch(); nameRow->addWidget(m_cvWFStatusLabel); layout->addLayout(nameRow);
-    m_cvNameEdit = new QLineEdit(tab); layout->addWidget(m_cvNameEdit);
-    auto* riRow = new QHBoxLayout();
-    riRow->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
-    m_cvRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); riRow->addWidget(m_cvRefIndexEdit);
-    layout->addLayout(riRow);
-    auto* ptsGroup = new QGroupBox(QStringLiteral(" List of Points Coordinates "), tab);
-    auto* ptsLayout = new QVBoxLayout(ptsGroup);
-    auto* headerRow = new QHBoxLayout();
-    headerRow->addStretch(3); headerRow->addWidget(new QLabel(QStringLiteral(" X"), ptsGroup));
-    headerRow->addStretch(1); headerRow->addWidget(new QLabel(QStringLiteral(" Y"), ptsGroup)); headerRow->addStretch(3);
-    ptsLayout->addLayout(headerRow);
-    m_cvGrid = new QTableWidget(0, 2, ptsGroup);
-    m_cvGrid->setHorizontalHeaderLabels({QStringLiteral("X"), QStringLiteral("Y")});
-    m_cvGrid->horizontalHeader()->setStretchLastSection(true);
-    m_cvGrid->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ptsLayout->addWidget(m_cvGrid); layout->addWidget(ptsGroup);
-    auto* btnRow = new QHBoxLayout();
-    m_cvAddBtn = new QPushButton(QStringLiteral("&Add"), tab); m_cvAddBtn->setEnabled(false); m_cvAddBtn->setVisible(false);
-    m_cvDelBtn = new QPushButton(QStringLiteral("&Delete"), tab); m_cvDelBtn->setEnabled(false); m_cvDelBtn->setVisible(false);
-    btnRow->addWidget(m_cvAddBtn); btnRow->addWidget(m_cvDelBtn); btnRow->addStretch();
-    layout->addLayout(btnRow);
-    m_cvEditCurveBtn = new QPushButton(QStringLiteral("Edit cur&ve"), tab); layout->addWidget(m_cvEditCurveBtn);
-    m_cvFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); layout->addWidget(m_cvFlipNCheck);
-    auto* btnRow2 = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow2->addStretch(); btnRow2->addWidget(restoreBtn); btnRow2->addWidget(saveBtn);
-    layout->addLayout(btnRow2); layout->addStretch();
+void PropertiesWidget::setupCurveTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* nr = new QHBoxLayout(); auto* nl = new QLabel(QStringLiteral("Curve Name"), tab);
+    QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); nr->addWidget(nl);
+    m_cvWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_cvWFStatusLabel->font(); sf.setBold(true); m_cvWFStatusLabel->setFont(sf);
+    m_cvWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_cvWFStatusLabel); l->addLayout(nr);
+    m_cvNameEdit = new QLineEdit(tab); l->addWidget(m_cvNameEdit);
+    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    m_cvRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_cvRefIndexEdit); l->addLayout(rr);
+    auto* pg = new QGroupBox(QStringLiteral(" List of Points Coordinates "), tab); auto* pl = new QVBoxLayout(pg);
+    auto* hr = new QHBoxLayout(); hr->addStretch(3); hr->addWidget(new QLabel(QStringLiteral(" X"), pg)); hr->addStretch(1); hr->addWidget(new QLabel(QStringLiteral(" Y"), pg)); hr->addStretch(3); pl->addLayout(hr);
+    m_cvGrid = new QTableWidget(0, 2, pg); m_cvGrid->setHorizontalHeaderLabels({QStringLiteral("X"), QStringLiteral("Y")}); m_cvGrid->horizontalHeader()->setStretchLastSection(true); m_cvGrid->setSelectionBehavior(QAbstractItemView::SelectRows); pl->addWidget(m_cvGrid); l->addWidget(pg);
+    auto* br = new QHBoxLayout();
+    m_cvAddBtn = new QPushButton(QStringLiteral("&Add"), tab); m_cvAddBtn->setVisible(false);
+    m_cvDelBtn = new QPushButton(QStringLiteral("&Delete"), tab); m_cvDelBtn->setVisible(false);
+    br->addWidget(m_cvAddBtn); br->addWidget(m_cvDelBtn); br->addStretch(); l->addLayout(br);
+    m_cvEditCurveBtn = new QPushButton(QStringLiteral("Edit cur&ve"), tab); l->addWidget(m_cvEditCurveBtn);
+    m_cvFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); l->addWidget(m_cvFlipNCheck);
+    auto* br2 = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br2->addStretch(); br2->addWidget(rb); br2->addWidget(sb); l->addLayout(br2); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Curve"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::onSaveCurve);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestoreCurve);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSaveCurve);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestoreCurve);
 }
 
-// ========== OBJECTS TAB (matching tshObjects in Ovals Designer) ==========
-void PropertiesWidget::setupObjectsTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* nameLabel = new QLabel(QStringLiteral("Objects Name"), tab);
-    QFont bf = nameLabel->font(); bf.setBold(true); nameLabel->setFont(bf);
-    layout->addWidget(nameLabel);
-    m_objListWidget = new QListWidget(tab); layout->addWidget(m_objListWidget);
-    auto* btnRow = new QHBoxLayout();
-    auto* insertBtn = new QPushButton(QStringLiteral("&Insert"), tab);
-    auto* deleteBtn = new QPushButton(QStringLiteral("&Delete"), tab);
-    auto* selectBtn = new QPushButton(QStringLiteral("&Select"), tab); selectBtn->setDefault(true);
-    btnRow->addWidget(insertBtn); btnRow->addWidget(deleteBtn); btnRow->addStretch(); btnRow->addWidget(selectBtn);
-    layout->addLayout(btnRow);
+void PropertiesWidget::setupObjectsTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* nl = new QLabel(QStringLiteral("Objects Name"), tab); QFont bf = nl->font(); bf.setBold(true); nl->setFont(bf); l->addWidget(nl);
+    m_objListWidget = new QListWidget(tab); l->addWidget(m_objListWidget);
+    auto* br = new QHBoxLayout(); auto* ib = new QPushButton(QStringLiteral("&Insert"), tab);
+    auto* db = new QPushButton(QStringLiteral("&Delete"), tab);
+    auto* sel = new QPushButton(QStringLiteral("&Select"), tab); sel->setDefault(true);
+    br->addWidget(ib); br->addWidget(db); br->addStretch(); br->addWidget(sel); l->addLayout(br);
     m_tabs->addTab(tab, QStringLiteral("Objects"));
-    connect(insertBtn, &QPushButton::clicked, this, &PropertiesWidget::insertObjectRequested);
-    connect(deleteBtn, &QPushButton::clicked, this, &PropertiesWidget::deleteObjectRequested);
-    connect(selectBtn, &QPushButton::clicked, this, [this]() {
-        if (m_objListWidget->currentItem())
-            emit selectObjectRequested(m_objListWidget->currentItem()->text());
-    });
+    connect(ib, &QPushButton::clicked, this, &PropertiesWidget::insertObjectRequested);
+    connect(db, &QPushButton::clicked, this, &PropertiesWidget::deleteObjectRequested);
+    connect(sel, &QPushButton::clicked, this, [this]{ if (m_objListWidget->currentItem()) emit selectObjectRequested(m_objListWidget->currentItem()->text()); });
 }
 
-// ========== CALC OVAL TAB (matching tshCalcOval in Ovals Designer) ==========
-void PropertiesWidget::setupCalcOvalTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* titleLabel = new QLabel(QStringLiteral("Cartesian Oval parameters"), tab);
-    QFont bf = titleLabel->font(); bf.setBold(true); titleLabel->setFont(bf);
-    layout->addWidget(titleLabel);
-    m_cOvalNameEdit = new QLineEdit(tab); m_cOvalNameEdit->setReadOnly(true);
-    layout->addWidget(m_cOvalNameEdit);
-    auto* form = new QFormLayout();
-    m_cOvalWF1Edit = new QLineEdit(tab); m_cOvalWF1Edit->setReadOnly(true);
-    form->addRow(QStringLiteral("First WF:"), m_cOvalWF1Edit);
-    m_cOvalWF2Edit = new QLineEdit(tab); m_cOvalWF2Edit->setReadOnly(true);
-    form->addRow(QStringLiteral("Second WF:"), m_cOvalWF2Edit);
-    m_cOvalRefEdit = new QLineEdit(tab); m_cOvalRefEdit->setReadOnly(true);
-    form->addRow(QStringLiteral("Ref. Point:"), m_cOvalRefEdit);
-    m_cOvalQtyPtsEdit = new QLineEdit(tab);
-    form->addRow(QStringLiteral("Calculations Qty:"), m_cOvalQtyPtsEdit);
-    layout->addLayout(form);
-    auto* sep = new QFrame(tab); sep->setFrameShape(QFrame::HLine); sep->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(sep);
-    layout->addWidget(new QLabel(QStringLiteral("Result object name:"), tab));
-    m_cOvalResultEdit = new QLineEdit(tab); m_cOvalResultEdit->setReadOnly(true);
-    layout->addWidget(m_cOvalResultEdit);
-    auto* btnRow = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow->addStretch(); btnRow->addWidget(restoreBtn); btnRow->addWidget(saveBtn);
-    layout->addLayout(btnRow); layout->addStretch();
+void PropertiesWidget::setupCalcOvalTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* tl = new QLabel(QStringLiteral("Cartesian Oval parameters"), tab); QFont bf = tl->font(); bf.setBold(true); tl->setFont(bf); l->addWidget(tl);
+    m_cOvalNameEdit = new QLineEdit(tab); m_cOvalNameEdit->setReadOnly(true); l->addWidget(m_cOvalNameEdit);
+    auto* f = new QFormLayout();
+    m_cOvalWF1Edit = new QLineEdit(tab); m_cOvalWF1Edit->setReadOnly(true); f->addRow(QStringLiteral("First WF:"), m_cOvalWF1Edit);
+    m_cOvalWF2Edit = new QLineEdit(tab); m_cOvalWF2Edit->setReadOnly(true); f->addRow(QStringLiteral("Second WF:"), m_cOvalWF2Edit);
+    m_cOvalRefEdit = new QLineEdit(tab); m_cOvalRefEdit->setReadOnly(true); f->addRow(QStringLiteral("Ref. Point:"), m_cOvalRefEdit);
+    m_cOvalQtyPtsEdit = new QLineEdit(tab); f->addRow(QStringLiteral("Calculations Qty:"), m_cOvalQtyPtsEdit); l->addLayout(f);
+    auto* sep = new QFrame(tab); sep->setFrameShape(QFrame::HLine); sep->setFrameShadow(QFrame::Sunken); l->addWidget(sep);
+    l->addWidget(new QLabel(QStringLiteral("Result object name:"), tab)); m_cOvalResultEdit = new QLineEdit(tab); m_cOvalResultEdit->setReadOnly(true); l->addWidget(m_cOvalResultEdit);
+    auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("CalcOval"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::calculateOvalRequested);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestoreCalcOval);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::calculateOvalRequested);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestoreCalcOval);
 }
 
-// ========== PROPAGATE TAB (matching tshPropagate in Ovals Designer) ==========
-void PropertiesWidget::setupPropagateTab()
-{
-    auto* tab = new QWidget(); auto* layout = new QVBoxLayout(tab);
-    auto* titleLabel = new QLabel(QStringLiteral("WF Propagation parammeters"), tab);
-    QFont bf = titleLabel->font(); bf.setBold(true); titleLabel->setFont(bf);
-    layout->addWidget(titleLabel);
-    m_propgNameEdit = new QLineEdit(tab); m_propgNameEdit->setReadOnly(true);
-    layout->addWidget(m_propgNameEdit);
-    auto* form = new QFormLayout();
-    m_propgWFEdit = new QLineEdit(tab); m_propgWFEdit->setReadOnly(true);
-    form->addRow(QStringLiteral("Wave-Front"), m_propgWFEdit);
-    m_propgIOREdit = new QLineEdit(tab); m_propgIOREdit->setReadOnly(true);
-    form->addRow(QStringLiteral("Refract. Indx:"), m_propgIOREdit);
-    m_propgSurfEdit = new QLineEdit(tab); m_propgSurfEdit->setReadOnly(true);
-    form->addRow(QStringLiteral("Surface:"), m_propgSurfEdit);
-    m_propgQtyPtsEdit = new QLineEdit(tab);
-    form->addRow(QStringLiteral("Calculations Qty:"), m_propgQtyPtsEdit);
-    m_propgOffsetEdit = new QLineEdit(tab);
-    form->addRow(QStringLiteral("OPL Offset:"), m_propgOffsetEdit);
-    layout->addLayout(form);
-    auto* sep = new QFrame(tab); sep->setFrameShape(QFrame::HLine); sep->setFrameShadow(QFrame::Sunken);
-    layout->addWidget(sep);
-    layout->addWidget(new QLabel(QStringLiteral("Result object name:"), tab));
-    m_propgResultEdit = new QLineEdit(tab); m_propgResultEdit->setReadOnly(true);
-    layout->addWidget(m_propgResultEdit);
-    auto* btnRow = new QHBoxLayout();
-    auto* saveBtn = new QPushButton(QStringLiteral("Save"), tab); saveBtn->setDefault(true);
-    auto* restoreBtn = new QPushButton(QStringLiteral("Restore"), tab);
-    btnRow->addStretch(); btnRow->addWidget(restoreBtn); btnRow->addWidget(saveBtn);
-    layout->addLayout(btnRow); layout->addStretch();
+void PropertiesWidget::setupPropagateTab() {
+    auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
+    auto* tl = new QLabel(QStringLiteral("WF Propagation parammeters"), tab); QFont bf = tl->font(); bf.setBold(true); tl->setFont(bf); l->addWidget(tl);
+    m_propgNameEdit = new QLineEdit(tab); m_propgNameEdit->setReadOnly(true); l->addWidget(m_propgNameEdit);
+    auto* f = new QFormLayout();
+    m_propgWFEdit = new QLineEdit(tab); m_propgWFEdit->setReadOnly(true); f->addRow(QStringLiteral("Wave-Front"), m_propgWFEdit);
+    m_propgIOREdit = new QLineEdit(tab); m_propgIOREdit->setReadOnly(true); f->addRow(QStringLiteral("Refract. Indx:"), m_propgIOREdit);
+    m_propgSurfEdit = new QLineEdit(tab); m_propgSurfEdit->setReadOnly(true); f->addRow(QStringLiteral("Surface:"), m_propgSurfEdit);
+    m_propgQtyPtsEdit = new QLineEdit(tab); f->addRow(QStringLiteral("Calculations Qty:"), m_propgQtyPtsEdit);
+    m_propgOffsetEdit = new QLineEdit(tab); f->addRow(QStringLiteral("OPL Offset:"), m_propgOffsetEdit); l->addLayout(f);
+    auto* sep = new QFrame(tab); sep->setFrameShape(QFrame::HLine); sep->setFrameShadow(QFrame::Sunken); l->addWidget(sep);
+    l->addWidget(new QLabel(QStringLiteral("Result object name:"), tab)); m_propgResultEdit = new QLineEdit(tab); m_propgResultEdit->setReadOnly(true); l->addWidget(m_propgResultEdit);
+    auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
+    auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Propagate"));
-    connect(saveBtn, &QPushButton::clicked, this, &PropertiesWidget::propagateWFRequested);
-    connect(restoreBtn, &QPushButton::clicked, this, &PropertiesWidget::onRestorePropagate);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::propagateWFRequested);
+    connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestorePropagate);
 }
 
-// ========== setObject / showObjectTabs ==========
-void PropertiesWidget::setObject(CustomObject* obj)
-{
-    m_currentObject = obj;
-    showObjectTabs(obj);
-}
+void PropertiesWidget::setObject(CustomObject* obj) { m_currentObject = obj; showObjectTabs(obj); }
 
-void PropertiesWidget::setProject(Project* project)
-{
+void PropertiesWidget::setProject(Project* project) {
     m_currentProject = project;
     if (project) {
         m_prjNameEdit->setText(project->name());
-        m_prjXAutoCheck->setEnabled(true);
-        m_prjYAutoCheck->setEnabled(true);
+        m_prjXAutoCheck->setEnabled(true); m_prjYAutoCheck->setEnabled(true);
         m_objListWidget->clear();
         for (auto* o : project->dataObjects()) if (o) m_objListWidget->addItem(o->name());
         for (auto* o : project->resultObjects()) if (o) m_objListWidget->addItem(o->name());
@@ -347,103 +204,105 @@ void PropertiesWidget::setProject(Project* project)
     m_tabs->setCurrentIndex(0);
 }
 
-void PropertiesWidget::setOperations(Project* project)
-{
-    Q_UNUSED(project);
-}
+void PropertiesWidget::setOperations(Project*) {}
+void PropertiesWidget::refresh() { if (m_currentProject) setProject(m_currentProject); if (m_currentObject) showObjectTabs(m_currentObject); }
 
-void PropertiesWidget::refresh()
-{
-    if (m_currentProject) setProject(m_currentProject);
-    if (m_currentObject) showObjectTabs(m_currentObject);
-}
-
-void PropertiesWidget::showObjectTabs(CustomObject* obj)
-{
+void PropertiesWidget::showObjectTabs(CustomObject* obj) {
     if (!obj) { m_tabs->setCurrentIndex(0); return; }
-
-    auto updateWFLabel = [](QLabel* label, ObjectType type) {
-        if (isWavefront(type)) {
-            label->setText(isVirtualWF(type) ? QStringLiteral("(WF Virtual)") : QStringLiteral("(WF)"));
-            label->setStyleSheet(QStringLiteral("color: maroon; font-weight: bold;"));
-        } else {
-            label->setText(QStringLiteral("(Non WF)"));
-            label->setStyleSheet(QStringLiteral("color: navy; font-weight: bold;"));
-        }
+    auto updateWFLabel = [](QLabel* l, ObjectType t) {
+        if (isWavefront(t)) { l->setText(isVirtualWF(t) ? QStringLiteral("(WF Virtual)") : QStringLiteral("(WF)")); l->setStyleSheet(QStringLiteral("color: maroon; font-weight: bold;")); }
+        else { l->setText(QStringLiteral("(Non WF)")); l->setStyleSheet(QStringLiteral("color: navy; font-weight: bold;")); }
     };
-
-    auto baseType = toBaseType(obj->objectType());
-    switch (baseType) {
-    case 0x001: { // Point
-        m_ptNameEdit->setText(obj->name());
-        m_ptRefIndexEdit->setText(QString::number(obj->refractiveIndex()));
-        updateWFLabel(m_ptWFStatusLabel, obj->objectType());
-        if (!obj->controlPoints().isEmpty()) {
-            m_ptXEdit->setText(QString::number(obj->controlPoints().first().x(), 'f', 6));
-            m_ptYEdit->setText(QString::number(obj->controlPoints().first().y(), 'f', 6));
-        }
+    switch (toBaseType(obj->objectType())) {
+    case 0x001: m_ptNameEdit->setText(obj->name()); m_ptRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_ptWFStatusLabel, obj->objectType());
+        if (!obj->controlPoints().isEmpty()) { m_ptXEdit->setText(QString::number(obj->controlPoints().first().x(), 'f', 6)); m_ptYEdit->setText(QString::number(obj->controlPoints().first().y(), 'f', 6)); }
+        m_ptFlipNCheck->setChecked(obj->isNormalFlipped()); m_ptFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(1); break;
-    }
-    case 0x002: { // Line
-        m_lnNameEdit->setText(obj->name());
-        m_lnRefIndexEdit->setText(QString::number(obj->refractiveIndex()));
-        updateWFLabel(m_lnWFStatusLabel, obj->objectType());
-        const auto& lnPts = obj->controlPoints();
-        if (lnPts.size() >= 2) {
-            m_lnP1XEdit->setText(QString::number(lnPts[0].x(), 'f', 6));
-            m_lnP1YEdit->setText(QString::number(lnPts[0].y(), 'f', 6));
-            m_lnP2XEdit->setText(QString::number(lnPts[1].x(), 'f', 6));
-            m_lnP2YEdit->setText(QString::number(lnPts[1].y(), 'f', 6));
-        }
+    case 0x002: m_lnNameEdit->setText(obj->name()); m_lnRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_lnWFStatusLabel, obj->objectType());
+        if (obj->controlPoints().size() >= 2) { m_lnP1XEdit->setText(QString::number(obj->controlPoints()[0].x(), 'f', 6)); m_lnP1YEdit->setText(QString::number(obj->controlPoints()[0].y(), 'f', 6)); m_lnP2XEdit->setText(QString::number(obj->controlPoints()[1].x(), 'f', 6)); m_lnP2YEdit->setText(QString::number(obj->controlPoints()[1].y(), 'f', 6)); }
+        m_lnFlipNCheck->setChecked(obj->isNormalFlipped()); m_lnFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(2); break;
-    }
-    case 0x003: { // Arc
-        m_arcNameEdit->setText(obj->name());
-        m_arcRefIndexEdit->setText(QString::number(obj->refractiveIndex()));
-        updateWFLabel(m_arcWFStatusLabel, obj->objectType());
-        const auto& arcPts = obj->controlPoints();
-        if (!arcPts.isEmpty()) {
-            m_arcXEdit->setText(QString::number(arcPts.first().x(), 'f', 6));
-            m_arcYEdit->setText(QString::number(arcPts.first().y(), 'f', 6));
-        }
-        auto* arcObj = dynamic_cast<ArcObject*>(obj);
-        if (arcObj) {
-            m_arcRadiusEdit->setText(QString::number(arcObj->radius()));
-            m_arcStartAngleEdit->setText(QString::number(arcObj->startAngle()));
-            m_arcEndAngleEdit->setText(QString::number(arcObj->endAngle()));
-            m_arcAmntPtsEdit->setText(QStringLiteral("50"));
-        }
+    case 0x003: m_arcNameEdit->setText(obj->name()); m_arcRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_arcWFStatusLabel, obj->objectType());
+        if (!obj->controlPoints().isEmpty()) { m_arcXEdit->setText(QString::number(obj->controlPoints().first().x(), 'f', 6)); m_arcYEdit->setText(QString::number(obj->controlPoints().first().y(), 'f', 6)); }
+        if (auto* ao = dynamic_cast<ArcObject*>(obj)) { m_arcRadiusEdit->setText(QString::number(ao->radius())); m_arcStartAngleEdit->setText(QString::number(ao->startAngle())); m_arcEndAngleEdit->setText(QString::number(ao->endAngle())); m_arcAmntPtsEdit->setText(QString::number(ao->numPoints())); }
+        m_arcFlipNCheck->setChecked(obj->isNormalFlipped()); m_arcFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(3); break;
-    }
-    default: { // Curve
-        m_cvNameEdit->setText(obj->name());
-        m_cvRefIndexEdit->setText(QString::number(obj->refractiveIndex()));
-        updateWFLabel(m_cvWFStatusLabel, obj->objectType());
+    default: m_cvNameEdit->setText(obj->name()); m_cvRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_cvWFStatusLabel, obj->objectType());
         m_cvGrid->setRowCount(0);
-        for (const auto& pt : obj->controlPoints()) {
-            int row = m_cvGrid->rowCount();
-            m_cvGrid->insertRow(row);
-            m_cvGrid->setItem(row, 0, new QTableWidgetItem(QString::number(pt.x(), 'f', 6)));
-            m_cvGrid->setItem(row, 1, new QTableWidgetItem(QString::number(pt.y(), 'f', 6)));
-        }
+        for (const auto& pt : obj->controlPoints()) { int r = m_cvGrid->rowCount(); m_cvGrid->insertRow(r); m_cvGrid->setItem(r, 0, new QTableWidgetItem(QString::number(pt.x(), 'f', 6))); m_cvGrid->setItem(r, 1, new QTableWidgetItem(QString::number(pt.y(), 'f', 6))); }
+        m_cvFlipNCheck->setChecked(obj->isNormalFlipped()); m_cvFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(4); break;
     }
-    }
 }
 
-// ========== SAVE/RESTORE SLOTS ==========
+// ========== SAVE SLOTS - read from UI fields and write to object ==========
 void PropertiesWidget::onSaveProject() {
     if (m_currentProject) { m_currentProject->setName(m_prjNameEdit->text()); emit projectModified(m_currentProject); }
 }
-void PropertiesWidget::onRestoreProject() { if (m_currentProject) m_prjNameEdit->setText(m_currentProject->name()); }
-void PropertiesWidget::onSavePoint() { if (m_currentObject) emit objectModified(m_currentObject); }
+void PropertiesWidget::onRestoreProject() { if (m_currentProject) { m_prjNameEdit->setText(m_currentProject->name()); } }
+
+void PropertiesWidget::onSavePoint() {
+    if (!m_currentObject) return;
+    m_currentObject->setName(m_ptNameEdit->text());
+    m_currentObject->setRefractiveIndex(m_ptRefIndexEdit->text().toDouble());
+    m_currentObject->setNormalFlipped(m_ptFlipNCheck->isChecked());
+    QPointF pt(m_ptXEdit->text().toDouble(), m_ptYEdit->text().toDouble());
+    if (m_currentObject->controlPoints().isEmpty())
+        m_currentObject->addControlPoint(pt);
+    else
+        m_currentObject->updateControlPoint(0, pt);
+    emit objectModified(m_currentObject);
+}
 void PropertiesWidget::onRestorePoint() { if (m_currentObject) showObjectTabs(m_currentObject); }
-void PropertiesWidget::onSaveLine() { if (m_currentObject) emit objectModified(m_currentObject); }
+
+void PropertiesWidget::onSaveLine() {
+    if (!m_currentObject) return;
+    m_currentObject->setName(m_lnNameEdit->text());
+    m_currentObject->setRefractiveIndex(m_lnRefIndexEdit->text().toDouble());
+    m_currentObject->setNormalFlipped(m_lnFlipNCheck->isChecked());
+    QPointF p1(m_lnP1XEdit->text().toDouble(), m_lnP1YEdit->text().toDouble());
+    QPointF p2(m_lnP2XEdit->text().toDouble(), m_lnP2YEdit->text().toDouble());
+    auto* ln = dynamic_cast<LineObject*>(m_currentObject);
+    if (ln) { ln->setStartPoint(p1); ln->setEndPoint(p2); }
+    else { if (m_currentObject->controlPoints().size() < 2) { m_currentObject->clearControlPoints(); m_currentObject->addControlPoint(p1); m_currentObject->addControlPoint(p2); } else { m_currentObject->updateControlPoint(0, p1); m_currentObject->updateControlPoint(1, p2); } }
+    emit objectModified(m_currentObject);
+}
 void PropertiesWidget::onRestoreLine() { if (m_currentObject) showObjectTabs(m_currentObject); }
-void PropertiesWidget::onSaveArc() { if (m_currentObject) emit objectModified(m_currentObject); }
+
+void PropertiesWidget::onSaveArc() {
+    if (!m_currentObject) return;
+    m_currentObject->setName(m_arcNameEdit->text());
+    m_currentObject->setRefractiveIndex(m_arcRefIndexEdit->text().toDouble());
+    m_currentObject->setNormalFlipped(m_arcFlipNCheck->isChecked());
+    auto* ao = dynamic_cast<ArcObject*>(m_currentObject);
+    if (ao) {
+        ao->setCenter(QPointF(m_arcXEdit->text().toDouble(), m_arcYEdit->text().toDouble()));
+        ao->setRadius(m_arcRadiusEdit->text().toDouble());
+        ao->setStartAngle(m_arcStartAngleEdit->text().toDouble());
+        ao->setEndAngle(m_arcEndAngleEdit->text().toDouble());
+        ao->setNumPoints(m_arcAmntPtsEdit->text().toInt());
+        // Generate control points from arc params
+        ao->setControlPoints(ao->generateArcPoints());
+    }
+    emit objectModified(m_currentObject);
+}
 void PropertiesWidget::onRestoreArc() { if (m_currentObject) showObjectTabs(m_currentObject); }
-void PropertiesWidget::onSaveCurve() { if (m_currentObject) emit objectModified(m_currentObject); }
+
+void PropertiesWidget::onSaveCurve() {
+    if (!m_currentObject) return;
+    m_currentObject->setName(m_cvNameEdit->text());
+    m_currentObject->setRefractiveIndex(m_cvRefIndexEdit->text().toDouble());
+    m_currentObject->setNormalFlipped(m_cvFlipNCheck->isChecked());
+    QVector<QPointF> pts;
+    for (int r = 0; r < m_cvGrid->rowCount(); ++r) {
+        auto* xi = m_cvGrid->item(r, 0); auto* yi = m_cvGrid->item(r, 1);
+        if (xi && yi) pts.append(QPointF(xi->text().toDouble(), yi->text().toDouble()));
+    }
+    m_currentObject->setControlPoints(pts);
+    emit objectModified(m_currentObject);
+}
 void PropertiesWidget::onRestoreCurve() { if (m_currentObject) showObjectTabs(m_currentObject); }
+
 void PropertiesWidget::onSaveCalcOval() { emit calculateOvalRequested(); }
 void PropertiesWidget::onRestoreCalcOval() {}
 void PropertiesWidget::onSavePropagate() { emit propagateWFRequested(); }
