@@ -94,7 +94,7 @@ private:
 #ifdef HAS_QT_CHARTS
     QChartView* m_chartView = nullptr;
 #endif
-    QTabWidget* m_propertiesTabs = nullptr;
+    PropertiesWidget* m_propertiesWidget = nullptr;
     QSplitter* m_mainSplitter = nullptr;
     QSplitter* m_rightSplitter = nullptr;
 

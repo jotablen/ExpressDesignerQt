@@ -3,6 +3,7 @@
 #include <ui/dialogs/InsertObjectDialog.h>
 #include <ui/dialogs/CalcOvalDialog.h>
 #include <ui/dialogs/PropagateWFDialog.h>
+#include <ui/widgets/PropertiesWidget.h>
 #include <ui/dialogs/AboutDialog.h>
 #include <ui/dialogs/ExportAllRhinoDialog.h>
 #include <ui/dialogs/ImportObjectDialog.h>
@@ -58,6 +59,8 @@ void MainWindow::setProject(Project* project)
 
     if (m_treeModel)
         m_treeModel->setProject(project);
+    if (m_propertiesWidget)
+        m_propertiesWidget->setProject(project);
 
     refreshChart();
     updateStatusBar();
@@ -154,16 +157,16 @@ void MainWindow::setupCentralWidget()
     phLayout->addWidget(phLabel);
 #endif
 
-    // Properties
-    m_propertiesTabs = new QTabWidget(m_rightSplitter);
-    m_propertiesTabs->setMinimumHeight(150);
+    // Properties with 8 tabs matching Ovals Designer pctrlObjProperties
+    m_propertiesWidget = new PropertiesWidget(m_rightSplitter);
+    m_propertiesWidget->setMinimumHeight(150);
 
 #ifdef HAS_QT_CHARTS
     m_rightSplitter->addWidget(m_chartView);
 #else
     m_rightSplitter->addWidget(chartPlaceholder);
 #endif
-    m_rightSplitter->addWidget(m_propertiesTabs);
+    m_rightSplitter->addWidget(m_propertiesWidget);
     m_rightSplitter->setStretchFactor(0, 2);
     m_rightSplitter->setStretchFactor(1, 1);
 
@@ -376,8 +379,9 @@ void MainWindow::onSetAspectRatio() {}
 void MainWindow::onObjectSelected(const QModelIndex& index)
 {
     CustomObject* obj = m_treeModel->objectAt(index);
+    if (m_propertiesWidget)
+        m_propertiesWidget->setObject(obj);
     updateStatusBar();
-    Q_UNUSED(obj);
 }
 
 void MainWindow::onChartClicked(const QPointF& point)
