@@ -31,6 +31,8 @@ bool PropagateWFOperation::execute(Project* project)
 
     auto* result = new CurveObject(resultName());
     result->setObjectType(withResult(ObjectType::Curve));
+    result->setRefractiveIndex(wf->refractiveIndex());
+    result->setControlPoints(wf->controlPoints());
     project->addResultObject(result);
 
     emit operationExecuted(true);

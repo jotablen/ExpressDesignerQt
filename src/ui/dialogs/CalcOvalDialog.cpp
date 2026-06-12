@@ -150,15 +150,17 @@ void CalcOvalDialog::populateCombos(Project* project)
         }
     }
 
-    // Populate reference points (all objects)
+    // Populate reference points (only Point objects that are NOT wavefronts)
     for (CustomObject* obj : dataObjects) {
         if (!obj) continue;
-        m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType()))
+            m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
     }
     const auto& resultObjects = project->resultObjects();
     for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
-        m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType()))
+            m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
     }
 }
 

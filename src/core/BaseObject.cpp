@@ -152,6 +152,7 @@ void BaseObject::saveToJson(QJsonObject& json) const
 {
     json[QStringLiteral("uuid")] = m_uuid.toString(QUuid::WithoutBraces);
     json[QStringLiteral("name")] = m_name;
+    json[QStringLiteral("objectType")] = static_cast<int>(m_type);
     json[QStringLiteral("visible")] = m_visible;
     json[QStringLiteral("showLabel")] = m_showLabel;
     json[QStringLiteral("showNormals")] = m_showNormals;
@@ -165,6 +166,7 @@ void BaseObject::loadFromJson(const QJsonObject& json)
 {
     m_uuid = QUuid::fromString(json[QStringLiteral("uuid")].toString());
     m_name = json[QStringLiteral("name")].toString();
+    m_type = static_cast<ObjectType>(json[QStringLiteral("objectType")].toInt(0));
     m_visible = json[QStringLiteral("visible")].toBool(true);
     m_showLabel = json[QStringLiteral("showLabel")].toBool(true);
     m_showNormals = json[QStringLiteral("showNormals")].toBool(false);

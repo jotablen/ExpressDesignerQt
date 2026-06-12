@@ -18,6 +18,7 @@ PropertiesWidget::PropertiesWidget(QWidget* parent) : QWidget(parent)
 {
     m_tabs = new QTabWidget(this);
     m_tabs->setTabPosition(QTabWidget::South);
+    m_tabs->tabBar()->setVisible(false);
     m_tabs->setStyleSheet(QStringLiteral("QTabWidget::pane { border: 1px solid #C4C4C3; }"));
     setupProjectTab(); setupPointTab(); setupLineTab(); setupArcTab(); setupCurveTab();
     setupObjectsTab(); setupCalcOvalTab(); setupPropagateTab();
@@ -223,7 +224,7 @@ void PropertiesWidget::showObjectTabs(CustomObject* obj) {
         m_lnFlipNCheck->setChecked(obj->isNormalFlipped()); m_lnFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(2); break;
     case 0x003: m_arcNameEdit->setText(obj->name()); m_arcRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_arcWFStatusLabel, obj->objectType());
-        if (!obj->controlPoints().isEmpty()) { m_arcXEdit->setText(QString::number(obj->controlPoints().first().x(), 'f', 6)); m_arcYEdit->setText(QString::number(obj->controlPoints().first().y(), 'f', 6)); }
+        if (auto* ao = dynamic_cast<ArcObject*>(obj)) { m_arcXEdit->setText(QString::number(ao->center().x(), 'f', 6)); m_arcYEdit->setText(QString::number(ao->center().y(), 'f', 6)); }
         if (auto* ao = dynamic_cast<ArcObject*>(obj)) { m_arcRadiusEdit->setText(QString::number(ao->radius())); m_arcStartAngleEdit->setText(QString::number(ao->startAngle())); m_arcEndAngleEdit->setText(QString::number(ao->endAngle())); m_arcAmntPtsEdit->setText(QString::number(ao->numPoints())); }
         m_arcFlipNCheck->setChecked(obj->isNormalFlipped()); m_arcFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(3); break;

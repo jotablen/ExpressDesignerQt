@@ -3,6 +3,8 @@
 #include <ui/dialogs/InsertObjectDialog.h>
 #include <ui/dialogs/CalcOvalDialog.h>
 #include <ui/dialogs/PropagateWFDialog.h>
+#include <core/CarthesianOvalOperation.h>
+#include <core/PropagateWFOperation.h>
 #include <ui/widgets/PropertiesWidget.h>
 #include <ui/dialogs/AboutDialog.h>
 #include <ui/dialogs/ExportAllRhinoDialog.h>
@@ -167,8 +169,12 @@ void MainWindow::setupCentralWidget()
     m_rightSplitter->addWidget(chartPlaceholder);
 #endif
     m_rightSplitter->addWidget(m_propertiesWidget);
-    m_rightSplitter->setStretchFactor(0, 2);
-    m_rightSplitter->setStretchFactor(1, 1);
+    // Chart gets all extra space, properties anchored to bottom
+    m_rightSplitter->setStretchFactor(0, 1);
+    m_rightSplitter->setStretchFactor(1, 0);
+    m_rightSplitter->setCollapsible(1, false);
+    // Set initial sizes: chart big, properties at default height
+    m_rightSplitter->setSizes({600, 150});
 
     m_mainSplitter->addWidget(m_objectTree);
     m_mainSplitter->addWidget(m_rightSplitter);
@@ -182,6 +188,47 @@ void MainWindow::setupConnections()
 {
     connect(m_objectTree->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &MainWindow::onObjectSelected);
+
+    // Refresh chart when properties are modified
+    connect(m_propertiesWidget, &PropertiesWidget::objectModified,
+            this, [this](CustomObject*) { refreshChart(); updateStatusBar(); });
+    connect(m_propertiesWidget, &PropertiesWidget::projectModified,
+            this, [this](Project*) { refreshChart(); updateStatusBar(); });
+
+    // Context menu on object tree (matching Ovals Designer popupMenuChart)
+    m_objectTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_objectTree, &QWidget::customContextMenuRequested,
+            this, [this](const QPoint& pos) {
+        QModelIndex idx = m_objectTree->indexAt(pos);
+        CustomObject* obj = (idx.isValid()) ? m_treeModel->objectAt(idx) : nullptr;
+
+        QMenu menu(this);
+        QAction* insertAct = menu.addAction(tr("&Insert object"));
+        QAction* deleteAct = nullptr;
+        QAction* hideAct = nullptr;
+        if (obj) {
+            menu.addSeparator();
+            deleteAct = menu.addAction(tr("&Delete object"));
+            hideAct = menu.addAction(tr("&Hide object"));
+        }
+        menu.addSeparator();
+        QAction* togglePtsAct = menu.addAction(tr("Toggle Ctrl Pts"));
+        menu.addSeparator();
+        QAction* zoomInAct = menu.addAction(tr("Zoom &In"));
+        QAction* zoomOutAct = menu.addAction(tr("Zoom &Out"));
+        QAction* zoomAllAct = menu.addAction(tr("Zoom &All"));
+
+        QAction* chosen = menu.exec(m_objectTree->mapToGlobal(pos));
+        if (chosen == insertAct) onInsertObject();
+        else if (deleteAct && chosen == deleteAct) onDeleteObject();
+        else if (hideAct && chosen == hideAct) {
+            if (obj) { obj->setVisible(!obj->isVisible()); refreshChart(); }
+        }
+        else if (chosen == togglePtsAct) onToggleControlPoints();
+        else if (chosen == zoomInAct) onZoomIn();
+        else if (chosen == zoomOutAct) onZoomOut();
+        else if (chosen == zoomAllAct) onZoomAll();
+    });
 }
 
 void MainWindow::onNewProject()
@@ -310,6 +357,18 @@ void MainWindow::onCalculateOval()
     CalcOvalDialog dlg(this);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
+        auto* op = new CarthesianOvalOperation(dlg.resultNameEdit()->text(), this);
+        op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
+        // Set param names from selected combos
+        op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
+        op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
+        op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
+        if (op->execute(m_currentProject)) {
+            m_currentProject->addOperation(op);
+            m_history->recordObjectCreation(op->name());
+        } else {
+            delete op;
+        }
         refreshChart();
         updateStatusBar();
     }
@@ -321,6 +380,18 @@ void MainWindow::onPropagateWF()
     PropagateWFDialog dlg(this);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
+        auto* op = new PropagateWFOperation(dlg.resultNameEdit()->text(), this);
+        op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
+        op->setOffset(dlg.offsetEdit()->text().toDouble());
+        op->setParamName(PropagateWFOperation::PARAM_WF, dlg.wfOrgCombo()->currentText());
+        op->setParamName(PropagateWFOperation::PARAM_SURFACE, dlg.wfDestCombo()->currentText());
+        op->setParamName(PropagateWFOperation::PARAM_IOR, dlg.indexDestEdit()->text());
+        if (op->execute(m_currentProject)) {
+            m_currentProject->addOperation(op);
+            m_history->recordObjectCreation(op->name());
+        } else {
+            delete op;
+        }
         refreshChart();
         updateStatusBar();
     }

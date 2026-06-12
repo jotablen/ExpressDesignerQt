@@ -31,9 +31,11 @@ bool CarthesianOvalOperation::execute(Project* project)
         return false;
     }
 
-    // Create result curve
+    // Create result curve with initial control points from WF1
     auto* result = new CurveObject(resultName());
     result->setObjectType(withResult(ObjectType::Curve));
+    result->setRefractiveIndex(wf1->refractiveIndex());
+    result->setControlPoints(wf1->controlPoints());
     project->addResultObject(result);
 
     emit operationExecuted(true);

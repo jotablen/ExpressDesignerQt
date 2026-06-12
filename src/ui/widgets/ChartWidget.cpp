@@ -56,6 +56,28 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
     for (auto* obj : project->resultObjects())
         addCurve(obj);
 
+    // --- Draw normals if enabled ---
+    if (showNormals) {
+        for (auto* obj : project->allObjects()) {
+            if (!obj || !obj->isVisible()) continue;
+            auto normals = obj->computeNormals();
+            for (const auto& pair : normals) {
+                auto* arrow = new QLineSeries();
+                arrow->append(pair.first.x(), pair.first.y());
+                arrow->append(pair.second.x(), pair.second.y());
+                QPen pen(obj->normalColor());
+                pen.setWidth(1);
+                arrow->setPen(pen);
+                chart->addSeries(arrow);
+                addedAny = true;
+                minX = qMin(minX, qMin(pair.first.x(), pair.second.x()));
+                maxX = qMax(maxX, qMax(pair.first.x(), pair.second.x()));
+                minY = qMin(minY, qMin(pair.first.y(), pair.second.y()));
+                maxY = qMax(maxY, qMax(pair.first.y(), pair.second.y()));
+            }
+        }
+    }
+
     if (addedAny) {
         // Add slight padding
         double dx = (maxX - minX) * 0.1;

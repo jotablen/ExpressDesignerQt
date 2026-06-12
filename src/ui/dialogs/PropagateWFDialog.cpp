@@ -145,15 +145,19 @@ void PropagateWFDialog::populateCombos(Project* project)
         }
     }
 
-    // Populate WF Dest (all objects as surfaces)
+    // Populate WF Dest (objects that are NOT WFs and NOT Points — surfaces only)
     for (CustomObject* obj : dataObjects) {
         if (!obj) continue;
-        m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        auto bt = toBaseType(obj->objectType());
+        if (!isWavefront(obj->objectType()) && bt != 0x001)
+            m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
     }
     const auto& resultObjects = project->resultObjects();
     for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
-        m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        auto bt = toBaseType(obj->objectType());
+        if (!isWavefront(obj->objectType()) && bt != 0x001)
+            m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
     }
 }
 
