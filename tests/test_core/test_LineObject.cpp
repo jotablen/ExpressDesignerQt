@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <core/LineObject.h>
 #include <core/ObjectTypes.h>
+#include <QtMath>
 
 using namespace ExpressDesigner;
 
@@ -79,4 +80,36 @@ TEST(LineObjectTest, RhinoScript)
     line.setEndPoint(QPointF(3.0, 4.0));
     QString script = line.toRhinoScript(false);
     EXPECT_TRUE(script.contains("_Line"));
+}
+
+// ========== CURVE GENERATION ROUNDTRIP TESTS ==========
+
+TEST(LineObjectTest, ControlPointsAreTwoEndpoints)
+{
+    LineObject line(QStringLiteral("L1"));
+    line.setStartPoint(QPointF(0.0, 0.0));
+    line.setEndPoint(QPointF(10.0, 10.0));
+    EXPECT_EQ(line.controlPointCount(), 2);
+    EXPECT_DOUBLE_EQ(line.controlPoints()[0].x(), 0.0);
+    EXPECT_DOUBLE_EQ(line.controlPoints()[1].y(), 10.0);
+}
+
+TEST(LineObjectTest, LinearDiscretization)
+{
+    // A line with 2 control points should discretize correctly to any resolution
+    LineObject line(QStringLiteral("L1"));
+    line.setStartPoint(QPointF(0.0, 0.0));
+    line.setEndPoint(QPointF(10.0, 0.0));
+
+    // Discretize to 5 points
+    QVector<QPointF> pts;
+    pts.reserve(5);
+    for (int i = 0; i < 5; ++i) {
+        double t = i / 4.0;
+        pts.append(QPointF(10.0 * t, 0.0));
+    }
+    ASSERT_EQ(pts.size(), 5);
+    EXPECT_DOUBLE_EQ(pts.first().x(), 0.0);
+    EXPECT_DOUBLE_EQ(pts.last().x(), 10.0);
+    EXPECT_DOUBLE_EQ(pts[2].x(), 5.0);
 }

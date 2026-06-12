@@ -109,3 +109,73 @@ TEST(CurveObjectTest, RhinoScript)
     QString script = curve.toRhinoScript(false);
     EXPECT_TRUE(script.contains("_InterpCrv"));
 }
+
+// ========== CURVE GENERATION ROUNDTRIP TESTS ==========
+
+TEST(CurveObjectTest, DiscretizeFromControlPoints)
+{
+    CurveObject curve(QStringLiteral("C1"));
+    curve.addControlPoint(QPointF(0.0, 0.0));
+    curve.addControlPoint(QPointF(10.0, 10.0));
+    curve.addControlPoint(QPointF(20.0, 0.0));
+
+    // Discretize to 101 points along the polyline
+    QVector<QPointF> pts = curve.discretize(101);
+    ASSERT_EQ(pts.size(), 101);
+    // First point should be first control point
+    EXPECT_DOUBLE_EQ(pts.first().x(), 0.0);
+    EXPECT_DOUBLE_EQ(pts.first().y(), 0.0);
+    // Last point should be last control point
+    EXPECT_DOUBLE_EQ(pts.last().x(), 20.0);
+    EXPECT_DOUBLE_EQ(pts.last().y(), 0.0);
+    // Middle point should be (10, 10)
+    EXPECT_NEAR(pts[50].x(), 10.0, 0.01);
+    EXPECT_NEAR(pts[50].y(), 10.0, 0.01);
+}
+
+TEST(CurveObjectTest, DiscretizeRoundtrip)
+{
+    // Save curve, reload, discretize — should get same points
+    CurveObject src(QStringLiteral("Src"));
+    src.addControlPoint(QPointF(0.0, 0.0));
+    src.addControlPoint(QPointF(5.0, 8.0));
+    src.addControlPoint(QPointF(10.0, 0.0));
+    src.setSplineOrder(3);
+
+    QJsonObject json;
+    src.saveToJson(json);
+
+    CurveObject dst(QStringLiteral(""));
+    dst.loadFromJson(json);
+
+    EXPECT_EQ(dst.controlPointCount(), 3);
+    EXPECT_DOUBLE_EQ(dst.controlPoints()[1].x(), 5.0);
+    EXPECT_DOUBLE_EQ(dst.controlPoints()[1].y(), 8.0);
+
+    auto srcPts = src.discretize(51);
+    auto dstPts = dst.discretize(51);
+    ASSERT_EQ(srcPts.size(), dstPts.size());
+    for (int i = 0; i < srcPts.size(); ++i) {
+        EXPECT_DOUBLE_EQ(srcPts[i].x(), dstPts[i].x());
+        EXPECT_DOUBLE_EQ(srcPts[i].y(), dstPts[i].y());
+    }
+}
+
+TEST(CurveObjectTest, DiscretizeEmpty)
+{
+    CurveObject curve(QStringLiteral("Empty"));
+    auto pts = curve.discretize(10);
+    EXPECT_TRUE(pts.isEmpty());
+}
+
+TEST(CurveObjectTest, DiscretizeSinglePoint)
+{
+    CurveObject curve(QStringLiteral("Single"));
+    curve.addControlPoint(QPointF(5.0, 3.0));
+    auto pts = curve.discretize(5);
+    ASSERT_EQ(pts.size(), 5);
+    for (const auto& pt : pts) {
+        EXPECT_DOUBLE_EQ(pt.x(), 5.0);
+        EXPECT_DOUBLE_EQ(pt.y(), 3.0);
+    }
+}
