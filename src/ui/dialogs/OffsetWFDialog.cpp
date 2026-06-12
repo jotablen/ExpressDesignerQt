@@ -96,14 +96,14 @@ void OffsetWFDialog::populateCombo(Project* project)
     const auto& dataObjects = project->dataObjects();
     for (CustomObject* obj : dataObjects) {
         if (!obj) continue;
-        if (isWavefront(obj->type())) {
+        if (isWavefront(obj->objectType())) {
             m_wfCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
         }
     }
     const auto& resultObjects = project->resultObjects();
     for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
-        if (isWavefront(obj->type())) {
+        if (isWavefront(obj->objectType())) {
             m_wfCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
         }
     }

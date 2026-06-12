@@ -144,7 +144,7 @@ void CalcOvalDialog::populateCombos(Project* project)
     const auto& dataObjects = project->dataObjects();
     for (CustomObject* obj : dataObjects) {
         if (!obj) continue;
-        if (isWavefront(obj->type())) {
+        if (isWavefront(obj->objectType())) {
             m_wfOrgCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
             m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
         }

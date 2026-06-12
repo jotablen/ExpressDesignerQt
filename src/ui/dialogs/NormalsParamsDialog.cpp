@@ -11,8 +11,9 @@ NormalsParamsDialog::NormalsParamsDialog(QWidget* parent) : QDialog(parent) {
     auto* layout = new QVBoxLayout(this);
     m_showNormalsCheck = new QCheckBox(QStringLiteral("Show WFs normals"), this);
     layout->addWidget(m_showNormalsCheck);
-    m_dataPanel = new QFrame(this);
-    m_dataPanel->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    auto* frame = new QFrame(this);
+    frame->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    m_dataPanel = frame;
     auto* form = new QFormLayout(m_dataPanel);
     m_amountEdit = new QLineEdit(QStringLiteral("3"), m_dataPanel);
     form->addRow(QStringLiteral("Amount of normals:"), m_amountEdit);

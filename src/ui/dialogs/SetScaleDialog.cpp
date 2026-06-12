@@ -4,6 +4,7 @@
 #include <QFormLayout>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QPushButton>
 
 namespace ExpressDesigner {
 SetScaleDialog::SetScaleDialog(QWidget* parent) : QDialog(parent) {
