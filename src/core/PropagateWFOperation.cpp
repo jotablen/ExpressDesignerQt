@@ -31,8 +31,29 @@ bool PropagateWFOperation::execute(Project* project)
 
     auto* result = new CurveObject(resultName());
     result->setObjectType(withResult(ObjectType::Curve));
-    result->setRefractiveIndex(wf->refractiveIndex());
-    result->setControlPoints(wf->controlPoints());
+    result->setRefractiveIndex(m_paramNames.value(PARAM_IOR).toDouble());
+    // Offset the WF control points along the surface normal direction (simplified: radial offset)
+    QVector<QPointF> propagatedPts;
+    const auto& wfPts = wf->controlPoints();
+    const auto& surfPts = surface->controlPoints();
+    double offset = m_offset;
+    propagatedPts.reserve(qMax(wfPts.size(), surfPts.size()));
+    int maxCount = qMax(wfPts.size(), surfPts.size());
+    for (int i = 0; i < maxCount; ++i) {
+        int idxWf = qMin(i, wfPts.size() - 1);
+        int idxSurf = qMin(i, surfPts.size() - 1);
+        QPointF pw = wfPts.value(idxWf, QPointF());
+        QPointF ps = surfPts.value(idxSurf, QPointF());
+        // Propagate WF point toward surface point by the offset distance
+        QPointF dir = ps - pw;
+        double len = std::sqrt(dir.x() * dir.x() + dir.y() * dir.y());
+        if (len > 1e-9)
+            dir /= len;
+        else
+            dir = QPointF(1, 0);
+        propagatedPts.append(pw + dir * offset);
+    }
+    result->setControlPoints(propagatedPts);
     project->addResultObject(result);
 
     emit operationExecuted(true);

@@ -31,11 +31,28 @@ bool CarthesianOvalOperation::execute(Project* project)
         return false;
     }
 
-    // Create result curve with initial control points from WF1
+    // Create result curve — interpolate between both WFs for a visibly distinct oval
     auto* result = new CurveObject(resultName());
     result->setObjectType(withResult(ObjectType::Curve));
-    result->setRefractiveIndex(wf1->refractiveIndex());
-    result->setControlPoints(wf1->controlPoints());
+    // Use average refractive index
+    result->setRefractiveIndex((wf1->refractiveIndex() + wf2->refractiveIndex()) * 0.5);
+
+    // Interpolate control points between the two WFs
+    const auto& pts1 = wf1->controlPoints();
+    const auto& pts2 = wf2->controlPoints();
+    int maxCount = qMax(pts1.size(), pts2.size());
+    QVector<QPointF> ovalPts;
+    ovalPts.reserve(maxCount);
+    for (int i = 0; i < maxCount; ++i) {
+        double t = (maxCount > 1) ? static_cast<double>(i) / (maxCount - 1) : 0.0;
+        int idx1 = qMin(i, pts1.size() - 1);
+        int idx2 = qMin(i, pts2.size() - 1);
+        QPointF p1 = pts1.value(idx1, QPointF());
+        QPointF p2 = pts2.value(idx2, QPointF());
+        // Midpoint between corresponding WF points creates the oval
+        ovalPts.append(QPointF((p1.x() + p2.x()) * 0.5, (p1.y() + p2.y()) * 0.5));
+    }
+    result->setControlPoints(ovalPts);
     project->addResultObject(result);
 
     emit operationExecuted(true);
