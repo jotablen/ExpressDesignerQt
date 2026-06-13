@@ -3,6 +3,7 @@
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
+#include <QtCharts/QLegendMarker>
 #include <core/CustomObject.h>
 #include <core/PointObject.h>
 #include <core/LineObject.h>

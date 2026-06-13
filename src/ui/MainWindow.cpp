@@ -31,6 +31,9 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QMouseEvent>
+#ifdef HAS_QT_CHARTS
+#include <QtCharts/QLineSeries>
+#endif
 
 namespace ExpressDesigner {
 
@@ -385,7 +388,13 @@ void MainWindow::onDeleteObject()
     CustomObject* obj = m_treeModel->objectAt(idx);
     if (!obj) return;
 
-    m_currentProject->removeDataObject(obj);
+    // Try data objects first, then result objects
+    int dataIdx = m_currentProject->findObjectIndex(obj);
+    if (dataIdx >= 0 && dataIdx < m_currentProject->dataObjectCount()) {
+        m_currentProject->removeDataObject(dataIdx);
+    } else {
+        m_currentProject->removeResultObject(obj);
+    }
     m_history->recordObjectDeletion(obj->name());
     setModified(true);
     refreshChart();

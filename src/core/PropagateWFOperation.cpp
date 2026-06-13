@@ -32,6 +32,11 @@ bool PropagateWFOperation::execute(Project* project)
     auto* result = new CurveObject(resultName());
     result->setObjectType(withResult(ObjectType::Curve));
     result->setRefractiveIndex(m_paramNames.value(PARAM_IOR).toDouble());
+
+    // Inherit normal display parameters from the source WF
+    result->setNormalParams(wf->normalRaysQty(), wf->normalRaysLen());
+    if (wf->isNormalFlipped())
+        result->flipNormal();
     // Offset the WF control points along the surface normal direction (simplified: radial offset)
     QVector<QPointF> propagatedPts;
     const auto& wfPts = wf->controlPoints();
