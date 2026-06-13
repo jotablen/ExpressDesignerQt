@@ -108,6 +108,7 @@ private:
 #ifdef HAS_QT_CHARTS
     QChart* m_chart = nullptr;
 #endif
+    CustomObject* m_selectedObject = nullptr;
 
     // History
     HistoryManager* m_history = nullptr;

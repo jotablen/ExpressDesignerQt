@@ -14,7 +14,8 @@ public:
 
 #ifdef HAS_QT_CHARTS
     static void populateChart(QChart* chart, Project* project,
-                              bool showControlPoints, bool showNormals);
+                              bool showControlPoints, bool showNormals,
+                              CustomObject* selectedObject = nullptr);
 #else
     static void populateChart(void* chart, Project* project,
                               bool showControlPoints, bool showNormals) {}

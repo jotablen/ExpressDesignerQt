@@ -485,9 +485,10 @@ void MainWindow::onSetAspectRatio() {}
 
 void MainWindow::onObjectSelected(const QModelIndex& index)
 {
-    CustomObject* obj = m_treeModel->objectAt(index);
+    m_selectedObject = m_treeModel->objectAt(index);
     if (m_propertiesWidget)
-        m_propertiesWidget->setObject(obj);
+        m_propertiesWidget->setObject(m_selectedObject);
+    refreshChart();
     updateStatusBar();
 }
 
@@ -514,7 +515,8 @@ void MainWindow::refreshChart()
 #ifdef HAS_QT_CHARTS
     if (!m_chart || !m_currentProject) return;
     m_chart->removeAllSeries();
-    ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals);
+    ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals,
+                               m_selectedObject);
 #endif
 }
 
