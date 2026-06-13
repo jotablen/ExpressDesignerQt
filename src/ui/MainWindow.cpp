@@ -30,6 +30,7 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QMouseEvent>
 
 namespace ExpressDesigner {
 
@@ -79,6 +80,7 @@ void MainWindow::setupMenuBar()
     fileMenu->addAction(tr("&Open Project..."), QKeySequence::Open, this, &MainWindow::onOpenProject);
     fileMenu->addAction(tr("&Save Project"), QKeySequence::Save, this, &MainWindow::onSaveProject);
     fileMenu->addAction(tr("Save Project &As..."), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), this, &MainWindow::onSaveProjectAs);
+    fileMenu->addAction(tr("&Close Project"), this, &MainWindow::onCloseProject);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("&Import Object..."), this, &MainWindow::onImportObject);
     fileMenu->addAction(tr("&Export Object..."), this, &MainWindow::onExportObject);
@@ -153,6 +155,8 @@ void MainWindow::setupCentralWidget()
     m_chart->legend()->setAlignment(Qt::AlignRight);
     m_chartView->setChart(m_chart);
     m_chartView->setRenderHint(QPainter::Antialiasing);
+    // Install event filter to capture mouse clicks on chart
+    m_chartView->viewport()->installEventFilter(this);
 #else
     QWidget* chartPlaceholder = new QWidget(m_rightSplitter);
     chartPlaceholder->setStyleSheet(QStringLiteral("background-color: #f0f0f0;"));
@@ -194,9 +198,17 @@ void MainWindow::setupConnections()
 
     // Refresh chart when properties are modified
     connect(m_propertiesWidget, &PropertiesWidget::objectModified,
-            this, [this](CustomObject*) { refreshChart(); updateStatusBar(); });
+            this, [this](CustomObject*) {
+                setModified(true);
+                refreshChart();
+                updateStatusBar();
+            });
     connect(m_propertiesWidget, &PropertiesWidget::projectModified,
-            this, [this](Project*) { refreshChart(); updateStatusBar(); });
+            this, [this](Project*) {
+                setModified(true);
+                refreshChart();
+                updateStatusBar();
+            });
 
     // Context menu on object tree (matching Ovals Designer popupMenuChart)
     m_objectTree->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -225,13 +237,68 @@ void MainWindow::setupConnections()
         if (chosen == insertAct) onInsertObject();
         else if (deleteAct && chosen == deleteAct) onDeleteObject();
         else if (hideAct && chosen == hideAct) {
-            if (obj) { obj->setVisible(!obj->isVisible()); refreshChart(); }
+            if (obj) {
+                obj->setVisible(!obj->isVisible());
+                setModified(true);
+                refreshChart();
+            }
         }
         else if (chosen == togglePtsAct) onToggleControlPoints();
         else if (chosen == zoomInAct) onZoomIn();
         else if (chosen == zoomOutAct) onZoomOut();
         else if (chosen == zoomAllAct) onZoomAll();
     });
+}
+
+// Event filter to intercept mouse clicks on the chart viewport
+bool MainWindow::eventFilter(QObject* watched, QEvent* event)
+{
+#ifdef HAS_QT_CHARTS
+    if (m_chartView && watched == m_chartView->viewport()
+        && event->type() == QEvent::MouseButtonPress)
+    {
+        QMouseEvent* me = static_cast<QMouseEvent*>(event);
+        // Map viewport coords to chart scene coords
+        QPointF chartPos = m_chartView->mapToScene(me->pos());
+        onChartClicked(chartPos);
+
+        // Find clicked series and select its associated object
+        CustomObject* clickedObj = nullptr;
+        const auto seriesList = m_chart->series();
+        double bestDist = 10.0; // snap distance in chart coords
+        for (auto* ser : seriesList) {
+            QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
+            if (!ls) continue;
+            // Only consider main curve series (named, not normals)
+            QString name = ls->name();
+            if (name.isEmpty()) continue;
+            // Check each point for proximity
+            for (int i = 0; i < ls->count(); ++i) {
+                QPointF pt = ls->at(i);
+                double dx = pt.x() - chartPos.x();
+                double dy = pt.y() - chartPos.y();
+                double dist = qSqrt(dx * dx + dy * dy);
+                if (dist < bestDist) {
+                    bestDist = dist;
+                    QVariant prop = ls->property("customObject");
+                    if (prop.isValid()) {
+                        clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+                    }
+                }
+            }
+        }
+
+        if (clickedObj && m_treeModel) {
+            // Find and select the object in the tree
+            QModelIndex idx = m_treeModel->createIndexByObject(clickedObj);
+            if (idx.isValid()) {
+                m_objectTree->selectionModel()->setCurrentIndex(
+                    idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+            }
+        }
+    }
+#endif
+    return QMainWindow::eventFilter(watched, event);
 }
 
 void MainWindow::onNewProject()
@@ -302,6 +369,7 @@ void MainWindow::onInsertObject()
             if (obj) {
                 m_currentProject->addDataObject(obj);
                 m_history->recordObjectCreation(obj->name());
+                setModified(true);
                 refreshChart();
                 updateStatusBar();
             }
@@ -319,6 +387,7 @@ void MainWindow::onDeleteObject()
 
     m_currentProject->removeDataObject(obj);
     m_history->recordObjectDeletion(obj->name());
+    setModified(true);
     refreshChart();
     updateStatusBar();
 }
@@ -369,6 +438,7 @@ void MainWindow::onCalculateOval()
         if (op->execute(m_currentProject)) {
             m_currentProject->addOperation(op);
             m_history->recordObjectCreation(op->name());
+            setModified(true);
         } else {
             delete op;
         }
@@ -392,6 +462,7 @@ void MainWindow::onPropagateWF()
         if (op->execute(m_currentProject)) {
             m_currentProject->addOperation(op);
             m_history->recordObjectCreation(op->name());
+            setModified(true);
         } else {
             delete op;
         }
@@ -433,6 +504,7 @@ void MainWindow::onOffsetWF()
         result->setControlPoints(offsetPts);
         m_currentProject->addResultObject(result);
 
+        setModified(true);
         m_history->recordObjectCreation(resultName);
         refreshChart();
         updateStatusBar();
@@ -474,6 +546,7 @@ void MainWindow::onToggleControlPoints()
 void MainWindow::onToggleLabels()
 {
     m_showLabels = !m_showLabels;
+    refreshChart();
 }
 
 void MainWindow::onToggleNormals()

@@ -2,6 +2,7 @@
 
 #include <QMainWindow>
 #include <QCloseEvent>
+#include <QEvent>
 #include <QTreeView>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QChartView>
@@ -78,6 +79,7 @@ private slots:
 
 protected:
     void closeEvent(QCloseEvent* event) override;
+    bool eventFilter(QObject* watched, QEvent* event) override;
 
 private:
     void setupMenuBar();

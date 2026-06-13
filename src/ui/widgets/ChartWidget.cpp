@@ -10,29 +10,36 @@
 #include <core/CurveObject.h>
 #include <core/ObjectTypes.h>
 
+#include <map>
+#include <utility>
+
 namespace ExpressDesigner {
 
 // Color mapping: each base object type gets a distinct color
 // Point = blue, Line = green, Arc = red/orange, Curve = purple
 // WF variants use warmer shades
-// Result variants use slightly darker shades
 QColor ChartWidget::objectColor(CustomObject* obj)
 {
     if (!obj) return QColor(128, 128, 128);
 
+    // Key: pair<baseType, isWavefront>
+    static const std::map<std::pair<uint16_t, bool>, QColor> colorMap = {
+        {{0x001, true},  QColor(220, 50, 50)},   // Point WF - Red
+        {{0x001, false}, QColor(50, 50, 220)},    // Point - Blue
+        {{0x002, true},  QColor(200, 100, 0)},   // Line WF - Orange
+        {{0x002, false}, QColor(0, 150, 50)},     // Line - Green
+        {{0x003, true},  QColor(200, 50, 100)},  // Arc WF - Magenta
+        {{0x003, false}, QColor(200, 80, 0)},    // Arc - Dark Orange
+        {{0x004, true},  QColor(180, 60, 180)},  // Curve WF - Violet
+        {{0x004, false}, QColor(80, 0, 150)},    // Curve - Purple
+    };
+
     uint16_t base = toBaseType(obj->objectType());
     bool isWF = obj->isWavefront();
-    bool isRes = isResult(obj->objectType());
 
-    // Base colors per object type
-    if (base == 0x001 && isWF) return QColor(220, 50, 50);   // Point WF - Red
-    if (base == 0x001) return QColor(50, 50, 220);            // Point - Blue
-    if (base == 0x002 && isWF) return QColor(200, 100, 0);   // Line WF - Orange
-    if (base == 0x002) return QColor(0, 150, 50);             // Line - Green
-    if (base == 0x003 && isWF) return QColor(200, 50, 100);  // Arc WF - Magenta
-    if (base == 0x003) return QColor(200, 80, 0);            // Arc - Dark Orange
-    if (base == 0x004 && isWF) return QColor(180, 60, 180);  // Curve WF - Violet
-    if (base == 0x004) return QColor(80, 0, 150);            // Curve - Purple
+    auto it = colorMap.find({base, isWF});
+    if (it != colorMap.end())
+        return it->second;
 
     return QColor(100, 100, 100);
 }
@@ -73,8 +80,10 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
 
         // Main curve series (shown in legend)
         auto* series = new QLineSeries();
-        series->setName(obj->name());
+        series->setName(obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name());
         series->setPen(QPen(color, penWidth));
+        // Store pointer to CustomObject for hit-testing on click
+        series->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
         for (const auto& p : pts) {
             series->append(p.x(), p.y());
             minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
@@ -86,13 +95,16 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
         // Control points as scatter (hidden from legend)
         if (showControlPoints && pts.size() > 1) {
             auto* scatter = new QScatterSeries();
-            scatter->setName(QString());            // empty name = hidden from legend
-            scatter->setMarkerSize(isSelected ? 8 : 6);
             scatter->setColor(color);
             scatter->setBorderColor(color.darker(130));
+            scatter->setMarkerSize(isSelected ? 8 : 6);
             for (const auto& p : pts)
                 scatter->append(p.x(), p.y());
             chart->addSeries(scatter);
+            // Hide from legend via marker
+            auto markers = chart->legend()->markers(scatter);
+            for (auto* marker : markers)
+                marker->setVisible(false);
         }
     };
 
@@ -109,11 +121,14 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
             QColor color = effectivePen(obj);
             for (const auto& pair : normals) {
                 auto* arrow = new QLineSeries();
-                arrow->setName(QString());           // hidden from legend
                 arrow->setPen(QPen(color, 1));
                 arrow->append(pair.first.x(), pair.first.y());
                 arrow->append(pair.second.x(), pair.second.y());
                 chart->addSeries(arrow);
+                // Hide from legend via marker
+                auto markers = chart->legend()->markers(arrow);
+                for (auto* marker : markers)
+                    marker->setVisible(false);
                 addedAny = true;
                 minX = qMin(minX, qMin(pair.first.x(), pair.second.x()));
                 maxX = qMax(maxX, qMax(pair.first.x(), pair.second.x()));
