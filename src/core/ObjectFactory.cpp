@@ -15,7 +15,11 @@ CustomObject* ObjectFactory::createFromType(ObjectType type, const QString& name
     switch (base) {
     case 0x001: return new PointObject(name, isWF, parent);
     case 0x002: return new LineObject(name, isWF, parent);
-    case 0x003: return new ArcObject(name, isWF, parent);
+    case 0x003: {
+        auto* arc = new ArcObject(name, isWF, parent);
+        arc->setControlPoints(arc->generateArcPoints());
+        return arc;
+    }
     case 0x004: return new CurveObject(name, isWF, parent);
     default:   return new CustomObject(type, name, parent);
     }
