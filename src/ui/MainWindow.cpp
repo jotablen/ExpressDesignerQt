@@ -150,6 +150,7 @@ void MainWindow::setupCentralWidget()
     m_chartView = new QChartView(m_rightSplitter);
     m_chart = new QChart();
     m_chart->setTitle(tr("Project View"));
+    m_chart->legend()->setAlignment(Qt::AlignRight);
     m_chartView->setChart(m_chart);
     m_chartView->setRenderHint(QPainter::Antialiasing);
 #else
