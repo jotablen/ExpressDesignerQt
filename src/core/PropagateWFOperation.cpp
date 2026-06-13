@@ -67,7 +67,7 @@ bool PropagateWFOperation::isParamObject(int index) const
 
 QString PropagateWFOperation::resultName() const
 {
-    return m_name + QStringLiteral("_Propagated");
+    return m_name;
 }
 
 QString PropagateWFOperation::paramPrefixOnTree(int index) const

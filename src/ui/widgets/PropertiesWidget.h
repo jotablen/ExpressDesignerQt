@@ -74,6 +74,7 @@ private:
 
     // Point tab widgets
     QLineEdit* m_ptNameEdit = nullptr;
+    QLabel* m_ptRefIndexLabel = nullptr;
     QLineEdit* m_ptRefIndexEdit = nullptr;
     QLineEdit* m_ptXEdit = nullptr;
     QLineEdit* m_ptYEdit = nullptr;
@@ -82,6 +83,7 @@ private:
 
     // Line tab widgets
     QLineEdit* m_lnNameEdit = nullptr;
+    QLabel* m_lnRefIndexLabel = nullptr;
     QLineEdit* m_lnRefIndexEdit = nullptr;
     QLineEdit* m_lnP1XEdit = nullptr;
     QLineEdit* m_lnP1YEdit = nullptr;
@@ -92,6 +94,7 @@ private:
 
     // Arc tab widgets
     QLineEdit* m_arcNameEdit = nullptr;
+    QLabel* m_arcRefIndexLabel = nullptr;
     QLineEdit* m_arcRefIndexEdit = nullptr;
     QLineEdit* m_arcXEdit = nullptr;
     QLineEdit* m_arcYEdit = nullptr;
@@ -104,6 +107,7 @@ private:
 
     // Curve tab widgets
     QLineEdit* m_cvNameEdit = nullptr;
+    QLabel* m_cvRefIndexLabel = nullptr;
     QLineEdit* m_cvRefIndexEdit = nullptr;
     QTableWidget* m_cvGrid = nullptr;
     QPushButton* m_cvAddBtn = nullptr;

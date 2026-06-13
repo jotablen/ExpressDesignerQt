@@ -3,8 +3,10 @@
 #include <ui/dialogs/InsertObjectDialog.h>
 #include <ui/dialogs/CalcOvalDialog.h>
 #include <ui/dialogs/PropagateWFDialog.h>
+#include <ui/dialogs/OffsetWFDialog.h>
 #include <core/CarthesianOvalOperation.h>
 #include <core/PropagateWFOperation.h>
+#include <core/CurveObject.h>
 #include <ui/widgets/PropertiesWidget.h>
 #include <ui/dialogs/AboutDialog.h>
 #include <ui/dialogs/ExportAllRhinoDialog.h>
@@ -399,7 +401,41 @@ void MainWindow::onPropagateWF()
 
 void MainWindow::onOffsetWF()
 {
-    // Will be implemented with OffsetWFDialog
+    if (!m_currentProject) return;
+    OffsetWFDialog dlg(this);
+    dlg.setProject(m_currentProject);
+    if (dlg.exec() == QDialog::Accepted) {
+        CustomObject* srcWf = nullptr;
+        QString wfName = dlg.wfCombo()->currentText();
+        srcWf = m_currentProject->findObject(wfName);
+        if (!srcWf) return;
+
+        double offset = dlg.offsetEdit()->text().toDouble();
+        QString resultName;
+        if (dlg.createNewResult()) {
+            resultName = dlg.resultNameEdit()->text().trimmed();
+            if (resultName.isEmpty()) resultName = wfName + QStringLiteral("_offset");
+        } else {
+            resultName = wfName;
+        }
+
+        auto* result = new CurveObject(resultName);
+        result->setObjectType(withResult(ObjectType::Curve));
+        result->setRefractiveIndex(srcWf->refractiveIndex());
+
+        QVector<QPointF> offsetPts;
+        const auto& srcPts = srcWf->controlPoints();
+        offsetPts.reserve(srcPts.size());
+        for (const auto& pt : srcPts)
+            offsetPts.append(QPointF(pt.x() + offset, pt.y()));
+
+        result->setControlPoints(offsetPts);
+        m_currentProject->addResultObject(result);
+
+        m_history->recordObjectCreation(resultName);
+        refreshChart();
+        updateStatusBar();
+    }
 }
 
 void MainWindow::onRecalculate()

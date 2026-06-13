@@ -65,6 +65,7 @@ void ArcObject::loadFromJson(const QJsonObject& json)
     m_startAngle = json[QStringLiteral("startAngle")].toDouble(0.0);
     m_endAngle = json[QStringLiteral("endAngle")].toDouble(90.0);
     m_numPoints = json[QStringLiteral("numPoints")].toInt(50);
+    setControlPoints(generateArcPoints());
 }
 
 QString ArcObject::toRhinoScript(bool exchangeYZ) const

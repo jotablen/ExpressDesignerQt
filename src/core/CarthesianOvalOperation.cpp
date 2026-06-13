@@ -97,7 +97,7 @@ bool CarthesianOvalOperation::isParamObject(int index) const
 
 QString CarthesianOvalOperation::resultName() const
 {
-    return m_name + QStringLiteral("_OvalResult");
+    return m_name;
 }
 
 QString CarthesianOvalOperation::paramPrefixOnTree(int index) const

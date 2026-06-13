@@ -22,9 +22,15 @@ public:
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
+    // Internal node IDs — data children and result children must be distinct
+    // so that objectAt() and parent() correctly return the right namespace
+    static constexpr quintptr kDataFolderId   = 1;
+    static constexpr quintptr kResultFolderId = 2;
+    static constexpr quintptr kDataChildId    = 3;
+    static constexpr quintptr kResultChildId  = 4;
+
 private:
     Project* m_project = nullptr;
-    enum NodeType { RootNode, DataFolder, ResultFolder, ObjectNode };
     QModelIndex createIndexByObject(CustomObject* obj) const;
 };
 

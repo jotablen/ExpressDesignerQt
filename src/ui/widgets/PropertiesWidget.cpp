@@ -53,7 +53,9 @@ void PropertiesWidget::setupPointTab() {
     m_ptWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_ptWFStatusLabel->font(); sf.setBold(true); m_ptWFStatusLabel->setFont(sf);
     m_ptWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_ptWFStatusLabel); l->addLayout(nr);
     m_ptNameEdit = new QLineEdit(tab); l->addWidget(m_ptNameEdit);
-    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    auto* rr = new QHBoxLayout();
+    m_ptRefIndexLabel = new QLabel(QStringLiteral("&Refractive Index:"), tab);
+    rr->addWidget(m_ptRefIndexLabel);
     m_ptRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_ptRefIndexEdit); l->addLayout(rr);
     auto* pg = new QGroupBox(QStringLiteral(" Point Coordinates "), tab); auto* pl = new QFormLayout(pg);
     m_ptXEdit = new QLineEdit(QStringLiteral("0"), pg); pl->addRow(QStringLiteral(" &X:"), m_ptXEdit);
@@ -73,7 +75,9 @@ void PropertiesWidget::setupLineTab() {
     m_lnWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_lnWFStatusLabel->font(); sf.setBold(true); m_lnWFStatusLabel->setFont(sf);
     m_lnWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_lnWFStatusLabel); l->addLayout(nr);
     m_lnNameEdit = new QLineEdit(tab); l->addWidget(m_lnNameEdit);
-    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    auto* rr = new QHBoxLayout();
+    m_lnRefIndexLabel = new QLabel(QStringLiteral("&Refractive Index:"), tab);
+    rr->addWidget(m_lnRefIndexLabel);
     m_lnRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_lnRefIndexEdit); l->addLayout(rr);
     auto* p1g = new QGroupBox(QStringLiteral(" First Point Coordinates "), tab); auto* p1l = new QFormLayout(p1g);
     m_lnP1XEdit = new QLineEdit(QStringLiteral("0"), p1g); p1l->addRow(QStringLiteral(" &X:"), m_lnP1XEdit);
@@ -96,7 +100,9 @@ void PropertiesWidget::setupArcTab() {
     m_arcWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_arcWFStatusLabel->font(); sf.setBold(true); m_arcWFStatusLabel->setFont(sf);
     m_arcWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_arcWFStatusLabel); l->addLayout(nr);
     m_arcNameEdit = new QLineEdit(tab); l->addWidget(m_arcNameEdit);
-    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    auto* rr = new QHBoxLayout();
+    m_arcRefIndexLabel = new QLabel(QStringLiteral("&Refractive Index:"), tab);
+    rr->addWidget(m_arcRefIndexLabel);
     m_arcRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_arcRefIndexEdit); l->addLayout(rr);
     auto* cg = new QGroupBox(QStringLiteral(" Center Point Coordinates "), tab); auto* cl = new QFormLayout(cg);
     m_arcXEdit = new QLineEdit(QStringLiteral("0"), cg); cl->addRow(QStringLiteral(" &X:"), m_arcXEdit);
@@ -122,7 +128,9 @@ void PropertiesWidget::setupCurveTab() {
     m_cvWFStatusLabel = new QLabel(QStringLiteral("(Non WF)"), tab); QFont sf = m_cvWFStatusLabel->font(); sf.setBold(true); m_cvWFStatusLabel->setFont(sf);
     m_cvWFStatusLabel->setStyleSheet(QStringLiteral("color: navy;")); nr->addStretch(); nr->addWidget(m_cvWFStatusLabel); l->addLayout(nr);
     m_cvNameEdit = new QLineEdit(tab); l->addWidget(m_cvNameEdit);
-    auto* rr = new QHBoxLayout(); rr->addWidget(new QLabel(QStringLiteral("&Refractive Index:"), tab));
+    auto* rr = new QHBoxLayout();
+    m_cvRefIndexLabel = new QLabel(QStringLiteral("&Refractive Index:"), tab);
+    rr->addWidget(m_cvRefIndexLabel);
     m_cvRefIndexEdit = new QLineEdit(QStringLiteral("0"), tab); rr->addWidget(m_cvRefIndexEdit); l->addLayout(rr);
     auto* pg = new QGroupBox(QStringLiteral(" List of Points Coordinates "), tab); auto* pl = new QVBoxLayout(pg);
     auto* hr = new QHBoxLayout(); hr->addStretch(3); hr->addWidget(new QLabel(QStringLiteral(" X"), pg)); hr->addStretch(1); hr->addWidget(new QLabel(QStringLiteral(" Y"), pg)); hr->addStretch(3); pl->addLayout(hr);
@@ -216,19 +224,23 @@ void PropertiesWidget::showObjectTabs(CustomObject* obj) {
     };
     switch (toBaseType(obj->objectType())) {
     case 0x001: m_ptNameEdit->setText(obj->name()); m_ptRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_ptWFStatusLabel, obj->objectType());
+        m_ptRefIndexLabel->setVisible(obj->isWavefront()); m_ptRefIndexEdit->setVisible(obj->isWavefront());
         if (!obj->controlPoints().isEmpty()) { m_ptXEdit->setText(QString::number(obj->controlPoints().first().x(), 'f', 6)); m_ptYEdit->setText(QString::number(obj->controlPoints().first().y(), 'f', 6)); }
         m_ptFlipNCheck->setChecked(obj->isNormalFlipped()); m_ptFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(1); break;
     case 0x002: m_lnNameEdit->setText(obj->name()); m_lnRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_lnWFStatusLabel, obj->objectType());
+        m_lnRefIndexLabel->setVisible(obj->isWavefront()); m_lnRefIndexEdit->setVisible(obj->isWavefront());
         if (obj->controlPoints().size() >= 2) { m_lnP1XEdit->setText(QString::number(obj->controlPoints()[0].x(), 'f', 6)); m_lnP1YEdit->setText(QString::number(obj->controlPoints()[0].y(), 'f', 6)); m_lnP2XEdit->setText(QString::number(obj->controlPoints()[1].x(), 'f', 6)); m_lnP2YEdit->setText(QString::number(obj->controlPoints()[1].y(), 'f', 6)); }
         m_lnFlipNCheck->setChecked(obj->isNormalFlipped()); m_lnFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(2); break;
     case 0x003: m_arcNameEdit->setText(obj->name()); m_arcRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_arcWFStatusLabel, obj->objectType());
+        m_arcRefIndexLabel->setVisible(obj->isWavefront()); m_arcRefIndexEdit->setVisible(obj->isWavefront());
         if (auto* ao = dynamic_cast<ArcObject*>(obj)) { m_arcXEdit->setText(QString::number(ao->center().x(), 'f', 6)); m_arcYEdit->setText(QString::number(ao->center().y(), 'f', 6)); }
         if (auto* ao = dynamic_cast<ArcObject*>(obj)) { m_arcRadiusEdit->setText(QString::number(ao->radius())); m_arcStartAngleEdit->setText(QString::number(ao->startAngle())); m_arcEndAngleEdit->setText(QString::number(ao->endAngle())); m_arcAmntPtsEdit->setText(QString::number(ao->numPoints())); }
         m_arcFlipNCheck->setChecked(obj->isNormalFlipped()); m_arcFlipNCheck->setVisible(obj->isWavefront());
         m_tabs->setCurrentIndex(3); break;
     default: m_cvNameEdit->setText(obj->name()); m_cvRefIndexEdit->setText(QString::number(obj->refractiveIndex())); updateWFLabel(m_cvWFStatusLabel, obj->objectType());
+        m_cvRefIndexLabel->setVisible(obj->isWavefront()); m_cvRefIndexEdit->setVisible(obj->isWavefront());
         m_cvGrid->setRowCount(0);
         for (const auto& pt : obj->controlPoints()) { int r = m_cvGrid->rowCount(); m_cvGrid->insertRow(r); m_cvGrid->setItem(r, 0, new QTableWidgetItem(QString::number(pt.x(), 'f', 6))); m_cvGrid->setItem(r, 1, new QTableWidgetItem(QString::number(pt.y(), 'f', 6))); }
         m_cvFlipNCheck->setChecked(obj->isNormalFlipped()); m_cvFlipNCheck->setVisible(obj->isWavefront());
