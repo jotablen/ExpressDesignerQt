@@ -37,15 +37,23 @@ SnellResult deflectRay(const QPointF& incidentDirection,
     return result;
 }
 
-QPointF getDeflectedVector(const QPointF& vecIn, const QPointF& surfacePoint,
+QPointF getDeflectedVector(const QPointF& vecIn, const QPointF& surfaceNormal,
                            double indexIn, double indexOut, bool& tir)
 {
-    Q_UNUSED(surfacePoint);
-    double len = qSqrt(vecIn.x() * vecIn.x() + vecIn.y() * vecIn.y());
-    if (len < 1e-12) { tir = false; return vecIn; }
-    QPointF dir = vecIn / len;
-    QPointF normal(-dir.y(), dir.x());
-    auto result = deflectRay(dir, normal, indexIn, indexOut);
+    double lenIn = qSqrt(vecIn.x() * vecIn.x() + vecIn.y() * vecIn.y());
+    if (lenIn < 1e-12) { tir = false; return vecIn; }
+    double lenN = qSqrt(surfaceNormal.x() * surfaceNormal.x() + surfaceNormal.y() * surfaceNormal.y());
+    if (lenN < 1e-12) { tir = false; return vecIn; }
+
+    QPointF dirIn = vecIn / lenIn;
+    QPointF normal = surfaceNormal / lenN;
+
+    // Ensure normal points toward incident ray (negative dot product = facing)
+    double dotIn = dirIn.x() * normal.x() + dirIn.y() * normal.y();
+    if (dotIn > 0) normal = QPointF(-normal.x(), -normal.y());
+
+    // Refraction or reflection using Snell's law with the surface normal
+    auto result = deflectRay(dirIn, normal, indexIn, indexOut);
     tir = result.totalInternalReflection;
     return result.deflectedDirection;
 }
@@ -64,8 +72,13 @@ QPointF setDeflectionNormal(const QPointF& surfacePoint,
     QPointF dirOut = vecOut / lenOut;
     double ratio = indexIn / indexOut;
     tir = (ratio > 1.0) && (qAbs(dirIn.x() * dirOut.y() - dirIn.y() * dirOut.x()) > 1.0);
-    return QPointF(indexOut * dirOut.x() - indexIn * dirIn.x(),
-                    indexOut * dirOut.y() - indexIn * dirIn.y());
+    QPointF normal = QPointF(indexOut * dirOut.x() - indexIn * dirIn.x(),
+                              indexOut * dirOut.y() - indexIn * dirIn.y());
+    // Normalize the resulting normal vector
+    double nLen = qSqrt(normal.x() * normal.x() + normal.y() * normal.y());
+    if (nLen > 1e-12)
+        normal /= nLen;
+    return normal;
 }
 
 } // namespace Optics

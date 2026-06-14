@@ -17,28 +17,11 @@ PropagateWFOperation::PropagateWFOperation(const QString& name, QObject* parent)
 
 PropagateWFOperation::~PropagateWFOperation() = default;
 
-// Compute outward normal at a sample point on a curve
-static QPointF normalAt(const QVector<QPointF>& pts, int idx, bool flipped)
-{
-    if (pts.size() < 2) return QPointF(1.0, 0.0);
-    int n = pts.size();
-    int prev = (idx - 1 + n) % n;
-    int next = (idx + 1) % n;
-    QPointF dir = pts[next] - pts[prev];
-    double len = qSqrt(dir.x() * dir.x() + dir.y() * dir.y());
-    if (len < 1e-12) return QPointF(1.0, 0.0);
-    QPointF norm(-dir.y() / len, dir.x() / len);
-    if (flipped) norm = -norm;
-    return norm;
-}
-
-// Ray-line intersection: given origin + direction, find intersection with segment a→b
-// Returns parameter t such that origin + t * dir hits the segment. Returns -1 if no hit.
+// Ray-segment intersection: solve origin + t*dir = a + u*(b-a), t>=0, 0<=u<=1
 static double raySegmentHit(const QPointF& origin, const QPointF& dir,
                              const QPointF& a, const QPointF& b)
 {
     QPointF seg = b - a;
-    // Solve: origin + t*dir = a + u*seg,   t >= 0, 0 <= u <= 1
     double denom = dir.x() * seg.y() - dir.y() * seg.x();
     if (qAbs(denom) < 1e-12) return -1.0;
     QPointF diff = a - origin;
@@ -49,18 +32,14 @@ static double raySegmentHit(const QPointF& origin, const QPointF& dir,
     return -1.0;
 }
 
-// Find the closest intersection of a ray (origin + dir) with a curve defined by a point list.
-// Returns the intersection point and the segment index. Sets *hitDist to the distance.
+// Find closest ray-curve intersection. Returns intersection point, sets hitSeg and hitDist.
 static QPointF rayCurveIntersection(const QPointF& origin, const QPointF& dir,
                                      const QVector<QPointF>& curve, int* hitSeg,
                                      double* hitDist)
 {
-    QPointF bestPt;
     double bestT = 1e18;
     int bestSeg = -1;
     int m = curve.size();
-
-    // Try all segments (open curve — last point connects to first for closed? Assume open)
     for (int i = 0; i < m - 1; ++i) {
         double t = raySegmentHit(origin, dir, curve[i], curve[i + 1]);
         if (t >= 0.0 && t < bestT) {
@@ -69,11 +48,11 @@ static QPointF rayCurveIntersection(const QPointF& origin, const QPointF& dir,
         }
     }
     if (bestSeg >= 0) {
-        bestPt = origin + dir * bestT;
         *hitDist = bestT;
         *hitSeg = bestSeg;
+        return origin + dir * bestT;
     }
-    return bestPt; // (0,0) if no hit
+    return QPointF(); // (0,0) if no hit
 }
 
 bool PropagateWFOperation::execute(Project* project)
@@ -93,13 +72,14 @@ bool PropagateWFOperation::execute(Project* project)
 
     double n1 = wf->refractiveIndex();
     double n2 = m_paramNames.value(PARAM_IOR).toDouble();
-    if (n2 <= 0.0) n2 = n1; // default to same index
-    double offset = m_offset;
+    if (n2 <= 0.0) n2 = n1;
+    double fDistance = m_offset;
+    if (fDistance <= 0.0) fDistance = 1.0;
     bool flipWF = wf->isNormalFlipped();
     int numPoints = m_amountOfPoints;
     if (numPoints < 2) numPoints = 100;
 
-    // Build SISL curves from both objects and sample uniformly
+    // Build SISL curves — use continuous derivative for normals
     Geometry::SISLCurve wfCurve(wf->controlPoints(), 3, true);
     Geometry::SISLCurve surfCurve(surface->controlPoints(), 3, true);
 
@@ -117,49 +97,40 @@ bool PropagateWFOperation::execute(Project* project)
     propagatedPts.reserve(numPoints);
 
     for (int i = 0; i < numPoints; ++i) {
+        double t = numPoints > 1 ? static_cast<double>(i) / (numPoints - 1) : 0.0;
         QPointF srcPt = wfPts[i];
-        QPointF norm = normalAt(wfPts, i, flipWF);
+        // Continuous normal from SISLCurve::normal(t) using derivative
+        QPointF norm = wfCurve.normal(t, flipWF);
 
-        // Step 1: Cast ray from source WF point along its normal to find intersection with surface
+        // Step 1: Cast ray from WF point along normal to intersect the surface
         int hitSeg = -1;
         double hitDist = 0.0;
         QPointF surfHit = rayCurveIntersection(srcPt, norm, surfPts, &hitSeg, &hitDist);
 
         if (hitSeg < 0) {
-            // No hit — discard this point (surface not reached)
-            continue;
+            continue; // No hit — discard
         }
 
-        // Step 2: Surface normal at intersection point (from surface curve)
-        // Interpolate between segment endpoints
-        QPointF segA = surfPts[hitSeg];
-        QPointF segB = surfPts[qMin(hitSeg + 1, surfPts.size() - 1)];
-        QPointF segDir = segB - segA;
-        double segLen = qSqrt(segDir.x() * segDir.x() + segDir.y() * segDir.y());
-        QPointF surfNormal;
-        if (segLen > 1e-9) {
-            surfNormal = QPointF(-segDir.y() / segLen, segDir.x() / segLen);
-        } else {
-            surfNormal = QPointF(0.0, 1.0);
-        }
+        // Step 2: Optical path length from WF to surface
+        double OPL = n1 * hitDist;
+        double remaining = fDistance - OPL;
 
-        // Step 3: Snell's law deflection at the surface point
-        // Normal direction for Snell: should point toward the incident ray
-        double dotIn = norm.x() * surfNormal.x() + norm.y() * surfNormal.y();
-        QPointF snellNormal = (dotIn < 0) ? surfNormal : QPointF(-surfNormal.x(), -surfNormal.y());
+        // Surface normal at hit point — use SISLCurve::normal at fractional parameter
+        double hitT = static_cast<double>(hitSeg + (surfHit - surfPts[hitSeg]).x() /
+            qMax(qSqrt((surfPts[hitSeg+1] - surfPts[hitSeg]).x() * (surfPts[hitSeg+1] - surfPts[hitSeg]).x() +
+                        (surfPts[hitSeg+1] - surfPts[hitSeg]).y() * (surfPts[hitSeg+1] - surfPts[hitSeg]).y()), 1e-9))
+            / qMax(static_cast<double>(surfPts.size() - 1), 1.0);
+        hitT = qBound(0.0, hitT, 1.0);
+        QPointF surfNormal = surfCurve.normal(hitT, false);
 
+        // Snell's law deflection — vectorial approach with surface normal
         bool tir = false;
-        QPointF deflectedDir = Optics::getDeflectedVector(norm, surfHit, n1, n2, tir);
+        QPointF deflectedDir = Optics::getDeflectedVector(norm, surfNormal, n1, n2, tir);
 
-        // Step 4: Place result point at the deflected direction by the offset distance
-        QPointF resultPt;
-        if (tir) {
-            // Total internal reflection — use reflected direction (as computed by getDeflectedVector)
-            resultPt = surfHit + deflectedDir * offset;
-        } else {
-            resultPt = surfHit + deflectedDir * offset;
-        }
+        if (!tir)
+            remaining /= n2; // transmitted
 
+        QPointF resultPt = surfHit + deflectedDir * remaining;
         propagatedPts.append(resultPt);
     }
 

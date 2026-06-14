@@ -15,52 +15,36 @@ CarthesianOvalOperation::CarthesianOvalOperation(const QString& name, QObject* p
 
 CarthesianOvalOperation::~CarthesianOvalOperation() = default;
 
-// Computes a unit outward normal at a sampled curve point.
-// Respects the 'flipped' parameter.
-static QPointF curveNormal(const QVector<QPointF>& pts, int idx, bool flipped)
-{
-    if (pts.size() < 2) return QPointF(1.0, 0.0);
-    int n = pts.size();
-    int prev = (idx - 1 + n) % n;
-    int next = (idx + 1) % n;
-    QPointF dir = pts[next] - pts[prev];
-    double len = qSqrt(dir.x() * dir.x() + dir.y() * dir.y());
-    if (len < 1e-12) return QPointF(1.0, 0.0);
-    QPointF norm(-dir.y() / len, dir.x() / len);
-    if (flipped) norm = -norm;
-    return norm;
-}
-
 // Check if the point pto_WF on a wavefront has its normal aligned with the
-// direction toward the reference point.
-// Returns true if |dot(unit_to_Ref, normal)| ≈ 1 (within ~5e-5 tolerance).
-// This is Ovals Designer's IsGoodClosestPoint / GetClosestPointGeneral logic.
-static bool isGoodClosestPoint(const QPointF& wfPt, const QPointF& refPt,
-                                const QVector<QPointF>& pts, int idx, bool flipped)
+// direction toward the reference point (IsGoodClosestPoint).
+static bool isGoodClosestPoint(const Geometry::SISLCurve& curve,
+                                double t, bool flipped,
+                                const QPointF& wfPt, const QPointF& refPt)
 {
-    QPointF normal = curveNormal(pts, idx, flipped);
+    QPointF normal = curve.normal(t, flipped);
     QPointF toRef = refPt - wfPt;
     double toRefLen = qSqrt(toRef.x() * toRef.x() + toRef.y() * toRef.y());
-    if (toRefLen < 1e-12) return true; // coincident
+    if (toRefLen < 1e-12) return true;
 
     double dot = (normal.x() * toRef.x() + normal.y() * toRef.y()) / toRefLen;
-    // Also check flipped normal (the "other side")
-    double dotFlipped = -dot;
-    double best = qMax(qAbs(dot), qAbs(dotFlipped));
-    return qAbs(best - 1.0) < 5.0e-5;
+    double absDot = qAbs(dot);
+    // Accept if cos(theta) >= ~0.9999 (angle < ~1 degree)
+    return qAbs(absDot - 1.0) < 5.0e-5;
 }
 
-// For a given WF, find the sampled point index whose normal best points toward
-// the reference point. Returns -1 if nothing good found.
-static int findBestNormalIndex(const QVector<QPointF>& pts, const QPointF& refPt,
-                                bool flipped, QPointF* outNormal = nullptr)
+// Find the sample index on a curve whose normal best aligns with the reference point
+static int findBestNormalIndex(const Geometry::SISLCurve& curve,
+                                int numSamples, bool flipped,
+                                const QVector<QPointF>& sampledPts,
+                                const QPointF& refPt,
+                                QPointF* outNormal = nullptr)
 {
-    if (pts.size() < 2) return 0;
-    double bestVal = -1.0;
+    double bestAbsDot = -1.0;
     int bestIdx = 0;
-    for (int i = 0; i < pts.size(); ++i) {
-        QPointF normal = curveNormal(pts, i, flipped);
-        QPointF toRef = refPt - pts[i];
+    for (int i = 0; i < numSamples; ++i) {
+        double t = numSamples > 1 ? static_cast<double>(i) / (numSamples - 1) : 0.0;
+        QPointF normal = curve.normal(t, flipped);
+        QPointF toRef = refPt - sampledPts[i];
         double toRefLen = qSqrt(toRef.x() * toRef.x() + toRef.y() * toRef.y());
         if (toRefLen < 1e-12) {
             if (outNormal) *outNormal = normal;
@@ -68,8 +52,8 @@ static int findBestNormalIndex(const QVector<QPointF>& pts, const QPointF& refPt
         }
         double dot = (normal.x() * toRef.x() + normal.y() * toRef.y()) / toRefLen;
         double absDot = qAbs(dot);
-        if (absDot > bestVal) {
-            bestVal = absDot;
+        if (absDot > bestAbsDot) {
+            bestAbsDot = absDot;
             bestIdx = i;
             if (outNormal) *outNormal = normal;
         }
@@ -106,7 +90,7 @@ bool CarthesianOvalOperation::execute(Project* project)
     int n = m_amountOfPoints;
     if (n < 2) n = 100;
 
-    // Build SISL curves
+    // Build SISL curves — use continuous derivative for normals
     Geometry::SISLCurve curve1(wf1->controlPoints(), 3, true);
     Geometry::SISLCurve curve2(wf2->controlPoints(), 3, true);
 
@@ -121,11 +105,10 @@ bool CarthesianOvalOperation::execute(Project* project)
 
     // Step 1: Find indices on each WF where the normal best aligns with reference
     QPointF norm1Ref, norm2Ref;
-    int ci1 = findBestNormalIndex(pts1, refPoint, flip1, &norm1Ref);
-    int ci2 = findBestNormalIndex(pts2, refPoint, flip2, &norm2Ref);
+    int ci1 = findBestNormalIndex(curve1, n, flip1, pts1, refPoint, &norm1Ref);
+    int ci2 = findBestNormalIndex(curve2, n, flip2, pts2, refPoint, &norm2Ref);
 
     // Step 2: Compute signed distances to reference point
-    //   If dot(normal, ref - wfPt) < 0, reference is behind the WF → negative
     QPointF toRef1 = refPoint - pts1[ci1];
     QPointF toRef2 = refPoint - pts2[ci2];
     double d1ref = qSqrt(toRef1.x() * toRef1.x() + toRef1.y() * toRef1.y());
@@ -136,7 +119,7 @@ bool CarthesianOvalOperation::execute(Project* project)
     double sign2 = (d2ref < 1e-12) ? 1.0 :
         ((norm2Ref.x() * toRef2.x() + norm2Ref.y() * toRef2.y()) / d2ref >= 0 ? 1.0 : -1.0);
 
-    // Optical path length constant (signed)
+    // Signed optical path length constant
     double C = n1 * d1ref * sign1 + n2 * d2ref * sign2;
 
     auto* result = new CurveObject(resultName());
@@ -146,40 +129,29 @@ bool CarthesianOvalOperation::execute(Project* project)
     QVector<QPointF> ovalPts;
     ovalPts.reserve(n);
 
-    // Step 3: For each sample pair on the curves, compute oval point X satisfying
-    //   n1 * signed_d(X, p1) + n2 * signed_d(X, p2) = C
-    // On the line X(t) = p1 + t*(p2-p1):
-    //   signed_d(X, p1) = sign1 * t * L
-    //   signed_d(X, p2) = sign2 * (1-t) * L
-    // Equation: n1*sign1*t*L + n2*sign2*(1-t)*L = C
-    //   L * (n2*sign2 + t*(n1*sign1 - n2*sign2)) = C
-    //   t = (C/L - n2*sign2) / (n1*sign1 - n2*sign2)
+    // Step 3: For each sample pair, compute oval point via signed OPL equation
     for (int i = 0; i < n; ++i) {
         int j = (ci2 + (i - ci1 + n) % n) % n;
         QPointF p1 = pts1[i];
         QPointF p2 = pts2[j];
         double L = qSqrt(distSq(p1, p2));
-
         if (L < 1e-9) {
             ovalPts.append((p1 + p2) * 0.5);
             continue;
         }
 
-        // Get normals at these sample points for sign determination
-        QPointF n1i = curveNormal(pts1, i, flip1);
-        QPointF n2j = curveNormal(pts2, j, flip2);
+        // Normals at this sample pair via SISLCurve::normal()
+        double t1 = n > 1 ? static_cast<double>(i) / (n - 1) : 0.0;
+        double t2 = n > 1 ? static_cast<double>(j) / (n - 1) : 0.0;
+        QPointF n1i = curve1.normal(t1, flip1);
+        QPointF n2j = curve2.normal(t2, flip2);
 
         QPointF dir = p2 - p1;
-        double Lsq = distSq(p1, p2);
-        double Lval = qSqrt(Lsq);
+        double s1 = (n1i.x() * dir.x() + n1i.y() * dir.y()) >= 0 ? 1.0 : -1.0;
+        QPointF revDir = p1 - p2;
+        double s2 = (n2j.x() * revDir.x() + n2j.y() * revDir.y()) >= 0 ? 1.0 : -1.0;
 
-        // Signs for this sample pair
-        QPointF toP2 = p2 - p1;
-        double s1 = (n1i.x() * toP2.x() + n1i.y() * toP2.y()) >= 0 ? 1.0 : -1.0;
-        QPointF toP1 = p1 - p2;
-        double s2 = (n2j.x() * toP1.x() + n2j.y() * toP1.y()) >= 0 ? 1.0 : -1.0;
-
-        double C_L = C / Lval;
+        double C_L = C / L;
         double denom = n1 * s1 - n2 * s2;
 
         double t;

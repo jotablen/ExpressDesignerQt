@@ -19,7 +19,7 @@ SnellResult deflectRay(const QPointF& incidentDirection,
                        const QPointF& surfaceNormal,
                        double n1, double n2);
 
-QPointF getDeflectedVector(const QPointF& vecIn, const QPointF& surfacePoint,
+QPointF getDeflectedVector(const QPointF& vecIn, const QPointF& surfaceNormal,
                            double indexIn, double indexOut, bool& tir);
 
 /**

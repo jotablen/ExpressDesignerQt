@@ -1,0 +1,127 @@
+=== CMake Configure ===
+
+-- The CXX compiler identification is GNU 15.2.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: C:/msys64/mingw64/bin/g++.exe - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Performing Test HAVE_STDATOMIC
+-- Performing Test HAVE_STDATOMIC - Success
+-- Found WrapAtomic: TRUE
+-- Found WrapVulkanHeaders: C:/msys64/mingw64/include
+-- Qt Charts found - chart visualization enabled
+-- Google Test not found - downloading...
+CMake Warning (dev) at C:/PROGRA~1/CMake/share/cmake-4.3/Modules/FetchContent.cmake:1386 (message):
+  The DOWNLOAD_EXTRACT_TIMESTAMP option was not given and policy CMP0135 is
+  not set.  The policy's OLD behavior will be used.  When using a URL
+  download, the timestamps of extracted files should preferably be that of
+  the time of extraction, otherwise code that depends on the extracted
+  contents might not be rebuilt if the URL changes.  The OLD behavior
+  preserves the timestamps from the archive instead, but this is usually not
+  what you want.  Update your project to the NEW behavior or specify the
+  DOWNLOAD_EXTRACT_TIMESTAMP option with a value of true to avoid this
+  robustness issue.
+Call Stack (most recent call first):
+  CMakeLists.txt:36 (FetchContent_Declare)
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- The C compiler identification is GNU 15.2.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: C:/msys64/mingw64/bin/gcc.exe - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: C:/msys64/mingw64/bin/python3.14.exe (found version "3.14.3") found components: Interpreter
+-- Configuring done (52.2s)
+-- Generating done (1.5s)
+-- Build files have been written to: E:/Projects/newVibes/ExpressDesignerQt/build
+=== CMake Configure OK ===
+
+=== CMake Build (incremental) ===
+[  0%] Built target gtest_autogen_timestamp_deps
+[  0%] Built target ExpressDesigner_autogen_timestamp_deps
+[  1%] Automatic MOC and UIC for target ExpressDesigner
+[  2%] Automatic MOC and UIC for target gtest
+AutoGen warning: "SRC:/src/ui/dialogs/PreferencesDialog.h" is empty.
+
+AutoGen warning: "SRC:/src/ui/dialogs/PreferencesDialog.cpp" is empty.
+
+[  2%] Built target gtest_autogen
+[  5%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/gtest_autogen/mocs_compilation.cpp.obj
+[  5%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.obj
+[  6%] Linking CXX static library ..\..\..\lib\libgtest.a
+[  8%] Built target gtest
+[  8%] Built target gtest_main_autogen_timestamp_deps
+[  8%] Built target gmock_autogen_timestamp_deps
+[  9%] Automatic MOC and UIC for target gtest_main
+[ 10%] Automatic MOC and UIC for target gmock
+[ 10%] Built target gtest_main_autogen
+[ 10%] Built target gmock_autogen
+[ 13%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/gmock_autogen/mocs_compilation.cpp.obj
+[ 13%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.obj
+[ 15%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/gtest_main_autogen/mocs_compilation.cpp.obj
+[ 15%] Built target ExpressDesigner_autogen
+[ 16%] Building CXX object _deps/googletest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.obj
+[ 17%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj
+[ 19%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj
+[ 20%] Linking CXX static library ..\..\..\lib\libgtest_main.a
+[ 21%] Built target gtest_main
+[ 23%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj
+[ 24%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj
+[ 26%] Linking CXX static library ..\..\..\lib\libgmock.a
+[ 27%] Built target gmock
+[ 28%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj
+[ 28%] Built target gmock_main_autogen_timestamp_deps
+[ 30%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj
+[ 31%] Automatic MOC and UIC for target gmock_main
+[ 31%] Built target gmock_main_autogen
+[ 32%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj
+[ 34%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/gmock_main_autogen/mocs_compilation.cpp.obj
+[ 35%] Building CXX object _deps/googletest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.obj
+[ 36%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj
+[ 38%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj
+[ 39%] Linking CXX static library ..\..\..\lib\libgmock_main.a
+[ 41%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj
+[ 42%] Built target gmock_main
+[ 43%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj
+[ 45%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj
+[ 46%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj
+[ 47%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj
+[ 49%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj
+[ 50%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj
+[ 52%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj
+[ 53%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj
+[ 54%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj
+[ 56%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj
+[ 57%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj
+[ 58%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj
+[ 60%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj
+[ 61%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj
+[ 63%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj
+[ 64%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj
+[ 65%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj
+[ 67%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj
+[ 68%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj
+[ 69%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj
+[ 71%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj
+[ 72%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj
+[ 73%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj
+[ 75%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj
+[ 76%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj
+[ 78%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj
+[ 79%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj
+[ 80%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj
+[ 82%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj
+[ 83%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj
+[ 84%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj
+[ 86%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj
+[ 87%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj
+[ 89%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj
+[ 90%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj
+[ 91%] Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj
+
+[TIMEOUT] Process killed after 10 minutes

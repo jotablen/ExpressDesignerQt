@@ -52,6 +52,16 @@ QPointF SISLCurve::derivative(double t) const
     return m_points[idx + 1] - m_points[idx];
 }
 
+QPointF SISLCurve::normal(double t, bool flipped) const
+{
+    QPointF tang = derivative(t);
+    double len = qSqrt(tang.x() * tang.x() + tang.y() * tang.y());
+    if (len < 1e-12) return flipped ? QPointF(-1.0, 0.0) : QPointF(1.0, 0.0);
+    QPointF norm(-tang.y() / len, tang.x() / len);
+    if (flipped) norm = -norm;
+    return norm;
+}
+
 SISLCurve SISLCurve::interpolate(const QVector<QPointF>& points, int order)
 {
     return SISLCurve(points, order, true);
@@ -90,7 +100,6 @@ QVector<QPointF> offsetCurve(const QVector<QPointF>& points, double distance)
 
 QVector<QPointF> intersectCurves(const QVector<QPointF>& a, const QVector<QPointF>& b)
 {
-    // Simplified intersection - returns empty for now
     Q_UNUSED(a); Q_UNUSED(b);
     return {};
 }

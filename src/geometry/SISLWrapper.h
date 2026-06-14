@@ -45,6 +45,7 @@ public:
     QPointF evaluate(double t) const;
     QVector<QPointF> evaluateAll(int numPoints) const;
     QPointF derivative(double t) const;
+    QPointF normal(double t, bool flipped = false) const;
 
     QVector<QPointF> controlPoints() const;
     void setControlPoints(const QVector<QPointF>& points);
