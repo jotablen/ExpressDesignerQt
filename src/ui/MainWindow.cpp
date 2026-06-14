@@ -33,6 +33,7 @@
 #include <QMouseEvent>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QValueAxis>
 #endif
 
 namespace ExpressDesigner {
@@ -261,20 +262,31 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
         && event->type() == QEvent::MouseButtonPress)
     {
         QMouseEvent* me = static_cast<QMouseEvent*>(event);
-        // Map viewport coords to chart scene coords
+        // Map viewport coords to chart scene coords via the view's own mapping
         QPointF chartPos = m_chartView->mapToScene(me->pos());
         onChartClicked(chartPos);
+
+        // Compute adaptive snap distance from current axis ranges
+        double snapDist = 10.0;
+        const auto axes = m_chart->axes();
+        if (axes.size() >= 2) {
+            auto* ax = qobject_cast<QValueAxis*>(axes[0]);
+            auto* ay = qobject_cast<QValueAxis*>(axes[1]);
+            if (ax && ay) {
+                snapDist = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * 0.05;
+                if (snapDist < 2.0) snapDist = 2.0;
+            }
+        }
 
         // Find clicked series and select its associated object
         CustomObject* clickedObj = nullptr;
         const auto seriesList = m_chart->series();
-        double bestDist = 10.0; // snap distance in chart coords
+        double bestDist = snapDist;
         for (auto* ser : seriesList) {
             QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
             if (!ls) continue;
             // Only consider main curve series (named, not normals)
-            QString name = ls->name();
-            if (name.isEmpty()) continue;
+            if (ls->name().isEmpty()) continue;
             // Check each point for proximity
             for (int i = 0; i < ls->count(); ++i) {
                 QPointF pt = ls->at(i);
@@ -388,13 +400,9 @@ void MainWindow::onDeleteObject()
     CustomObject* obj = m_treeModel->objectAt(idx);
     if (!obj) return;
 
-    // Try data objects first, then result objects
-    int dataIdx = m_currentProject->findObjectIndex(obj);
-    if (dataIdx >= 0 && dataIdx < m_currentProject->dataObjectCount()) {
-        m_currentProject->removeDataObject(dataIdx);
-    } else {
-        m_currentProject->removeResultObject(obj);
-    }
+    // Remove from whichever list contains the object
+    m_currentProject->removeDataObject(obj);
+    m_currentProject->removeResultObject(obj);
     m_history->recordObjectDeletion(obj->name());
     setModified(true);
     refreshChart();
@@ -496,25 +504,29 @@ void MainWindow::onOffsetWF()
         if (dlg.createNewResult()) {
             resultName = dlg.resultNameEdit()->text().trimmed();
             if (resultName.isEmpty()) resultName = wfName + QStringLiteral("_offset");
+
+            auto* result = new CurveObject(resultName);
+            result->setObjectType(withResult(ObjectType::Curve));
+            result->setRefractiveIndex(srcWf->refractiveIndex());
+
+            QVector<QPointF> offsetPts;
+            const auto& srcPts = srcWf->controlPoints();
+            offsetPts.reserve(srcPts.size());
+            for (const auto& pt : srcPts)
+                offsetPts.append(QPointF(pt.x() + offset, pt.y()));
+
+            result->setControlPoints(offsetPts);
+            m_currentProject->addResultObject(result);
+
+            m_history->recordObjectCreation(resultName);
         } else {
-            resultName = wfName;
+            // Modify the source WF in place
+            for (auto& pt : srcWf->controlPoints())
+                const_cast<QPointF&>(pt).rx() += offset;
+            srcWf->setControlPoints(srcWf->controlPoints()); // trigger update
         }
 
-        auto* result = new CurveObject(resultName);
-        result->setObjectType(withResult(ObjectType::Curve));
-        result->setRefractiveIndex(srcWf->refractiveIndex());
-
-        QVector<QPointF> offsetPts;
-        const auto& srcPts = srcWf->controlPoints();
-        offsetPts.reserve(srcPts.size());
-        for (const auto& pt : srcPts)
-            offsetPts.append(QPointF(pt.x() + offset, pt.y()));
-
-        result->setControlPoints(offsetPts);
-        m_currentProject->addResultObject(result);
-
         setModified(true);
-        m_history->recordObjectCreation(resultName);
         refreshChart();
         updateStatusBar();
     }

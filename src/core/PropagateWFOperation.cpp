@@ -30,7 +30,7 @@ bool PropagateWFOperation::execute(Project* project)
     }
 
     auto* result = new CurveObject(resultName());
-    result->setObjectType(withResult(ObjectType::Curve));
+    result->setObjectType(withWavefront(withResult(ObjectType::Curve)));
     result->setRefractiveIndex(m_paramNames.value(PARAM_IOR).toDouble());
 
     // Inherit normal display parameters from the source WF

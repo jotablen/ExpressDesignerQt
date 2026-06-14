@@ -70,6 +70,11 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
         return objectColor(obj);
     };
 
+    // Check if object is a PointObject (single-point object)
+    auto isPointObj = [](CustomObject* obj) -> bool {
+        return toBaseType(obj->objectType()) == 0x001;
+    };
+
     auto addCurve = [&](CustomObject* obj) {
         if (!obj || !obj->isVisible()) return;
         const auto& pts = obj->controlPoints();
@@ -79,33 +84,54 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
         bool isSelected = (obj == selectedObject);
         int penWidth = isSelected ? 3 : 2;
 
-        // Main curve series (shown in legend)
-        auto* series = new QLineSeries();
-        series->setName(obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name());
-        series->setPen(QPen(color, penWidth));
-        // Store pointer to CustomObject for hit-testing on click
-        series->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
-        for (const auto& p : pts) {
-            series->append(p.x(), p.y());
-            minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
-            minY = qMin(minY, p.y()); maxY = qMax(maxY, p.y());
-        }
-        chart->addSeries(series);
-        addedAny = true;
+        bool pointObj = isPointObj(obj);
 
-        // Control points as scatter (hidden from legend)
-        if (showControlPoints && pts.size() > 1) {
+        if (pointObj) {
+            // Single-point object: render as a large scatter marker
             auto* scatter = new QScatterSeries();
+            scatter->setName(obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name());
             scatter->setColor(color);
             scatter->setBorderColor(color.darker(130));
-            scatter->setMarkerSize(isSelected ? 8 : 6);
-            for (const auto& p : pts)
+            scatter->setMarkerSize(isSelected ? 14 : 10);
+            // Store pointer to CustomObject for hit-testing on click
+            scatter->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+            for (const auto& p : pts) {
                 scatter->append(p.x(), p.y());
+                minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
+                minY = qMin(minY, p.y()); maxY = qMax(maxY, p.y());
+            }
             chart->addSeries(scatter);
-            // Hide from legend via marker
-            auto markers = chart->legend()->markers(scatter);
-            for (auto* marker : markers)
-                marker->setVisible(false);
+            addedAny = true;
+        } else {
+            // Multi-point object: line series + optional scatter for control points
+            // Main curve series (shown in legend)
+            auto* series = new QLineSeries();
+            series->setName(obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name());
+            series->setPen(QPen(color, penWidth));
+            // Store pointer to CustomObject for hit-testing on click
+            series->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+            for (const auto& p : pts) {
+                series->append(p.x(), p.y());
+                minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
+                minY = qMin(minY, p.y()); maxY = qMax(maxY, p.y());
+            }
+            chart->addSeries(series);
+            addedAny = true;
+
+            // Control points as scatter (hidden from legend)
+            if (showControlPoints && pts.size() > 1) {
+                auto* scatter = new QScatterSeries();
+                scatter->setColor(color);
+                scatter->setBorderColor(color.darker(130));
+                scatter->setMarkerSize(isSelected ? 8 : 6);
+                for (const auto& p : pts)
+                    scatter->append(p.x(), p.y());
+                chart->addSeries(scatter);
+                // Hide from legend via marker
+                auto markers = chart->legend()->markers(scatter);
+                for (auto* marker : markers)
+                    marker->setVisible(false);
+            }
         }
     };
 
