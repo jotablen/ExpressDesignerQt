@@ -222,6 +222,16 @@ void MainWindow::setupConnections()
                 updateStatusBar();
             });
 
+    // Maintain 1:1 aspect ratio when splitter panels resize
+    connect(m_rightSplitter, &QSplitter::splitterMoved,
+            this, [this](int, int) {
+                maintainChartAspectRatio();
+            });
+    connect(m_mainSplitter, &QSplitter::splitterMoved,
+            this, [this](int, int) {
+                maintainChartAspectRatio();
+            });
+
     // Context menu on object tree (matching Ovals Designer popupMenuChart)
     m_objectTree->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_objectTree, &QWidget::customContextMenuRequested,

@@ -126,8 +126,7 @@ bool PropagateWFOperation::execute(Project* project)
         QPointF surfHit = rayCurveIntersection(srcPt, norm, surfPts, &hitSeg, &hitDist);
 
         if (hitSeg < 0) {
-            // No hit — keep the original point propagated by the offset along normal
-            propagatedPts.append(srcPt + norm * offset);
+            // No hit — discard this point (surface not reached)
             continue;
         }
 
