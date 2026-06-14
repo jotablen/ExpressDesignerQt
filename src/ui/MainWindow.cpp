@@ -302,10 +302,11 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                 }
                 if (ax && ay) {
                     double factor = (we->angleDelta().y() > 0) ? 0.75 : 1.333;
-                    double newHalf = (ax->max() - ax->min()) * factor * 0.5;
-                    // Set both X and Y around the cursor with the same half-range (1:1)
-                    ax->setRange(cursorScene.x() - newHalf, cursorScene.x() + newHalf);
-                    ay->setRange(cursorScene.y() - newHalf, cursorScene.y() + newHalf);
+                    double xHalf = (ax->max() - ax->min()) * factor * 0.5;
+                    double yHalf = (ay->max() - ay->min()) * factor * 0.5;
+                    ax->setRange(cursorScene.x() - xHalf, cursorScene.x() + xHalf);
+                    ay->setRange(cursorScene.y() - yHalf, cursorScene.y() + yHalf);
+                    maintainChartAspectRatio();
                 }
             }
             return true;
