@@ -125,8 +125,20 @@ void PropagateWFDialog::setProject(Project* project)
     if (m_wfDestCombo->count() > 0)
         m_wfDestCombo->setCurrentIndex(0);
 
+    // If a WF is pre-selected, find it in the combo and select it
+    if (m_selectedWF) {
+        int idx = m_wfOrgCombo->findText(m_selectedWF->name());
+        if (idx >= 0)
+            m_wfOrgCombo->setCurrentIndex(idx);
+    }
+
     m_excludeRtiCheck->setChecked(true);
     updateResultName();
+}
+
+void PropagateWFDialog::setSelectedWF(CustomObject* wf)
+{
+    m_selectedWF = wf;
 }
 
 void PropagateWFDialog::populateCombos(Project* project)

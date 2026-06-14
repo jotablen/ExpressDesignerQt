@@ -12,6 +12,7 @@ class PropagateWFDialog : public QDialog {
 public:
     explicit PropagateWFDialog(QWidget* parent = nullptr);
     void setProject(Project* project);
+    void setSelectedWF(CustomObject* wf);
 
     QComboBox* wfOrgCombo() const { return m_wfOrgCombo; }
     QComboBox* wfDestCombo() const { return m_wfDestCombo; }
@@ -36,6 +37,7 @@ private:
     QLineEdit* m_offsetEdit = nullptr;
     QCheckBox* m_excludeRtiCheck = nullptr;
     Project* m_project = nullptr;
+    CustomObject* m_selectedWF = nullptr;
 };
 
 } // namespace ExpressDesigner

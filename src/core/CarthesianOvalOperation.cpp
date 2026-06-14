@@ -1,6 +1,7 @@
 #include "CarthesianOvalOperation.h"
 #include "Project.h"
 #include "CurveObject.h"
+#include <geometry/SISLWrapper.h>
 #include <QtMath>
 #include <cmath>
 
@@ -14,6 +15,65 @@ CarthesianOvalOperation::CarthesianOvalOperation(const QString& name, QObject* p
 }
 
 CarthesianOvalOperation::~CarthesianOvalOperation() = default;
+
+// CheckGoodReferencePoint: verify there is at least one sampled point on the
+// interpolated curve whose normal vector points toward / passes through the reference point.
+// Returns true if such a point exists and stores the index.
+static bool checkGoodReferencePoint(const QVector<QPointF>& curvePoints,
+                                     const QPointF& refPoint,
+                                     int* goodIndex = nullptr)
+{
+    // Build a SISL curve from the discrete points and evaluate normals along it
+    if (curvePoints.size() < 2) return false;
+
+    // Sample finely along the curve
+    int samples = qMax(curvePoints.size() * 3, 100);
+    Geometry::SISLCurve sislCurve(curvePoints, 3, true);
+    auto sampled = sislCurve.evaluateAll(samples);
+
+    double bestAngle = 1e18;
+    int bestIdx = 0;
+
+    for (int i = 0; i < samples; ++i) {
+        // Tangent direction
+        int next = (i + 1) % samples;
+        QPointF dir = sampled[next] - sampled[i];
+        double len = qSqrt(dir.x() * dir.x() + dir.y() * dir.y());
+        if (len < 1e-12) continue;
+
+        // Normal (perpendicular to tangent)
+        QPointF normal(-dir.y() / len, dir.x() / len);
+
+        // Vector from sampled point to reference point
+        QPointF toRef = refPoint - sampled[i];
+        double toRefLen = qSqrt(toRef.x() * toRef.x() + toRef.y() * toRef.y());
+        if (toRefLen < 1e-12) {
+            // Reference point coincides with a curve point
+            if (goodIndex) *goodIndex = i;
+            return true;
+        }
+
+        // Angle between normal and vector-to-reference
+        double dot = normal.x() * toRef.x() / toRefLen + normal.y() * toRef.y() / toRefLen;
+        double angle = qAcos(qBound(-1.0, dot, 1.0));
+        // Also check flipped normal
+        double dotFlipped = -normal.x() * toRef.x() / toRefLen - normal.y() * toRef.y() / toRefLen;
+        double angleFlipped = qAcos(qBound(-1.0, dotFlipped, 1.0));
+        double minAngle = qMin(angle, angleFlipped);
+
+        if (minAngle < bestAngle) {
+            bestAngle = minAngle;
+            bestIdx = i;
+        }
+    }
+
+    // Consider it "good" if angle < ~15 degrees
+    if (bestAngle < 0.2618) { // ~15 degrees
+        if (goodIndex) *goodIndex = bestIdx;
+        return true;
+    }
+    return false;
+}
 
 bool CarthesianOvalOperation::execute(Project* project)
 {
@@ -41,11 +101,16 @@ bool CarthesianOvalOperation::execute(Project* project)
 
     double n1 = wf1->refractiveIndex();
     double n2 = wf2->refractiveIndex();
-
-    const auto& pts1 = wf1->controlPoints();
-    const auto& pts2 = wf2->controlPoints();
     int n = m_amountOfPoints;
     if (n < 2) n = 100;
+
+    // Build SISL curves from both wavefronts (operate against curves, not point lists)
+    Geometry::SISLCurve curve1(wf1->controlPoints(), 3, wf1->isWavefront() ? /*open=*/true : true);
+    Geometry::SISLCurve curve2(wf2->controlPoints(), 3, wf2->isWavefront() ? true : true);
+
+    // Sample both curves uniformly
+    QVector<QPointF> pts1 = curve1.evaluateAll(n);
+    QVector<QPointF> pts2 = curve2.evaluateAll(n);
 
     // Helper: squared distance
     auto distSq = [](const QPointF& a, const QPointF& b) {
@@ -54,60 +119,42 @@ bool CarthesianOvalOperation::execute(Project* project)
         return dx * dx + dy * dy;
     };
 
-    // Helper: linear resample of control points to n evenly-spaced points
-    auto resample = [](const QVector<QPointF>& src, int count) -> QVector<QPointF> {
-        if (src.size() < 2 || count < 2) return src;
-        QVector<QPointF> dst;
-        dst.reserve(count);
-        double totalLen = 0;
-        QVector<double> segLen;
-        segLen.reserve(src.size() - 1);
-        for (int i = 1; i < src.size(); ++i) {
-            double d = std::hypot(src[i].x() - src[i-1].x(), src[i].y() - src[i-1].y());
-            segLen.append(d);
-            totalLen += d;
-        }
-        if (totalLen < 1e-9) return src;
-        double step = totalLen / (count - 1);
-        int seg = 0;
-        double accum = 0;
-        for (int i = 0; i < count; ++i) {
-            double target = i * step;
-            while (seg < segLen.size() && accum + segLen[seg] < target) {
-                accum += segLen[seg];
-                ++seg;
-            }
-            if (seg >= segLen.size()) {
-                dst.append(src.last());
-            } else {
-                double t = (target - accum) / segLen[seg];
-                dst.append(src[seg] + (src[seg+1] - src[seg]) * t);
-            }
-        }
-        return dst;
-    };
+    // Check that the reference point is "good" — it should align with a curve point's normal
+    // Check against the closer WF first
+    bool isGoodRef = checkGoodReferencePoint(pts1, refPoint, nullptr) ||
+                     checkGoodReferencePoint(pts2, refPoint, nullptr);
 
-    auto r1 = resample(pts1, n);
-    auto r2 = resample(pts2, n);
-
-    // Find closest points on each WF to the reference point
+    // Find closest points on each sampled curve to the reference point
     int ci1 = 0, ci2 = 0;
     double bestD1 = 1e18, bestD2 = 1e18;
     for (int i = 0; i < n; ++i) {
-        double d1 = distSq(r1[i], refPoint);
-        double d2 = distSq(r2[i], refPoint);
+        double d1 = distSq(pts1[i], refPoint);
+        double d2 = distSq(pts2[i], refPoint);
         if (d1 < bestD1) { bestD1 = d1; ci1 = i; }
         if (d2 < bestD2) { bestD2 = d2; ci2 = i; }
     }
 
-    // Compute the reference optical path length constant C
+    // Compute the reference optical path length constant C = n1 * d1ref + n2 * d2ref
     double d1ref = qSqrt(bestD1);
     double d2ref = qSqrt(bestD2);
     double C = n1 * d1ref + n2 * d2ref;
-    if (C < 1e-12) {
+    if (C < 1e-12 && !isGoodRef) {
         m_errorCode = -3;
         m_errorMessage = QStringLiteral("Optical path length constant is zero — check reference point");
         return false;
+    }
+
+    // If C is zero but reference is good, use minimum non-zero OPL from any pair
+    if (C < 1e-12) {
+        for (int i = 0; i < n; ++i) {
+            double d1 = qSqrt(distSq(pts1[i], refPoint));
+            double d2 = qSqrt(distSq(pts2[i], refPoint));
+            double val = n1 * d1 + n2 * d2;
+            if (val > 1e-12) {
+                C = val;
+                break;
+            }
+        }
     }
 
     // Create result curve — a Cartesian oval
@@ -115,54 +162,45 @@ bool CarthesianOvalOperation::execute(Project* project)
     result->setObjectType(withResult(ObjectType::Curve));
     result->setRefractiveIndex((n1 + n2) * 0.5);
 
-    // Compute oval points: for each pair of corresponding WF points,
-    // find the point X on the line p1→p2 satisfying n1*|X-p1| + n2*|X-p2| = C
     QVector<QPointF> ovalPts;
     ovalPts.reserve(n);
 
-    // Rotate indices so the reference pair (ci1, ci2) is at index 0,
-    // making the oval start near the reference point
-    int offset = ci1;
-    for (int k = 0; k < n; ++k) {
-        int i = (k + offset) % n;
-        // Match WF2 index proportionally (or use closest approach)
-        // Map i proportionally, but also account for the reference shift
+    // For each pair of corresponding sampled points on the two curves,
+    // find the point X on the line p1→p2 that satisfies n1*|X-p1| + n2*|X-p2| = C
+    for (int i = 0; i < n; ++i) {
+        QPointF p1 = pts1[i];
+        // Map WF2 index relative to reference offset
         int j = (ci2 + (i - ci1 + n) % n) % n;
-        // Ensure j is valid
-        if (j < 0) j = 0;
-        if (j >= n) j = n - 1;
 
-        QPointF p1 = r1[i];
-        QPointF p2 = r2[j];
+        QPointF p2 = pts2[j];
         double L = qSqrt(distSq(p1, p2));
 
         if (L < 1e-9) {
-            // WF points coincide — use reference point
-            ovalPts.append(refPoint);
+            // WF points coincide at this sample — use midpoint
+            ovalPts.append((p1 + p2) * 0.5);
             continue;
         }
 
         // On the line X(t) = p1 + t*(p2-p1), t∈[0,1]:
         //   d(X,p1) = t*L,  d(X,p2) = (1-t)*L
-        //   f(t) = n1*t*L + n2*(1-t)*L = L*(n2 + t*(n1-n2))
-        // Setting f(t) = C:
+        //   f(t) = n1*t*L + n2*(1-t)*L = L * (n2 + t*(n1-n2))
+        // Setting f(t) = C gives:
         //   t = (C/L - n2) / (n1 - n2)
         double Cnorm = C / L;
         double denom = n1 - n2;
 
         double t;
         if (qAbs(denom) < 1e-12) {
-            // n1 == n2: f(t) = n1*L (constant). If C matches, any t works; pick 0.5
-            t = (qAbs(Cnorm - n1) < 1e-9) ? 0.5 : 0.5;
+            // n1 == n2: constant OPL regardless of t; place at midpoint
+            t = 0.5;
         } else {
             t = (Cnorm - n2) / denom;
         }
 
-        // Clamp t to [0, 1] for points between the two WFs
+        // Clamp t to [0, 1] to stay between the wavefronts
         t = qBound(0.0, t, 1.0);
 
-        QPointF ovalPt = p1 + (p2 - p1) * t;
-        ovalPts.append(ovalPt);
+        ovalPts.append(p1 + (p2 - p1) * t);
     }
 
     // Ensure the reference point is part of the curve —

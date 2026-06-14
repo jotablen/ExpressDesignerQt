@@ -518,6 +518,9 @@ void MainWindow::onPropagateWF()
 {
     if (!m_currentProject) return;
     PropagateWFDialog dlg(this);
+    // Pre-select the currently selected WF if it is a wavefront
+    if (m_selectedObject && isWavefront(m_selectedObject->objectType()))
+        dlg.setSelectedWF(m_selectedObject);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
         auto* op = new PropagateWFOperation(dlg.resultNameEdit()->text(), this);
