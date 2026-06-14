@@ -266,16 +266,30 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
 #ifdef HAS_QT_CHARTS
     if (m_chartView && watched == m_chartView->viewport()) {
-        // --- Mouse wheel → zoom in/out ---
+        // --- Mouse wheel → zoom in/out around cursor position ---
         if (event->type() == QEvent::Wheel) {
             QWheelEvent* we = static_cast<QWheelEvent*>(event);
             if (m_chart) {
-                if (we->angleDelta().y() > 0)
-                    m_chart->zoomIn();
-                else
-                    m_chart->zoomOut();
+                QPointF cursorScene = m_chart->mapToValue(we->position());
+                const auto axes = m_chart->axes();
+                QValueAxis* ax = nullptr;
+                QValueAxis* ay = nullptr;
+                for (auto* axis : axes) {
+                    if (axis->orientation() == Qt::Horizontal)
+                        ax = qobject_cast<QValueAxis*>(axis);
+                    else if (axis->orientation() == Qt::Vertical)
+                        ay = qobject_cast<QValueAxis*>(axis);
+                }
+                if (ax && ay) {
+                    double factor = (we->angleDelta().y() > 0) ? 0.75 : 1.333;
+                    double xHalf = (ax->max() - ax->min()) * factor * 0.5;
+                    double yHalf = (ay->max() - ay->min()) * factor * 0.5;
+                    ax->setRange(cursorScene.x() - xHalf, cursorScene.x() + xHalf);
+                    ay->setRange(cursorScene.y() - yHalf, cursorScene.y() + yHalf);
+                    maintainChartAspectRatio();
+                }
             }
-            return true; // consumed
+            return true;
         }
 
         // --- Mouse press → begin pan ---
@@ -622,7 +636,8 @@ void MainWindow::onZoomOut()
 void MainWindow::onZoomAll()
 {
 #ifdef HAS_QT_CHARTS
-    if (m_chart) m_chart->zoomReset();
+    // Re-populate chart which auto-fits axes to all data
+    refreshChart();
 #endif
 }
 
@@ -645,6 +660,29 @@ void MainWindow::onToggleNormals()
 }
 
 void MainWindow::onSetAspectRatio() {}
+
+void MainWindow::maintainChartAspectRatio()
+{
+#ifdef HAS_QT_CHARTS
+    if (!m_chart) return;
+    const auto axes = m_chart->axes();
+    QValueAxis* ax = nullptr;
+    QValueAxis* ay = nullptr;
+    for (auto* axis : axes) {
+        if (axis->orientation() == Qt::Horizontal)
+            ax = qobject_cast<QValueAxis*>(axis);
+        else if (axis->orientation() == Qt::Vertical)
+            ay = qobject_cast<QValueAxis*>(axis);
+    }
+    if (!ax || !ay) return;
+    double xRange = ax->max() - ax->min();
+    double yRange = ay->max() - ay->min();
+    if (xRange < 1e-9) return;
+    double xCenter = (ax->max() + ax->min()) * 0.5;
+    double yCenter = (ay->max() + ay->min()) * 0.5;
+    ay->setRange(yCenter - xRange * 0.5, yCenter + xRange * 0.5);
+#endif
+}
 
 void MainWindow::onPreferences()
 {

@@ -148,9 +148,16 @@ void PropagateWFDialog::populateCombos(Project* project)
 
     if (!project) return;
 
-    // Populate WF Origin (only wavefront objects)
+    // Populate WF Origin (all wavefront objects: data + result)
     const auto& dataObjects = project->dataObjects();
     for (CustomObject* obj : dataObjects) {
+        if (!obj) continue;
+        if (isWavefront(obj->objectType())) {
+            m_wfOrgCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        }
+    }
+    const auto& resultObjects = project->resultObjects();
+    for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
         if (isWavefront(obj->objectType())) {
             m_wfOrgCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
@@ -164,7 +171,6 @@ void PropagateWFDialog::populateCombos(Project* project)
         if (!isWavefront(obj->objectType()) && bt != 0x001)
             m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
     }
-    const auto& resultObjects = project->resultObjects();
     for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
         auto bt = toBaseType(obj->objectType());

@@ -134,6 +134,9 @@ private:
     bool m_isPanning = false;
     QPoint m_panLastPos;
 
+    // Chart helpers
+    void maintainChartAspectRatio();
+
     QString m_currentFilePath;
 };
 
