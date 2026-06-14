@@ -31,6 +31,7 @@
 #include <QVBoxLayout>
 #include <QApplication>
 #include <QMouseEvent>
+#include <QWheelEvent>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QValueAxis>
@@ -71,6 +72,8 @@ void MainWindow::setProject(Project* project)
     if (m_propertiesWidget)
         m_propertiesWidget->setProject(project);
 
+    m_selectedObject = nullptr;
+    updateDeleteActionState();
     refreshChart();
     updateStatusBar();
     setModified(false);
@@ -94,7 +97,7 @@ void MainWindow::setupMenuBar()
 
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(tr("&Preferences..."), this, []() {});
+    editMenu->addAction(tr("&Preferences..."), this, &MainWindow::onPreferences);
 
     // Tasks menu
     QMenu* tasksMenu = menuBar()->addMenu(tr("&Tasks"));
@@ -129,7 +132,11 @@ void MainWindow::setupToolBar()
     toolbar->addAction(tr("Propagate"), this, &MainWindow::onPropagateWF);
     toolbar->addAction(tr("Offset"), this, &MainWindow::onOffsetWF);
     toolbar->addSeparator();
-    toolbar->addAction(tr("Delete"), this, &MainWindow::onDeleteObject);
+
+    m_deleteAction = new QAction(tr("Delete"), this);
+    connect(m_deleteAction, &QAction::triggered, this, &MainWindow::onDeleteObject);
+    toolbar->addAction(m_deleteAction);
+    updateDeleteActionState();
 }
 
 void MainWindow::setupStatusBar()
@@ -159,7 +166,7 @@ void MainWindow::setupCentralWidget()
     m_chart->legend()->setAlignment(Qt::AlignRight);
     m_chartView->setChart(m_chart);
     m_chartView->setRenderHint(QPainter::Antialiasing);
-    // Install event filter to capture mouse clicks on chart
+    // Install event filter to capture mouse clicks, wheel, and drag on chart
     m_chartView->viewport()->installEventFilter(this);
 #else
     QWidget* chartPlaceholder = new QWidget(m_rightSplitter);
@@ -254,62 +261,101 @@ void MainWindow::setupConnections()
     });
 }
 
-// Event filter to intercept mouse clicks on the chart viewport
+// Event filter to intercept mouse wheel, drag, and click on the chart viewport
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
 #ifdef HAS_QT_CHARTS
-    if (m_chartView && watched == m_chartView->viewport()
-        && event->type() == QEvent::MouseButtonPress)
-    {
-        QMouseEvent* me = static_cast<QMouseEvent*>(event);
-        // Map viewport coords to chart scene coords via the view's own mapping
-        QPointF chartPos = m_chartView->mapToScene(me->pos());
-        onChartClicked(chartPos);
+    if (m_chartView && watched == m_chartView->viewport()) {
+        // --- Mouse wheel → zoom in/out ---
+        if (event->type() == QEvent::Wheel) {
+            QWheelEvent* we = static_cast<QWheelEvent*>(event);
+            if (m_chart) {
+                if (we->angleDelta().y() > 0)
+                    m_chart->zoomIn();
+                else
+                    m_chart->zoomOut();
+            }
+            return true; // consumed
+        }
 
-        // Compute adaptive snap distance from current axis ranges
-        double snapDist = 10.0;
-        const auto axes = m_chart->axes();
-        if (axes.size() >= 2) {
-            auto* ax = qobject_cast<QValueAxis*>(axes[0]);
-            auto* ay = qobject_cast<QValueAxis*>(axes[1]);
-            if (ax && ay) {
-                snapDist = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * 0.05;
-                if (snapDist < 2.0) snapDist = 2.0;
+        // --- Mouse press → begin pan ---
+        if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent* me = static_cast<QMouseEvent*>(event);
+            if (me->button() == Qt::LeftButton) {
+                m_isPanning = true;
+                m_panLastPos = me->pos();
+                return true;
             }
         }
 
-        // Find clicked series and select its associated object
-        CustomObject* clickedObj = nullptr;
-        const auto seriesList = m_chart->series();
-        double bestDist = snapDist;
-        for (auto* ser : seriesList) {
-            QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
-            if (!ls) continue;
-            // Only consider main curve series (named, not normals)
-            if (ls->name().isEmpty()) continue;
-            // Check each point for proximity
-            for (int i = 0; i < ls->count(); ++i) {
-                QPointF pt = ls->at(i);
-                double dx = pt.x() - chartPos.x();
-                double dy = pt.y() - chartPos.y();
-                double dist = qSqrt(dx * dx + dy * dy);
-                if (dist < bestDist) {
-                    bestDist = dist;
-                    QVariant prop = ls->property("customObject");
-                    if (prop.isValid()) {
-                        clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+        // --- Mouse move → pan chart ---
+        if (event->type() == QEvent::MouseMove && m_isPanning) {
+            QMouseEvent* me = static_cast<QMouseEvent*>(event);
+            if (m_chart) {
+                QPointF delta = m_chartView->mapToScene(me->pos()) - m_chartView->mapToScene(m_panLastPos);
+                m_chart->scroll(-delta.x(), delta.y());
+                m_panLastPos = me->pos();
+            }
+            return true;
+        }
+
+        // --- Mouse release → end pan + click-select ---
+        if (event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent* me = static_cast<QMouseEvent*>(event);
+            if (me->button() == Qt::LeftButton) {
+                m_isPanning = false;
+
+                // On release, also do click-select:
+                QPointF chartPos = m_chartView->mapToScene(me->pos());
+                onChartClicked(chartPos);
+
+                // Compute adaptive snap distance from current axis ranges
+                double snapDist = 10.0;
+                const auto axes = m_chart->axes();
+                if (axes.size() >= 2) {
+                    auto* ax = qobject_cast<QValueAxis*>(axes[0]);
+                    auto* ay = qobject_cast<QValueAxis*>(axes[1]);
+                    if (ax && ay) {
+                        snapDist = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * 0.05;
+                        if (snapDist < 2.0) snapDist = 2.0;
+                    }
+                }
+
+                // Find clicked series and select its associated object
+                CustomObject* clickedObj = nullptr;
+                const auto seriesList = m_chart->series();
+                double bestDist = snapDist;
+                for (auto* ser : seriesList) {
+                    QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
+                    if (!ls) continue;
+                    // Only consider main curve series (named, not normals)
+                    if (ls->name().isEmpty()) continue;
+                    // Check each point for proximity
+                    for (int i = 0; i < ls->count(); ++i) {
+                        QPointF pt = ls->at(i);
+                        double dx = pt.x() - chartPos.x();
+                        double dy = pt.y() - chartPos.y();
+                        double dist = qSqrt(dx * dx + dy * dy);
+                        if (dist < bestDist) {
+                            bestDist = dist;
+                            QVariant prop = ls->property("customObject");
+                            if (prop.isValid()) {
+                                clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+                            }
+                        }
+                    }
+                }
+
+                if (clickedObj && m_treeModel) {
+                    // Find and select the object in the tree
+                    QModelIndex idx = m_treeModel->createIndexByObject(clickedObj);
+                    if (idx.isValid()) {
+                        m_objectTree->selectionModel()->setCurrentIndex(
+                            idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
                     }
                 }
             }
-        }
-
-        if (clickedObj && m_treeModel) {
-            // Find and select the object in the tree
-            QModelIndex idx = m_treeModel->createIndexByObject(clickedObj);
-            if (idx.isValid()) {
-                m_objectTree->selectionModel()->setCurrentIndex(
-                    idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-            }
+            return true;
         }
     }
 #endif
@@ -404,6 +450,10 @@ void MainWindow::onDeleteObject()
     m_currentProject->removeDataObject(obj);
     m_currentProject->removeResultObject(obj);
     m_history->recordObjectDeletion(obj->name());
+
+    m_selectedObject = nullptr;
+    updateDeleteActionState();
+
     setModified(true);
     refreshChart();
     updateStatusBar();
@@ -501,29 +551,44 @@ void MainWindow::onOffsetWF()
 
         double offset = dlg.offsetEdit()->text().toDouble();
         QString resultName;
+
+        // Compute normals for the source WF to get displacement directions
+        int numPoints = srcWf->controlPointCount();
+        if (numPoints < 2) {
+            statusBar()->showMessage(tr("Offset WF requires at least 2 control points"), 5000);
+            return;
+        }
+        auto normals = srcWf->computeNormals(numPoints);
+
+        QVector<QPointF> offsetPts;
+        offsetPts.reserve(numPoints);
+        for (int i = 0; i < numPoints; ++i) {
+            // Displacement along normal: normal direction * offset (uniform displacement)
+            QPointF normalDir(1.0, 0.0); // default: right
+            if (i < normals.size()) {
+                QPointF vec = normals[i].second - normals[i].first;
+                double len = qSqrt(vec.x() * vec.x() + vec.y() * vec.y());
+                if (len > 1e-9) normalDir = vec / len;
+            }
+            QPointF pt = srcWf->controlPoints()[i];
+            offsetPts.append(pt + normalDir * offset);
+        }
+
         if (dlg.createNewResult()) {
             resultName = dlg.resultNameEdit()->text().trimmed();
             if (resultName.isEmpty()) resultName = wfName + QStringLiteral("_offset");
 
-            auto* result = new CurveObject(resultName);
-            result->setObjectType(withResult(ObjectType::Curve));
+            // Result is a WF: CurveObject(isWF=true) + withWavefront + withResult
+            auto* result = new CurveObject(resultName, true);
+            result->setObjectType(withWavefront(withResult(ObjectType::Curve)));
             result->setRefractiveIndex(srcWf->refractiveIndex());
-
-            QVector<QPointF> offsetPts;
-            const auto& srcPts = srcWf->controlPoints();
-            offsetPts.reserve(srcPts.size());
-            for (const auto& pt : srcPts)
-                offsetPts.append(QPointF(pt.x() + offset, pt.y()));
-
             result->setControlPoints(offsetPts);
             m_currentProject->addResultObject(result);
 
             m_history->recordObjectCreation(resultName);
         } else {
-            // Modify the source WF in place
-            for (auto& pt : srcWf->controlPoints())
-                const_cast<QPointF&>(pt).rx() += offset;
-            srcWf->setControlPoints(srcWf->controlPoints()); // trigger update
+            // Modify the source WF in place with offset points
+            srcWf->setControlPoints(offsetPts);
         }
 
         setModified(true);
@@ -578,11 +643,33 @@ void MainWindow::onToggleNormals()
 
 void MainWindow::onSetAspectRatio() {}
 
+void MainWindow::onPreferences()
+{
+    PreferencesDialog dlg(this);
+    dlg.exec();
+}
+
+void MainWindow::updateDeleteActionState()
+{
+    bool canDelete = false;
+    if (m_selectedObject && m_currentProject) {
+        // Only real objects (not the Data/Result folder nodes) are deletable
+        const auto& dataObjs = m_currentProject->dataObjects();
+        const auto& resultObjs = m_currentProject->resultObjects();
+        if (dataObjs.contains(m_selectedObject) || resultObjs.contains(m_selectedObject)) {
+            canDelete = true;
+        }
+    }
+    if (m_deleteAction)
+        m_deleteAction->setEnabled(canDelete);
+}
+
 void MainWindow::onObjectSelected(const QModelIndex& index)
 {
     m_selectedObject = m_treeModel->objectAt(index);
     if (m_propertiesWidget)
         m_propertiesWidget->setObject(m_selectedObject);
+    updateDeleteActionState();
     refreshChart();
     updateStatusBar();
 }

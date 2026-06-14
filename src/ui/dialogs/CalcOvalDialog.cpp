@@ -140,9 +140,17 @@ void CalcOvalDialog::populateCombos(Project* project)
 
     if (!project) return;
 
-    // Populate WF combo (only wavefront objects)
+    // Populate WF combo (all wavefront objects: data + result)
     const auto& dataObjects = project->dataObjects();
     for (CustomObject* obj : dataObjects) {
+        if (!obj) continue;
+        if (isWavefront(obj->objectType())) {
+            m_wfOrgCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+            m_wfDestCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        }
+    }
+    const auto& resultObjects = project->resultObjects();
+    for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
         if (isWavefront(obj->objectType())) {
             m_wfOrgCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
@@ -156,7 +164,6 @@ void CalcOvalDialog::populateCombos(Project* project)
         if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType()))
             m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
     }
-    const auto& resultObjects = project->resultObjects();
     for (CustomObject* obj : resultObjects) {
         if (!obj) continue;
         if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType()))

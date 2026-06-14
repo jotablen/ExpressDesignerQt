@@ -4,6 +4,7 @@
 #include <QCloseEvent>
 #include <QEvent>
 #include <QTreeView>
+#include <QPoint>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QChartView>
 #include <QtCharts/QChart>
@@ -69,6 +70,9 @@ private slots:
     void onToggleNormals();
     void onSetAspectRatio();
 
+    // Edit
+    void onPreferences();
+
     // Selection
     void onObjectSelected(const QModelIndex& index);
     void onChartClicked(const QPointF& point);
@@ -90,6 +94,7 @@ private:
     void refreshChart();
     void updateStatusBar();
     void setModified(bool modified);
+    void updateDeleteActionState();
 
     // Widgets
     QTreeView* m_objectTree = nullptr;
@@ -99,6 +104,9 @@ private:
     PropertiesWidget* m_propertiesWidget = nullptr;
     QSplitter* m_mainSplitter = nullptr;
     QSplitter* m_rightSplitter = nullptr;
+
+    // Actions
+    QAction* m_deleteAction = nullptr;
 
     // Models
     ObjectTreeModel* m_treeModel = nullptr;
@@ -121,6 +129,10 @@ private:
     bool m_showLabels = true;
     bool m_showNormals = false;
     bool m_isModified = false;
+
+    // Pan state
+    bool m_isPanning = false;
+    QPoint m_panLastPos;
 
     QString m_currentFilePath;
 };
