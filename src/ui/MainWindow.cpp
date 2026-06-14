@@ -166,8 +166,9 @@ void MainWindow::setupCentralWidget()
     m_chart->legend()->setAlignment(Qt::AlignRight);
     m_chartView->setChart(m_chart);
     m_chartView->setRenderHint(QPainter::Antialiasing);
-    // Install event filter to capture mouse clicks, wheel, and drag on chart
+    // Install event filter on both viewport (mouse) and chart view (resize)
     m_chartView->viewport()->installEventFilter(this);
+    m_chartView->installEventFilter(this);
 #else
     QWidget* chartPlaceholder = new QWidget(m_rightSplitter);
     chartPlaceholder->setStyleSheet(QStringLiteral("background-color: #f0f0f0;"));
@@ -265,6 +266,14 @@ void MainWindow::setupConnections()
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
 #ifdef HAS_QT_CHARTS
+    if (m_chartView && watched == m_chartView) {
+        // --- Chart resize → maintain aspect ratio ---
+        if (event->type() == QEvent::Resize) {
+            maintainChartAspectRatio();
+            return false; // let the event propagate normally
+        }
+    }
+
     if (m_chartView && watched == m_chartView->viewport()) {
         // --- Mouse wheel → zoom in/out around cursor position ---
         if (event->type() == QEvent::Wheel) {
