@@ -289,7 +289,8 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
         if (event->type() == QEvent::Wheel) {
             QWheelEvent* we = static_cast<QWheelEvent*>(event);
             if (m_chart) {
-                QPointF cursorScene = m_chart->mapToValue(we->position());
+                // Use mapToScene to get cursor position in chart coordinates
+                QPointF cursorScene = m_chartView->mapToScene(we->position().toPoint());
                 const auto axes = m_chart->axes();
                 QValueAxis* ax = nullptr;
                 QValueAxis* ay = nullptr;
@@ -301,11 +302,10 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                 }
                 if (ax && ay) {
                     double factor = (we->angleDelta().y() > 0) ? 0.75 : 1.333;
-                    double xHalf = (ax->max() - ax->min()) * factor * 0.5;
-                    double yHalf = (ay->max() - ay->min()) * factor * 0.5;
-                    ax->setRange(cursorScene.x() - xHalf, cursorScene.x() + xHalf);
-                    ay->setRange(cursorScene.y() - yHalf, cursorScene.y() + yHalf);
-                    maintainChartAspectRatio();
+                    double newHalf = (ax->max() - ax->min()) * factor * 0.5;
+                    // Set both X and Y around the cursor with the same half-range (1:1)
+                    ax->setRange(cursorScene.x() - newHalf, cursorScene.x() + newHalf);
+                    ay->setRange(cursorScene.y() - newHalf, cursorScene.y() + newHalf);
                 }
             }
             return true;

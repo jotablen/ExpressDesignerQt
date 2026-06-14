@@ -15,50 +15,130 @@ CarthesianOvalOperation::CarthesianOvalOperation(const QString& name, QObject* p
 
 CarthesianOvalOperation::~CarthesianOvalOperation() = default;
 
-// Check if the point pto_WF on a wavefront has its normal aligned with the
-// direction toward the reference point (IsGoodClosestPoint).
-static bool isGoodClosestPoint(const Geometry::SISLCurve& curve,
-                                double t, bool flipped,
-                                const QPointF& wfPt, const QPointF& refPt)
+// Helper: squared distance
+static double distSq(const QPointF& a, const QPointF& b)
 {
-    QPointF normal = curve.normal(t, flipped);
-    QPointF toRef = refPt - wfPt;
-    double toRefLen = qSqrt(toRef.x() * toRef.x() + toRef.y() * toRef.y());
-    if (toRefLen < 1e-12) return true;
-
-    double dot = (normal.x() * toRef.x() + normal.y() * toRef.y()) / toRefLen;
-    double absDot = qAbs(dot);
-    // Accept if cos(theta) >= ~0.9999 (angle < ~1 degree)
-    return qAbs(absDot - 1.0) < 5.0e-5;
+    double dx = a.x() - b.x();
+    double dy = a.y() - b.y();
+    return dx * dx + dy * dy;
 }
 
-// Find the sample index on a curve whose normal best aligns with the reference point
-static int findBestNormalIndex(const Geometry::SISLCurve& curve,
-                                int numSamples, bool flipped,
-                                const QVector<QPointF>& sampledPts,
-                                const QPointF& refPt,
-                                QPointF* outNormal = nullptr)
+// Given p1 (fixed), solve OPL(p1, X, p2) = C for t on curve2.
+// Returns 0 if root found, -1 if no solution within parameter range.
+// The oval point X is stored in *outPt.
+static int solveOvalPointOnCurve(
+    Geometry::SISLCurve& curve1, Geometry::SISLCurve& curve2,
+    double t1, double n1, double n2, double C,
+    QPointF& outPt)
 {
-    double bestAbsDot = -1.0;
-    int bestIdx = 0;
-    for (int i = 0; i < numSamples; ++i) {
-        double t = numSamples > 1 ? static_cast<double>(i) / (numSamples - 1) : 0.0;
-        QPointF normal = curve.normal(t, flipped);
-        QPointF toRef = refPt - sampledPts[i];
-        double toRefLen = qSqrt(toRef.x() * toRef.x() + toRef.y() * toRef.y());
-        if (toRefLen < 1e-12) {
-            if (outNormal) *outNormal = normal;
-            return i;
+    QPointF p1 = curve1.evaluate(t1);
+
+    // OPL function: for a given t2 parameter on curve2,
+    // F(t2) = OPL_line(p1, curve2(t2)) - C
+    auto F = [&](double t2) -> double {
+        QPointF p2 = curve2.evaluate(t2);
+        double L = qSqrt(distSq(p1, p2));
+        if (L < 1e-12) return -C;  // coincident → OPL = 0
+
+        // Solve for t_L on the line X = p1 + t_L * (p2-p1):
+        //   n1 * t_L * L + n2 * (1-t_L) * L = C
+        //   t_L = (C/L - n2) / (n1 - n2)
+        double C_L = C / L;
+        double denom = n1 - n2;
+        double t_L;
+        if (qAbs(denom) < 1e-12) {
+            t_L = 0.5;  // equal indices → midpoint
+        } else {
+            t_L = (C_L - n2) / denom;
         }
-        double dot = (normal.x() * toRef.x() + normal.y() * toRef.y()) / toRefLen;
-        double absDot = qAbs(dot);
-        if (absDot > bestAbsDot) {
-            bestAbsDot = absDot;
-            bestIdx = i;
-            if (outNormal) *outNormal = normal;
+        double tL_clamped = qBound(0.0, t_L, 1.0);
+        double OPL = n1 * tL_clamped * L + n2 * (1.0 - tL_clamped) * L;
+        return OPL - C;
+    };
+
+    // Secant method
+    constexpr int kMaxIter = 50;
+    constexpr double kTol = 1e-8;
+    constexpr double kEps = 1e-7;
+
+    // Initial guesses: scan the t2 range for sign changes
+    double tA = 0.0;
+    double tB = 1.0;
+    double fA = F(tA);
+    double fB = F(tB);
+
+    // If root at endpoints
+    if (qAbs(fA) < kTol) {
+        QPointF p2 = curve2.evaluate(tA);
+        double L = qSqrt(distSq(p1, p2));
+        if (L < 1e-12) { outPt = p1; return 0; }
+        double C_L = C / L;
+        double t_L = (qAbs(n1-n2) < 1e-12) ? 0.5 : (C_L - n2) / (n1 - n2);
+        t_L = qBound(0.0, t_L, 1.0);
+        outPt = p1 + (p2 - p1) * t_L;
+        return 0;
+    }
+    if (qAbs(fB) < kTol) {
+        QPointF p2 = curve2.evaluate(tB);
+        double L = qSqrt(distSq(p1, p2));
+        if (L < 1e-12) { outPt = p1; return 0; }
+        double C_L = C / L;
+        double t_L = (qAbs(n1-n2) < 1e-12) ? 0.5 : (C_L - n2) / (n1 - n2);
+        t_L = qBound(0.0, t_L, 1.0);
+        outPt = p1 + (p2 - p1) * t_L;
+        return 0;
+    }
+
+    // If no sign change in [0,1], just use the point that minimizes |F|
+    if (fA * fB > 0) {
+        double bestT = (qAbs(fA) < qAbs(fB)) ? tA : tB;
+        QPointF p2 = curve2.evaluate(bestT);
+        double L = qSqrt(distSq(p1, p2));
+        if (L < 1e-12) { outPt = p1; return 0; }
+        double C_L = C / L;
+        double t_L = (qAbs(n1-n2) < 1e-12) ? 0.5 : (C_L - n2) / (n1 - n2);
+        t_L = qBound(0.0, t_L, 1.0);
+        outPt = p1 + (p2 - p1) * t_L;
+        return 0;
+    }
+
+    // Sign change exists → secant
+    double tPrev = (qAbs(fA) < qAbs(fB)) ? tA : tB;
+    double fPrev = F(tPrev);
+
+    for (int iter = 0; iter < kMaxIter; ++iter) {
+        // Secant step: find where secant line crosses zero
+        double fA_cur = F(tA);
+        double fB_cur = F(tB);
+        if (qAbs(fA_cur) < kTol || qAbs(fB_cur) < kTol) break;
+
+        double tMid = (tA * fB_cur - tB * fA_cur) / (fB_cur - fA_cur);
+        tMid = qBound(tA + kEps, tMid, tB - kEps);
+
+        double fMid = F(tMid);
+        if (qAbs(fMid) < kTol) {
+            tA = tB = tMid;
+            break;
+        }
+
+        // Update bracket
+        if (fA_cur * fMid < 0) {
+            tB = tMid;
+        } else {
+            tA = tMid;
         }
     }
-    return bestIdx;
+
+    // Use midpoint of bracket
+    double tMid = (tA + tB) * 0.5;
+    QPointF p2 = curve2.evaluate(tMid);
+    double L = qSqrt(distSq(p1, p2));
+    if (L < 1e-12) { outPt = p1; return 0; }
+    double C_L = C / L;
+    double t_L = (qAbs(n1-n2) < 1e-12) ? 0.5 : (C_L - n2) / (n1 - n2);
+    t_L = qBound(0.0, t_L, 1.0);
+    outPt = p1 + (p2 - p1) * t_L;
+    return 0;
 }
 
 bool CarthesianOvalOperation::execute(Project* project)
@@ -85,87 +165,62 @@ bool CarthesianOvalOperation::execute(Project* project)
 
     double n1 = wf1->refractiveIndex();
     double n2 = wf2->refractiveIndex();
-    bool flip1 = wf1->isNormalFlipped();
-    bool flip2 = wf2->isNormalFlipped();
     int n = m_amountOfPoints;
     if (n < 2) n = 100;
 
-    // Build SISL curves — use continuous derivative for normals
+    // Build SISL curves — operate against curves, not discretized point lists
     Geometry::SISLCurve curve1(wf1->controlPoints(), 3, true);
     Geometry::SISLCurve curve2(wf2->controlPoints(), 3, true);
 
-    QVector<QPointF> pts1 = curve1.evaluateAll(n);
-    QVector<QPointF> pts2 = curve2.evaluateAll(n);
+    // --- Step 1: Find the optical path length constant C ---
+    // Evaluate both curves finely to find the closest point to the reference
+    QVector<QPointF> pts1 = curve1.evaluateAll(4 * n);
+    QVector<QPointF> pts2 = curve2.evaluateAll(4 * n);
 
-    auto distSq = [](const QPointF& a, const QPointF& b) {
-        double dx = a.x() - b.x();
-        double dy = a.y() - b.y();
-        return dx * dx + dy * dy;
-    };
+    int ci1 = 0, ci2 = 0;
+    double bestD1 = 1e18, bestD2 = 1e18;
+    for (int i = 0; i < pts1.size(); ++i) {
+        double d = distSq(pts1[i], refPoint);
+        if (d < bestD1) { bestD1 = d; ci1 = i; }
+    }
+    for (int i = 0; i < pts2.size(); ++i) {
+        double d = distSq(pts2[i], refPoint);
+        if (d < bestD2) { bestD2 = d; ci2 = i; }
+    }
 
-    // Step 1: Find indices on each WF where the normal best aligns with reference
-    QPointF norm1Ref, norm2Ref;
-    int ci1 = findBestNormalIndex(curve1, n, flip1, pts1, refPoint, &norm1Ref);
-    int ci2 = findBestNormalIndex(curve2, n, flip2, pts2, refPoint, &norm2Ref);
-
-    // Step 2: Compute signed distances to reference point
-    QPointF toRef1 = refPoint - pts1[ci1];
-    QPointF toRef2 = refPoint - pts2[ci2];
-    double d1ref = qSqrt(toRef1.x() * toRef1.x() + toRef1.y() * toRef1.y());
-    double d2ref = qSqrt(toRef2.x() * toRef2.x() + toRef2.y() * toRef2.y());
-
-    double sign1 = (d1ref < 1e-12) ? 1.0 :
-        ((norm1Ref.x() * toRef1.x() + norm1Ref.y() * toRef1.y()) / d1ref >= 0 ? 1.0 : -1.0);
-    double sign2 = (d2ref < 1e-12) ? 1.0 :
-        ((norm2Ref.x() * toRef2.x() + norm2Ref.y() * toRef2.y()) / d2ref >= 0 ? 1.0 : -1.0);
-
-    // Signed optical path length constant
-    double C = n1 * d1ref * sign1 + n2 * d2ref * sign2;
+    double d1ref = qSqrt(bestD1);
+    double d2ref = qSqrt(bestD2);
+    double C = n1 * d1ref + n2 * d2ref;
+    if (C < 1e-12) {
+        // Try with a nearby point
+        for (int i = 0; i < pts1.size() && C < 1e-12; ++i) {
+            double d1 = qSqrt(distSq(pts1[i], refPoint));
+            double d2 = qSqrt(distSq(pts2[qMin(i, pts2.size()-1)], refPoint));
+            C = n1 * d1 + n2 * d2;
+        }
+    }
 
     auto* result = new CurveObject(resultName());
     result->setObjectType(withResult(ObjectType::Curve));
     result->setRefractiveIndex((n1 + n2) * 0.5);
 
+    // --- Step 2: For each sample on curve1, find oval point via secant on curve2 ---
     QVector<QPointF> ovalPts;
     ovalPts.reserve(n);
 
-    // Step 3: For each sample pair, compute oval point via signed OPL equation
     for (int i = 0; i < n; ++i) {
-        int j = (ci2 + (i - ci1 + n) % n) % n;
-        QPointF p1 = pts1[i];
-        QPointF p2 = pts2[j];
-        double L = qSqrt(distSq(p1, p2));
-        if (L < 1e-9) {
-            ovalPts.append((p1 + p2) * 0.5);
-            continue;
+        double t1 = static_cast<double>(i) / (n - 1);
+        QPointF ovalPt;
+        if (solveOvalPointOnCurve(curve1, curve2, t1, n1, n2, C, ovalPt) >= 0) {
+            ovalPts.append(ovalPt);
         }
-
-        // Normals at this sample pair via SISLCurve::normal()
-        double t1 = n > 1 ? static_cast<double>(i) / (n - 1) : 0.0;
-        double t2 = n > 1 ? static_cast<double>(j) / (n - 1) : 0.0;
-        QPointF n1i = curve1.normal(t1, flip1);
-        QPointF n2j = curve2.normal(t2, flip2);
-
-        QPointF dir = p2 - p1;
-        double s1 = (n1i.x() * dir.x() + n1i.y() * dir.y()) >= 0 ? 1.0 : -1.0;
-        QPointF revDir = p1 - p2;
-        double s2 = (n2j.x() * revDir.x() + n2j.y() * revDir.y()) >= 0 ? 1.0 : -1.0;
-
-        double C_L = C / L;
-        double denom = n1 * s1 - n2 * s2;
-
-        double t;
-        if (qAbs(denom) < 1e-12) {
-            t = 0.5;
-        } else {
-            t = (C_L - n2 * s2) / denom;
-        }
-
-        t = qBound(0.0, t, 1.0);
-        ovalPts.append(p1 + dir * t);
     }
 
-    // Force reference point onto the curve
+    // If we got fewer points than expected, pad with the last point
+    while (ovalPts.size() < static_cast<qsizetype>(n))
+        ovalPts.append(ovalPts.isEmpty() ? QPointF() : ovalPts.last());
+
+    // --- Step 3: Ensure reference point is part of the curve ---
     int closestIdx = 0;
     double closestDist = 1e18;
     for (int i = 0; i < ovalPts.size(); ++i) {
