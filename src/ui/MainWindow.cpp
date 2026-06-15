@@ -4,6 +4,8 @@
 #include <ui/dialogs/CalcOvalDialog.h>
 #include <ui/dialogs/PropagateWFDialog.h>
 #include <ui/dialogs/OffsetWFDialog.h>
+#include <ui/dialogs/RotateObjectDialog.h>
+#include <ui/dialogs/TranslateObjectDialog.h>
 #include <core/CarthesianOvalOperation.h>
 #include <core/PropagateWFOperation.h>
 #include <core/CurveObject.h>
@@ -43,6 +45,8 @@ namespace ExpressDesigner {
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , m_history(new HistoryManager)
+    , m_depGraph(new DependencyGraph(this))
+    , m_cmdHistory(new CommandHistory(this))
 {
     setWindowTitle(QStringLiteral("ExpressDesigner"));
     resize(1280, 800);
@@ -75,6 +79,16 @@ void MainWindow::setProject(Project* project)
 
     m_selectedObject = nullptr;
     updateDeleteActionState();
+
+    // Rebuild dependency graph
+    if (m_depGraph && m_currentProject)
+        m_depGraph->rebuildFromProject(m_currentProject);
+
+    // Clear command history for new project
+    if (m_cmdHistory)
+        m_cmdHistory->clear();
+
+    updateUndoRedoActions();
     refreshChart();
     updateStatusBar();
     setModified(false);
@@ -98,13 +112,21 @@ void MainWindow::setupMenuBar()
 
     // Edit menu
     QMenu* editMenu = menuBar()->addMenu(tr("&Edit"));
+    m_undoAction = editMenu->addAction(tr("&Undo"), QKeySequence::Undo, this, &MainWindow::onUndo);
+    m_redoAction = editMenu->addAction(tr("&Redo"), QKeySequence::Redo, this, &MainWindow::onRedo);
+    editMenu->addSeparator();
     editMenu->addAction(tr("&Preferences..."), this, &MainWindow::onPreferences);
+    updateUndoRedoActions();
 
     // Tasks menu
     QMenu* tasksMenu = menuBar()->addMenu(tr("&Tasks"));
     tasksMenu->addAction(tr("&Calculate Oval..."), this, &MainWindow::onCalculateOval);
     tasksMenu->addAction(tr("&Propagate WF..."), this, &MainWindow::onPropagateWF);
     tasksMenu->addAction(tr("&Offset WF..."), this, &MainWindow::onOffsetWF);
+    tasksMenu->addSeparator();
+    tasksMenu->addAction(tr("&Rotate Object..."), this, &MainWindow::onRotateObject);
+    tasksMenu->addAction(tr("&Translate Object..."), this, &MainWindow::onTranslateObject);
+    tasksMenu->addSeparator();
     tasksMenu->addAction(tr("&Recalculate All"), this, &MainWindow::onRecalculate);
 
     // View menu
@@ -132,6 +154,8 @@ void MainWindow::setupToolBar()
     toolbar->addAction(tr("Calc Oval"), this, &MainWindow::onCalculateOval);
     toolbar->addAction(tr("Propagate"), this, &MainWindow::onPropagateWF);
     toolbar->addAction(tr("Offset"), this, &MainWindow::onOffsetWF);
+    toolbar->addAction(tr("Rotate"), this, &MainWindow::onRotateObject);
+    toolbar->addAction(tr("Translate"), this, &MainWindow::onTranslateObject);
     toolbar->addSeparator();
 
     m_deleteAction = new QAction(tr("Delete"), this);
@@ -208,8 +232,9 @@ void MainWindow::setupConnections()
             this, &MainWindow::onObjectSelected);
 
     connect(m_propertiesWidget, &PropertiesWidget::objectModified,
-            this, [this](CustomObject*) {
+            this, [this](CustomObject* obj) {
                 setModified(true);
+                recalcDependents(obj);
                 refreshChart();
                 updateStatusBar();
             });
@@ -465,11 +490,34 @@ void MainWindow::onDeleteObject()
     if (!idx.isValid() || !m_currentProject) return;
     CustomObject* obj = m_treeModel->objectAt(idx);
     if (!obj) return;
-    m_currentProject->removeDataObject(obj);
-    m_currentProject->removeResultObject(obj);
+
+    // Check for dependent results
+    if (m_depGraph) {
+        m_depGraph->rebuildFromProject(m_currentProject);
+        QSet<CustomObject*> dependents = m_depGraph->transitiveDependents(obj);
+        if (!dependents.isEmpty()) {
+            QStringList depNames;
+            for (auto* dep : dependents)
+                depNames << dep->name();
+            auto answer = QMessageBox::warning(this, tr("Object has dependents"),
+                tr("The object '%1' is used to calculate:\n%2\n\n"
+                   "If you delete it, these results will no longer be recalculated.\n"
+                   "Do you still want to delete it?")
+                   .arg(obj->name(), depNames.join(QStringLiteral(", "))),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (answer != QMessageBox::Yes) return;
+        }
+    }
+
+    bool isResult = m_currentProject->resultObjects().contains(obj);
+    auto* cmd = new DeleteObjectCommand(obj, isResult);
+    m_cmdHistory->push(cmd, m_currentProject);
+    if (m_depGraph)
+        m_depGraph->removeObject(obj);
     m_history->recordObjectDeletion(obj->name());
     m_selectedObject = nullptr;
     updateDeleteActionState();
+    updateUndoRedoActions();
     setModified(true);
     refreshChart();
     updateStatusBar();
@@ -702,6 +750,121 @@ void MainWindow::onChartClicked(const QPointF& point)
 
 void MainWindow::onAbout() { AboutDialog dlg(this); dlg.exec(); }
 void MainWindow::onShowHistory() {}
+
+void MainWindow::onRotateObject()
+{
+    if (!m_currentProject) return;
+    RotateObjectDialog dlg(this);
+    if (m_selectedObject)
+        dlg.setSelectedObject(m_selectedObject);
+    dlg.setProject(m_currentProject);
+    if (dlg.exec() == QDialog::Accepted) {
+        CustomObject* obj = m_currentProject->findObject(dlg.objectCombo()->currentText());
+        if (!obj) return;
+        double degrees = dlg.degreesEdit()->text().toDouble();
+        RotateObjectCommand::PivotMode pivot =
+            static_cast<RotateObjectCommand::PivotMode>(dlg.pivotMode());
+        auto* cmd = new RotateObjectCommand(obj, degrees, pivot);
+        m_cmdHistory->push(cmd, m_currentProject);
+        m_history->recordObjectModification(obj->name(), QStringLiteral("rotate"),
+            QString(), QString::number(degrees) + QStringLiteral("°"));
+        setModified(true);
+        recalcDependents(obj);
+        refreshChart();
+        updateStatusBar();
+    }
+}
+
+void MainWindow::onTranslateObject()
+{
+    if (!m_currentProject) return;
+    TranslateObjectDialog dlg(this);
+    if (m_selectedObject)
+        dlg.setSelectedObject(m_selectedObject);
+    dlg.setProject(m_currentProject);
+    if (dlg.exec() == QDialog::Accepted) {
+        CustomObject* obj = m_currentProject->findObject(dlg.objectCombo()->currentText());
+        if (!obj) return;
+        double dx = dlg.deltaXEdit()->text().toDouble();
+        double dy = dlg.deltaYEdit()->text().toDouble();
+        QPointF delta(dx, dy);
+        auto* cmd = new TranslateObjectCommand(obj, delta);
+        m_cmdHistory->push(cmd, m_currentProject);
+        m_history->recordObjectModification(obj->name(), QStringLiteral("translate"),
+            QString(), QStringLiteral("Δ(%1,%2)").arg(dx).arg(dy));
+        setModified(true);
+        recalcDependents(obj);
+        refreshChart();
+        updateStatusBar();
+    }
+}
+
+void MainWindow::onUndo()
+{
+    if (m_cmdHistory && m_cmdHistory->canUndo()) {
+        m_cmdHistory->undo(m_currentProject);
+        updateUndoRedoActions();
+        refreshChart();
+        updateStatusBar();
+        setModified(true);
+    }
+}
+
+void MainWindow::onRedo()
+{
+    if (m_cmdHistory && m_cmdHistory->canRedo()) {
+        m_cmdHistory->redo(m_currentProject);
+        updateUndoRedoActions();
+        refreshChart();
+        updateStatusBar();
+        setModified(true);
+    }
+}
+
+void MainWindow::updateUndoRedoActions()
+{
+    if (m_undoAction) {
+        m_undoAction->setEnabled(m_cmdHistory ? m_cmdHistory->canUndo() : false);
+        if (m_cmdHistory && m_cmdHistory->canUndo())
+            m_undoAction->setText(m_cmdHistory->undoText());
+        else
+            m_undoAction->setText(tr("&Undo"));
+    }
+    if (m_redoAction) {
+        m_redoAction->setEnabled(m_cmdHistory ? m_cmdHistory->canRedo() : false);
+        if (m_cmdHistory && m_cmdHistory->canRedo())
+            m_redoAction->setText(m_cmdHistory->redoText());
+        else
+            m_redoAction->setText(tr("&Redo"));
+    }
+}
+
+void MainWindow::recalcDependents(CustomObject* modifiedObj)
+{
+    if (!m_currentProject || !m_depGraph) return;
+
+    // Rebuild dependency graph to stay in sync
+    m_depGraph->rebuildFromProject(m_currentProject);
+
+    if (!modifiedObj) return;
+
+    // Find all operations that use this object as parameter
+    QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(modifiedObj);
+    if (ops.isEmpty()) return;
+
+    // Compound command so one undo undoes the whole cascade
+    auto* compound = new CompoundCommand(tr("Recalculate dependents of %1").arg(modifiedObj->name()));
+
+    for (auto* op : ops) {
+        if (!op) continue;
+        // Re-execute the operation
+        auto* execCmd = new ExecuteOperationCommand(op);
+        compound->addCommand(execCmd);
+    }
+
+    m_cmdHistory->push(compound, m_currentProject);
+    updateUndoRedoActions();
+}
 
 void MainWindow::refreshChart()
 {

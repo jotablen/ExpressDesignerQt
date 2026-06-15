@@ -19,6 +19,8 @@
 
 #include <core/Project.h>
 #include <core/ObjectTypes.h>
+#include <core/DependencyGraph.h>
+#include <core/CommandHistory.h>
 #include <io/HistoryManager.h>
 #include <ui/models/ObjectTreeModel.h>
 
@@ -61,6 +63,10 @@ private slots:
     void onOffsetWF();
     void onRecalculate();
 
+    // Transform actions
+    void onRotateObject();
+    void onTranslateObject();
+
     // View actions
     void onZoomIn();
     void onZoomOut();
@@ -72,6 +78,8 @@ private slots:
 
     // Edit
     void onPreferences();
+    void onUndo();
+    void onRedo();
 
     // Selection
     void onObjectSelected(const QModelIndex& index);
@@ -95,6 +103,10 @@ private:
     void updateStatusBar();
     void setModified(bool modified);
     void updateDeleteActionState();
+    void updateUndoRedoActions();
+
+    // Cascade recalculation
+    void recalcDependents(CustomObject* modifiedObj = nullptr);
 
     // Widgets
     QTreeView* m_objectTree = nullptr;
@@ -107,6 +119,8 @@ private:
 
     // Actions
     QAction* m_deleteAction = nullptr;
+    QAction* m_undoAction = nullptr;
+    QAction* m_redoAction = nullptr;
 
     // Models
     ObjectTreeModel* m_treeModel = nullptr;
@@ -120,8 +134,10 @@ private:
 #endif
     CustomObject* m_selectedObject = nullptr;
 
-    // History
+    // Core systems
     HistoryManager* m_history = nullptr;
+    DependencyGraph* m_depGraph = nullptr;
+    CommandHistory* m_cmdHistory = nullptr;
 
     // Settings
     bool m_autoZoomOnInsert = true;
