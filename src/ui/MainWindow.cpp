@@ -279,18 +279,14 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                 QPoint cv = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp));
                 QPointF cursorScene = m_chartView->mapToScene(cv);
                 const auto axes = m_chart->axes();
-                QValueAxis* ax = nullptr;
                 QValueAxis* ay = nullptr;
                 for (auto* axis : axes) {
-                    if (axis->orientation() == Qt::Horizontal) ax = qobject_cast<QValueAxis*>(axis);
-                    else if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
+                    if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
                 }
-                if (ax && ay) {
+                if (ay) {
                     double factor = (we->angleDelta().y() > 0) ? 0.9 : 1.1111;
-                    double halfRange = (ax->max() - ax->min()) * factor * 0.5;
-                    ax->setRange(cursorScene.x() - halfRange, cursorScene.x() + halfRange);
-                    ay->setRange(cursorScene.y() - halfRange, cursorScene.y() + halfRange);
-                    // Maintain 1:1 visual aspect ratio
+                    double yHalf = (ay->max() - ay->min()) * factor * 0.5;
+                    ay->setRange(cursorScene.y() - yHalf, cursorScene.y() + yHalf);
                     maintainChartAspectRatio();
                 }
             }
@@ -553,6 +549,8 @@ void MainWindow::onOffsetWF()
 {
     if (!m_currentProject) return;
     OffsetWFDialog dlg(this);
+    if (m_selectedObject && isWavefront(m_selectedObject->objectType()))
+        dlg.setSelectedWF(m_selectedObject);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
         CustomObject* srcWf = nullptr;

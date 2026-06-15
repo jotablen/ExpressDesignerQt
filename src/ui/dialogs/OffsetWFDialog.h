@@ -13,6 +13,7 @@ class OffsetWFDialog : public QDialog {
 public:
     explicit OffsetWFDialog(QWidget* parent = nullptr);
     void setProject(Project* project);
+    void setSelectedWF(CustomObject* wf);
 
     QComboBox* wfCombo() const { return m_wfCombo; }
     QLineEdit* offsetEdit() const { return m_offsetEdit; }
@@ -33,6 +34,7 @@ private:
     QCheckBox* m_newResultCheck = nullptr;
     QWidget* m_resultPanel = nullptr;
     Project* m_project = nullptr;
+    CustomObject* m_selectedWF = nullptr;
 };
 
 } // namespace ExpressDesigner

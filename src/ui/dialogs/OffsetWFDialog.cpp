@@ -86,6 +86,20 @@ void OffsetWFDialog::setProject(Project* project)
 
     if (m_wfCombo->count() > 0)
         m_wfCombo->setCurrentIndex(0);
+
+    // If a WF is pre-selected, find it in the combo and select it
+    if (m_selectedWF) {
+        int idx = m_wfCombo->findText(m_selectedWF->name());
+        if (idx >= 0)
+            m_wfCombo->setCurrentIndex(idx);
+    }
+
+    updateResultName();
+}
+
+void OffsetWFDialog::setSelectedWF(CustomObject* wf)
+{
+    m_selectedWF = wf;
 }
 
 void OffsetWFDialog::populateCombo(Project* project)
