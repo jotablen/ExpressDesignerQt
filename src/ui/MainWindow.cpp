@@ -34,6 +34,7 @@
 #include <QWheelEvent>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 #endif
 
@@ -188,11 +189,9 @@ void MainWindow::setupCentralWidget()
     m_rightSplitter->addWidget(chartPlaceholder);
 #endif
     m_rightSplitter->addWidget(m_propertiesWidget);
-    // Chart gets all extra space, properties anchored to bottom
     m_rightSplitter->setStretchFactor(0, 1);
     m_rightSplitter->setStretchFactor(1, 0);
     m_rightSplitter->setCollapsible(1, false);
-    // Set initial sizes: chart big, properties at default height
     m_rightSplitter->setSizes({600, 150});
 
     m_mainSplitter->addWidget(m_objectTree);
@@ -208,7 +207,6 @@ void MainWindow::setupConnections()
     connect(m_objectTree->selectionModel(), &QItemSelectionModel::currentChanged,
             this, &MainWindow::onObjectSelected);
 
-    // Refresh chart when properties are modified
     connect(m_propertiesWidget, &PropertiesWidget::objectModified,
             this, [this](CustomObject*) {
                 setModified(true);
@@ -222,23 +220,16 @@ void MainWindow::setupConnections()
                 updateStatusBar();
             });
 
-    // Maintain 1:1 aspect ratio when splitter panels resize
     connect(m_rightSplitter, &QSplitter::splitterMoved,
-            this, [this](int, int) {
-                maintainChartAspectRatio();
-            });
+            this, [this](int, int) { maintainChartAspectRatio(); });
     connect(m_mainSplitter, &QSplitter::splitterMoved,
-            this, [this](int, int) {
-                maintainChartAspectRatio();
-            });
+            this, [this](int, int) { maintainChartAspectRatio(); });
 
-    // Context menu on object tree (matching Ovals Designer popupMenuChart)
     m_objectTree->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_objectTree, &QWidget::customContextMenuRequested,
             this, [this](const QPoint& pos) {
         QModelIndex idx = m_objectTree->indexAt(pos);
         CustomObject* obj = (idx.isValid()) ? m_treeModel->objectAt(idx) : nullptr;
-
         QMenu menu(this);
         QAction* insertAct = menu.addAction(tr("&Insert object"));
         QAction* deleteAct = nullptr;
@@ -254,16 +245,11 @@ void MainWindow::setupConnections()
         QAction* zoomInAct = menu.addAction(tr("Zoom &In"));
         QAction* zoomOutAct = menu.addAction(tr("Zoom &Out"));
         QAction* zoomAllAct = menu.addAction(tr("Zoom &All"));
-
         QAction* chosen = menu.exec(m_objectTree->mapToGlobal(pos));
         if (chosen == insertAct) onInsertObject();
         else if (deleteAct && chosen == deleteAct) onDeleteObject();
         else if (hideAct && chosen == hideAct) {
-            if (obj) {
-                obj->setVisible(!obj->isVisible());
-                setModified(true);
-                refreshChart();
-            }
+            if (obj) { obj->setVisible(!obj->isVisible()); setModified(true); refreshChart(); }
         }
         else if (chosen == togglePtsAct) onToggleControlPoints();
         else if (chosen == zoomInAct) onZoomIn();
@@ -272,41 +258,40 @@ void MainWindow::setupConnections()
     });
 }
 
-// Event filter to intercept mouse wheel, drag, and click on the chart viewport
+// Event filter
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
 #ifdef HAS_QT_CHARTS
     if (m_chartView && watched == m_chartView) {
-        // --- Chart resize → maintain aspect ratio ---
         if (event->type() == QEvent::Resize) {
             maintainChartAspectRatio();
-            return false; // let the event propagate normally
+            return false;
         }
     }
 
     if (m_chartView && watched == m_chartView->viewport()) {
-        // --- Mouse wheel → zoom in/out around cursor, maintaining 1:1 ---
+        // --- Mouse wheel zoom (1:1) ---
         if (event->type() == QEvent::Wheel) {
             QWheelEvent* we = static_cast<QWheelEvent*>(event);
             if (m_chart) {
-                // Convert global cursor position to chart scene coordinates
-                QPoint cursorGlobal = we->globalPosition().toPoint();
-                QPoint cursorInChart = m_chartView->mapFromGlobal(cursorGlobal);
-                QPointF cursorScene = m_chartView->mapToScene(cursorInChart);
+                // viewport-local → chart-view-local → scene coordinates
+                QPoint vp = we->position().toPoint();
+                QPoint cv = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp));
+                QPointF cursorScene = m_chartView->mapToScene(cv);
                 const auto axes = m_chart->axes();
                 QValueAxis* ax = nullptr;
                 QValueAxis* ay = nullptr;
                 for (auto* axis : axes) {
-                    if (axis->orientation() == Qt::Horizontal)
-                        ax = qobject_cast<QValueAxis*>(axis);
-                    else if (axis->orientation() == Qt::Vertical)
-                        ay = qobject_cast<QValueAxis*>(axis);
+                    if (axis->orientation() == Qt::Horizontal) ax = qobject_cast<QValueAxis*>(axis);
+                    else if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
                 }
                 if (ax && ay) {
                     double factor = (we->angleDelta().y() > 0) ? 0.9 : 1.1111;
                     double halfRange = (ax->max() - ax->min()) * factor * 0.5;
                     ax->setRange(cursorScene.x() - halfRange, cursorScene.x() + halfRange);
                     ay->setRange(cursorScene.y() - halfRange, cursorScene.y() + halfRange);
+                    // Maintain 1:1 visual aspect ratio
+                    maintainChartAspectRatio();
                 }
             }
             return true;
@@ -326,9 +311,15 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
         if (event->type() == QEvent::MouseMove && m_isPanning) {
             QMouseEvent* me = static_cast<QMouseEvent*>(event);
             if (m_chart) {
-                QPointF delta = m_chartView->mapToScene(me->pos()) - m_chartView->mapToScene(m_panLastPos);
+                QPoint vpNow = me->pos();
+                QPoint vpPrev = m_panLastPos;
+                QPoint cvNow  = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vpNow));
+                QPoint cvPrev = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vpPrev));
+                QPointF sceneNow  = m_chartView->mapToScene(cvNow);
+                QPointF scenePrev = m_chartView->mapToScene(cvPrev);
+                QPointF delta = sceneNow - scenePrev;
                 m_chart->scroll(-delta.x(), delta.y());
-                m_panLastPos = me->pos();
+                m_panLastPos = vpNow;
             }
             return true;
         }
@@ -339,11 +330,11 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
             if (me->button() == Qt::LeftButton) {
                 m_isPanning = false;
 
-                // On release, also do click-select:
-                QPointF chartPos = m_chartView->mapToScene(me->pos());
+                QPoint vp = me->pos();
+                QPoint cv = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp));
+                QPointF chartPos = m_chartView->mapToScene(cv);
                 onChartClicked(chartPos);
 
-                // Compute adaptive snap distance from current axis ranges
                 double snapDist = 10.0;
                 const auto axes = m_chart->axes();
                 if (axes.size() >= 2) {
@@ -355,25 +346,35 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                     }
                 }
 
-                // Find clicked series and select its associated object
                 CustomObject* clickedObj = nullptr;
                 const auto seriesList = m_chart->series();
                 double bestDist = snapDist;
                 for (auto* ser : seriesList) {
+                    if (ser->name().isEmpty()) continue;
+                    QVariant prop = ser->property("customObject");
+                    if (!prop.isValid()) continue;
+
                     QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
-                    if (!ls) continue;
-                    // Only consider main curve series (named, not normals)
-                    if (ls->name().isEmpty()) continue;
-                    // Check each point for proximity
-                    for (int i = 0; i < ls->count(); ++i) {
-                        QPointF pt = ls->at(i);
-                        double dx = pt.x() - chartPos.x();
-                        double dy = pt.y() - chartPos.y();
-                        double dist = qSqrt(dx * dx + dy * dy);
-                        if (dist < bestDist) {
-                            bestDist = dist;
-                            QVariant prop = ls->property("customObject");
-                            if (prop.isValid()) {
+                    QScatterSeries* ss = qobject_cast<QScatterSeries*>(ser);
+                    if (ls) {
+                        for (int i = 0; i < ls->count(); ++i) {
+                            QPointF pt = ls->at(i);
+                            double dx = pt.x() - chartPos.x();
+                            double dy = pt.y() - chartPos.y();
+                            double dist = qSqrt(dx * dx + dy * dy);
+                            if (dist < bestDist) {
+                                bestDist = dist;
+                                clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+                            }
+                        }
+                    } else if (ss) {
+                        for (int i = 0; i < ss->count(); ++i) {
+                            QPointF pt = ss->at(i);
+                            double dx = pt.x() - chartPos.x();
+                            double dy = pt.y() - chartPos.y();
+                            double dist = qSqrt(dx * dx + dy * dy);
+                            if (dist < bestDist) {
+                                bestDist = dist;
                                 clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
                             }
                         }
@@ -381,7 +382,6 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                 }
 
                 if (clickedObj && m_treeModel) {
-                    // Find and select the object in the tree
                     QModelIndex idx = m_treeModel->createIndexByObject(clickedObj);
                     if (idx.isValid()) {
                         m_objectTree->selectionModel()->setCurrentIndex(
@@ -410,12 +410,8 @@ void MainWindow::onOpenProject()
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open Project"),
         QString(), tr("JSON Project (*.json);;All Files (*)"));
     if (filePath.isEmpty()) return;
-
     Project* loaded = ProjectSerializer::load(filePath);
-    if (!loaded) {
-        QMessageBox::critical(this, tr("Error"), tr("Failed to load project."));
-        return;
-    }
+    if (!loaded) { QMessageBox::critical(this, tr("Error"), tr("Failed to load project.")); return; }
     m_currentFilePath = filePath;
     setProject(loaded);
     m_history->addEntry(QStringLiteral("project_opened"), filePath);
@@ -423,10 +419,7 @@ void MainWindow::onOpenProject()
 
 void MainWindow::onSaveProject()
 {
-    if (m_currentFilePath.isEmpty()) {
-        onSaveProjectAs();
-        return;
-    }
+    if (m_currentFilePath.isEmpty()) { onSaveProjectAs(); return; }
     if (m_currentProject && ProjectSerializer::save(*m_currentProject, m_currentFilePath)) {
         setModified(false);
         statusBar()->showMessage(tr("Project saved."), 3000);
@@ -458,16 +451,14 @@ void MainWindow::onCloseProject()
 void MainWindow::onInsertObject()
 {
     InsertObjectDialog dlg(this);
-    if (dlg.exec() == QDialog::Accepted) {
-        if (m_currentProject) {
-            CustomObject* obj = dlg.createdObject();
-            if (obj) {
-                m_currentProject->addDataObject(obj);
-                m_history->recordObjectCreation(obj->name());
-                setModified(true);
-                refreshChart();
-                updateStatusBar();
-            }
+    if (dlg.exec() == QDialog::Accepted && m_currentProject) {
+        CustomObject* obj = dlg.createdObject();
+        if (obj) {
+            m_currentProject->addDataObject(obj);
+            m_history->recordObjectCreation(obj->name());
+            setModified(true);
+            refreshChart();
+            updateStatusBar();
         }
     }
 }
@@ -476,18 +467,13 @@ void MainWindow::onDeleteObject()
 {
     QModelIndex idx = m_objectTree->currentIndex();
     if (!idx.isValid() || !m_currentProject) return;
-
     CustomObject* obj = m_treeModel->objectAt(idx);
     if (!obj) return;
-
-    // Remove from whichever list contains the object
     m_currentProject->removeDataObject(obj);
     m_currentProject->removeResultObject(obj);
     m_history->recordObjectDeletion(obj->name());
-
     m_selectedObject = nullptr;
     updateDeleteActionState();
-
     setModified(true);
     refreshChart();
     updateStatusBar();
@@ -500,7 +486,6 @@ void MainWindow::onImportObject()
     QString filePath = QFileDialog::getOpenFileName(this, tr("Import Object"),
         QString(), tr("TXT Files (*.txt);;All Files (*)"));
     if (filePath.isEmpty()) return;
-    // TXTImporter not yet implemented
     Q_UNUSED(filePath);
     refreshChart();
 }
@@ -511,18 +496,13 @@ void MainWindow::onExportObject()
     if (!idx.isValid() || !m_currentProject) return;
     CustomObject* obj = m_treeModel->objectAt(idx);
     if (!obj) return;
-
     QString filePath = QFileDialog::getSaveFileName(this, tr("Export Object"),
         obj->name() + QStringLiteral(".txt"), tr("TXT Files (*.txt)"));
     if (filePath.isEmpty()) return;
-
     TXTExporter::exportToFile(obj, filePath);
 }
 
-void MainWindow::onExportAllRhino()
-{
-    // ExportAllRhinoDialog - stub not yet implemented
-}
+void MainWindow::onExportAllRhino() {}
 
 void MainWindow::onCalculateOval()
 {
@@ -532,7 +512,6 @@ void MainWindow::onCalculateOval()
     if (dlg.exec() == QDialog::Accepted) {
         auto* op = new CarthesianOvalOperation(dlg.resultNameEdit()->text(), this);
         op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
-        // Set param names from selected combos
         op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
@@ -540,9 +519,7 @@ void MainWindow::onCalculateOval()
             m_currentProject->addOperation(op);
             m_history->recordObjectCreation(op->name());
             setModified(true);
-        } else {
-            delete op;
-        }
+        } else { delete op; }
         refreshChart();
         updateStatusBar();
     }
@@ -552,7 +529,6 @@ void MainWindow::onPropagateWF()
 {
     if (!m_currentProject) return;
     PropagateWFDialog dlg(this);
-    // Pre-select the currently selected WF if it is a wavefront
     if (m_selectedObject && isWavefront(m_selectedObject->objectType()))
         dlg.setSelectedWF(m_selectedObject);
     dlg.setProject(m_currentProject);
@@ -567,9 +543,7 @@ void MainWindow::onPropagateWF()
             m_currentProject->addOperation(op);
             m_history->recordObjectCreation(op->name());
             setModified(true);
-        } else {
-            delete op;
-        }
+        } else { delete op; }
         refreshChart();
         updateStatusBar();
     }
@@ -585,23 +559,15 @@ void MainWindow::onOffsetWF()
         QString wfName = dlg.wfCombo()->currentText();
         srcWf = m_currentProject->findObject(wfName);
         if (!srcWf) return;
-
         double offset = dlg.offsetEdit()->text().toDouble();
         QString resultName;
-
-        // Compute normals for the source WF to get displacement directions
         int numPoints = srcWf->controlPointCount();
-        if (numPoints < 2) {
-            statusBar()->showMessage(tr("Offset WF requires at least 2 control points"), 5000);
-            return;
-        }
+        if (numPoints < 2) { statusBar()->showMessage(tr("Offset WF requires at least 2 control points"), 5000); return; }
         auto normals = srcWf->computeNormals(numPoints);
-
         QVector<QPointF> offsetPts;
         offsetPts.reserve(numPoints);
         for (int i = 0; i < numPoints; ++i) {
-            // Displacement along normal: normal direction * offset (uniform displacement)
-            QPointF normalDir(1.0, 0.0); // default: right
+            QPointF normalDir(1.0, 0.0);
             if (i < normals.size()) {
                 QPointF vec = normals[i].second - normals[i].first;
                 double len = qSqrt(vec.x() * vec.x() + vec.y() * vec.y());
@@ -610,41 +576,40 @@ void MainWindow::onOffsetWF()
             QPointF pt = srcWf->controlPoints()[i];
             offsetPts.append(pt + normalDir * offset);
         }
-
         if (dlg.createNewResult()) {
             resultName = dlg.resultNameEdit()->text().trimmed();
             if (resultName.isEmpty()) resultName = wfName + QStringLiteral("_offset");
-
-            // Result is a WF: CurveObject(isWF=true) + withWavefront + withResult
             auto* result = new CurveObject(resultName, true);
             result->setObjectType(withWavefront(withResult(ObjectType::Curve)));
             result->setRefractiveIndex(srcWf->refractiveIndex());
             result->setControlPoints(offsetPts);
             m_currentProject->addResultObject(result);
-
             m_history->recordObjectCreation(resultName);
-        } else {
-            // Modify the source WF in place with offset points
-            srcWf->setControlPoints(offsetPts);
-        }
-
+        } else { srcWf->setControlPoints(offsetPts); }
         setModified(true);
         refreshChart();
         updateStatusBar();
     }
 }
 
-void MainWindow::onRecalculate()
-{
-    refreshChart();
-}
+void MainWindow::onRecalculate() { refreshChart(); }
 
 void MainWindow::onZoomIn()
 {
 #ifdef HAS_QT_CHARTS
     if (m_chart) {
-        m_chart->zoomIn();
-        maintainChartAspectRatio();
+        const auto axes = m_chart->axes();
+        QValueAxis* ay = nullptr;
+        for (auto* axis : axes) {
+            if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
+        }
+        if (ay) {
+            double yCenter = (ay->max() + ay->min()) * 0.5;
+            double yHalf = (ay->max() - ay->min()) * 0.5;
+            double newHalf = yHalf * 0.5;  // halve visible range
+            ay->setRange(yCenter - newHalf, yCenter + newHalf);
+            maintainChartAspectRatio();
+        }
     }
 #endif
 }
@@ -653,8 +618,18 @@ void MainWindow::onZoomOut()
 {
 #ifdef HAS_QT_CHARTS
     if (m_chart) {
-        m_chart->zoomOut();
-        maintainChartAspectRatio();
+        const auto axes = m_chart->axes();
+        QValueAxis* ay = nullptr;
+        for (auto* axis : axes) {
+            if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
+        }
+        if (ay) {
+            double yCenter = (ay->max() + ay->min()) * 0.5;
+            double yHalf = (ay->max() - ay->min()) * 0.5;
+            double newHalf = yHalf * 2.0;  // double visible range
+            ay->setRange(yCenter - newHalf, yCenter + newHalf);
+            maintainChartAspectRatio();
+        }
     }
 #endif
 }
@@ -662,29 +637,13 @@ void MainWindow::onZoomOut()
 void MainWindow::onZoomAll()
 {
 #ifdef HAS_QT_CHARTS
-    // Re-populate chart which auto-fits axes to all data
     refreshChart();
 #endif
 }
 
-void MainWindow::onToggleControlPoints()
-{
-    m_showControlPoints = !m_showControlPoints;
-    refreshChart();
-}
-
-void MainWindow::onToggleLabels()
-{
-    m_showLabels = !m_showLabels;
-    refreshChart();
-}
-
-void MainWindow::onToggleNormals()
-{
-    m_showNormals = !m_showNormals;
-    refreshChart();
-}
-
+void MainWindow::onToggleControlPoints() { m_showControlPoints = !m_showControlPoints; refreshChart(); }
+void MainWindow::onToggleLabels() { m_showLabels = !m_showLabels; refreshChart(); }
+void MainWindow::onToggleNormals() { m_showNormals = !m_showNormals; refreshChart(); }
 void MainWindow::onSetAspectRatio() {}
 
 void MainWindow::maintainChartAspectRatio()
@@ -695,47 +654,44 @@ void MainWindow::maintainChartAspectRatio()
     QValueAxis* ax = nullptr;
     QValueAxis* ay = nullptr;
     for (auto* axis : axes) {
-        if (axis->orientation() == Qt::Horizontal)
-            ax = qobject_cast<QValueAxis*>(axis);
-        else if (axis->orientation() == Qt::Vertical)
-            ay = qobject_cast<QValueAxis*>(axis);
+        if (axis->orientation() == Qt::Horizontal) ax = qobject_cast<QValueAxis*>(axis);
+        else if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
     }
     if (!ax || !ay) return;
-    double xRange = ax->max() - ax->min();
+
+    // ODs approach: adjust X axis based on Y range and chart pixel dimensions
     double yRange = ay->max() - ay->min();
-    if (xRange < 1e-9) return;
+    if (yRange < 1e-9) return;
+
+    QRectF plotArea = m_chart->plotArea();
+    double chartWidth = plotArea.width();
+    double chartHeight = plotArea.height();
+    if (chartHeight < 1.0) return;
+
+    double xRange = chartWidth * yRange / chartHeight;
     double xCenter = (ax->max() + ax->min()) * 0.5;
-    double yCenter = (ay->max() + ay->min()) * 0.5;
-    ay->setRange(yCenter - xRange * 0.5, yCenter + xRange * 0.5);
+    ax->setRange(xCenter - xRange * 0.5, xCenter + xRange * 0.5);
 #endif
 }
 
-void MainWindow::onPreferences()
-{
-    PreferencesDialog dlg(this);
-    dlg.exec();
-}
+void MainWindow::onPreferences() { PreferencesDialog dlg(this); dlg.exec(); }
 
 void MainWindow::updateDeleteActionState()
 {
     bool canDelete = false;
     if (m_selectedObject && m_currentProject) {
-        // Only real objects (not the Data/Result folder nodes) are deletable
         const auto& dataObjs = m_currentProject->dataObjects();
         const auto& resultObjs = m_currentProject->resultObjects();
-        if (dataObjs.contains(m_selectedObject) || resultObjs.contains(m_selectedObject)) {
+        if (dataObjs.contains(m_selectedObject) || resultObjs.contains(m_selectedObject))
             canDelete = true;
-        }
     }
-    if (m_deleteAction)
-        m_deleteAction->setEnabled(canDelete);
+    if (m_deleteAction) m_deleteAction->setEnabled(canDelete);
 }
 
 void MainWindow::onObjectSelected(const QModelIndex& index)
 {
     m_selectedObject = m_treeModel->objectAt(index);
-    if (m_propertiesWidget)
-        m_propertiesWidget->setObject(m_selectedObject);
+    if (m_propertiesWidget) m_propertiesWidget->setObject(m_selectedObject);
     updateDeleteActionState();
     refreshChart();
     updateStatusBar();
@@ -743,38 +699,24 @@ void MainWindow::onObjectSelected(const QModelIndex& index)
 
 void MainWindow::onChartClicked(const QPointF& point)
 {
-    statusBar()->showMessage(tr("Position: (%1, %2)")
-        .arg(point.x(), 0, 'f', 2)
-        .arg(point.y(), 0, 'f', 2));
+    statusBar()->showMessage(tr("Position: (%1, %2)").arg(point.x(), 0, 'f', 2).arg(point.y(), 0, 'f', 2));
 }
 
-void MainWindow::onAbout()
-{
-    AboutDialog dlg(this);
-    dlg.exec();
-}
-
-void MainWindow::onShowHistory()
-{
-    // ProjectHistoryDialog - stub not yet implemented
-}
+void MainWindow::onAbout() { AboutDialog dlg(this); dlg.exec(); }
+void MainWindow::onShowHistory() {}
 
 void MainWindow::refreshChart()
 {
 #ifdef HAS_QT_CHARTS
     if (!m_chart || !m_currentProject) return;
     m_chart->removeAllSeries();
-    ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals,
-                               m_selectedObject);
+    ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals, m_selectedObject);
 #endif
 }
 
 void MainWindow::updateStatusBar()
 {
-    if (!m_currentProject) {
-        statusBar()->showMessage(tr("No project open"));
-        return;
-    }
+    if (!m_currentProject) { statusBar()->showMessage(tr("No project open")); return; }
     int totalObjects = m_currentProject->dataObjectCount() + m_currentProject->resultObjectCount();
     statusBar()->showMessage(tr("Ready | Objects: %1").arg(totalObjects));
 }
@@ -782,10 +724,7 @@ void MainWindow::updateStatusBar()
 void MainWindow::setModified(bool modified)
 {
     m_isModified = modified;
-    if (modified)
-        setWindowTitle(QStringLiteral("ExpressDesigner *"));
-    else
-        setWindowTitle(QStringLiteral("ExpressDesigner"));
+    setWindowTitle(modified ? QStringLiteral("ExpressDesigner *") : QStringLiteral("ExpressDesigner"));
 }
 
 void MainWindow::closeEvent(QCloseEvent* event)
@@ -794,13 +733,9 @@ void MainWindow::closeEvent(QCloseEvent* event)
         auto answer = QMessageBox::question(this, tr("Unsaved Changes"),
             tr("Save changes before exiting?"),
             QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        if (answer == QMessageBox::Cancel) {
-            event->ignore();
-            return;
-        }
+        if (answer == QMessageBox::Cancel) { event->ignore(); return; }
         if (answer == QMessageBox::Save) onSaveProject();
     }
-
     QSettings settings;
     settings.setValue(QStringLiteral("MainWindow/geometry"), saveGeometry());
     settings.setValue(QStringLiteral("MainWindow/state"), saveState());
