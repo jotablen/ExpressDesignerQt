@@ -285,12 +285,14 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
     }
 
     if (m_chartView && watched == m_chartView->viewport()) {
-        // --- Mouse wheel → zoom in/out around cursor position ---
+        // --- Mouse wheel → zoom in/out around cursor, maintaining 1:1 ---
         if (event->type() == QEvent::Wheel) {
             QWheelEvent* we = static_cast<QWheelEvent*>(event);
             if (m_chart) {
-                // Use mapToScene to get cursor position in chart coordinates
-                QPointF cursorScene = m_chartView->mapToScene(we->position().toPoint());
+                // Convert global cursor position to chart scene coordinates
+                QPoint cursorGlobal = we->globalPosition().toPoint();
+                QPoint cursorInChart = m_chartView->mapFromGlobal(cursorGlobal);
+                QPointF cursorScene = m_chartView->mapToScene(cursorInChart);
                 const auto axes = m_chart->axes();
                 QValueAxis* ax = nullptr;
                 QValueAxis* ay = nullptr;
@@ -301,12 +303,10 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                         ay = qobject_cast<QValueAxis*>(axis);
                 }
                 if (ax && ay) {
-                    double factor = (we->angleDelta().y() > 0) ? 0.75 : 1.333;
-                    double xHalf = (ax->max() - ax->min()) * factor * 0.5;
-                    double yHalf = (ay->max() - ay->min()) * factor * 0.5;
-                    ax->setRange(cursorScene.x() - xHalf, cursorScene.x() + xHalf);
-                    ay->setRange(cursorScene.y() - yHalf, cursorScene.y() + yHalf);
-                    maintainChartAspectRatio();
+                    double factor = (we->angleDelta().y() > 0) ? 0.9 : 1.1111;
+                    double halfRange = (ax->max() - ax->min()) * factor * 0.5;
+                    ax->setRange(cursorScene.x() - halfRange, cursorScene.x() + halfRange);
+                    ay->setRange(cursorScene.y() - halfRange, cursorScene.y() + halfRange);
                 }
             }
             return true;
@@ -642,14 +642,20 @@ void MainWindow::onRecalculate()
 void MainWindow::onZoomIn()
 {
 #ifdef HAS_QT_CHARTS
-    if (m_chart) m_chart->zoomIn();
+    if (m_chart) {
+        m_chart->zoomIn();
+        maintainChartAspectRatio();
+    }
 #endif
 }
 
 void MainWindow::onZoomOut()
 {
 #ifdef HAS_QT_CHARTS
-    if (m_chart) m_chart->zoomOut();
+    if (m_chart) {
+        m_chart->zoomOut();
+        maintainChartAspectRatio();
+    }
 #endif
 }
 
