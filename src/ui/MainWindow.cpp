@@ -562,11 +562,14 @@ void MainWindow::onCalculateOval()
         op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
-        if (op->execute(m_currentProject)) {
-            m_currentProject->addOperation(op);
-            m_history->recordObjectCreation(op->name());
-            setModified(true);
-        } else { delete op; }
+        // push() internally calls execute()
+        auto* execCmd = new ExecuteOperationCommand(op);
+        m_cmdHistory->push(execCmd, m_currentProject);
+        m_currentProject->addOperation(op);
+        m_history->recordObjectCreation(op->name());
+        setModified(true);
+        if (m_depGraph) m_depGraph->rebuildFromProject(m_currentProject);
+        updateUndoRedoActions();
         refreshChart();
         updateStatusBar();
     }
@@ -586,11 +589,14 @@ void MainWindow::onPropagateWF()
         op->setParamName(PropagateWFOperation::PARAM_WF, dlg.wfOrgCombo()->currentText());
         op->setParamName(PropagateWFOperation::PARAM_SURFACE, dlg.wfDestCombo()->currentText());
         op->setParamName(PropagateWFOperation::PARAM_IOR, dlg.indexDestEdit()->text());
-        if (op->execute(m_currentProject)) {
-            m_currentProject->addOperation(op);
-            m_history->recordObjectCreation(op->name());
-            setModified(true);
-        } else { delete op; }
+        // push() internally calls execute()
+        auto* execCmd = new ExecuteOperationCommand(op);
+        m_cmdHistory->push(execCmd, m_currentProject);
+        m_currentProject->addOperation(op);
+        m_history->recordObjectCreation(op->name());
+        setModified(true);
+        if (m_depGraph) m_depGraph->rebuildFromProject(m_currentProject);
+        updateUndoRedoActions();
         refreshChart();
         updateStatusBar();
     }
@@ -861,22 +867,46 @@ void MainWindow::recalcDependents(CustomObject* modifiedObj)
 
     if (!modifiedObj) { m_recalcInProgress = false; return; }
 
-    // Find all operations that use this object as parameter
-    QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(modifiedObj);
-    if (ops.isEmpty()) return;
+    // Transitive recalculation: keep recalculating until no more dependents
+    QSet<CustomOperation*> processed;   // ops already recalculated
+    QSet<CustomObject*> modified;       // objects whose dependents need checking
+    modified.insert(modifiedObj);
 
-    // Compound command so one undo undoes the whole cascade
-    auto* compound = new CompoundCommand(tr("Recalculate dependents of %1").arg(modifiedObj->name()));
+    // Block signals during entire recalc cascade to avoid side-effects
+    const QSignalBlocker blocker(m_currentProject);
 
-    for (auto* op : ops) {
-        if (!op) continue;
-        // Re-execute the operation
-        auto* execCmd = new ExecuteOperationCommand(op);
-        compound->addCommand(execCmd);
+    while (!modified.isEmpty()) {
+        // Take one object and find its dependent operations
+        CustomObject* obj = *modified.begin();
+        modified.erase(modified.begin());
+
+        // Rebuild so the graph knows about newly created results from previous iterations
+        m_depGraph->rebuildFromProject(m_currentProject);
+
+        QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(obj);
+        for (auto* op : ops) {
+            if (!op || processed.contains(op)) continue;
+            processed.insert(op);
+
+            // Remove old result by name
+            QString resName = op->resultName();
+            CustomObject* oldResult = m_currentProject->findObject(resName);
+            if (oldResult) {
+                m_currentProject->removeResultObject(oldResult);
+                m_currentProject->removeDataObject(oldResult);
+            }
+            // Execute — creates new result
+            op->execute(m_currentProject);
+
+            // The new result now needs its dependents checked too
+            CustomObject* newResult = m_currentProject->findObject(resName);
+            if (newResult)
+                modified.insert(newResult);
+        }
     }
 
-    m_cmdHistory->push(compound, m_currentProject);
-    updateUndoRedoActions();
+    // Rebuild dependency graph to reflect new results
+    m_depGraph->rebuildFromProject(m_currentProject);
     m_recalcInProgress = false;
 }
 

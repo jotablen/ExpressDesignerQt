@@ -1,76 +1,103 @@
 #include "DependencyGraphDialog.h"
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QDialogButtonBox>
 #include <QLabel>
+#include <QHeaderView>
 
 namespace ExpressDesigner {
 
 DependencyGraphDialog::DependencyGraphDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(QStringLiteral("Dependency Graph"));
-    setMinimumSize(500, 400);
+    setMinimumSize(550, 450);
 
     auto* layout = new QVBoxLayout(this);
 
-    layout->addWidget(new QLabel(QStringLiteral("Object → Operation → Result relationships:"), this));
+    auto* headerLayout = new QHBoxLayout();
+    headerLayout->addWidget(new QLabel(QStringLiteral("Object / Operation tree:"), this));
+    headerLayout->addStretch();
+    m_refreshBtn = new QPushButton(QStringLiteral("&Refresh"), this);
+    headerLayout->addWidget(m_refreshBtn);
+    layout->addLayout(headerLayout);
 
-    m_textEdit = new QTextEdit(this);
-    m_textEdit->setReadOnly(true);
-    m_textEdit->setFont(QFont(QStringLiteral("Courier New"), 9));
-    layout->addWidget(m_textEdit);
+    m_tree = new QTreeWidget(this);
+    m_tree->setHeaderLabels({QStringLiteral("Name"), QStringLiteral("Type")});
+    m_tree->setAlternatingRowColors(true);
+    m_tree->setRootIsDecorated(true);
+    m_tree->header()->setStretchLastSection(false);
+    m_tree->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_tree->header()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    layout->addWidget(m_tree);
 
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close, this);
     layout->addWidget(buttons);
     connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+    connect(m_refreshBtn, &QPushButton::clicked, this, &DependencyGraphDialog::onRefresh);
 }
 
 void DependencyGraphDialog::setProject(Project* project, DependencyGraph* graph)
 {
-    if (!project || !graph) return;
-
-    graph->rebuildFromProject(project);
-    buildGraphText(project, graph);
+    m_project = project;
+    m_graph = graph;
+    onRefresh();
 }
 
-void DependencyGraphDialog::buildGraphText(Project* project, DependencyGraph* graph)
+void DependencyGraphDialog::onRefresh()
 {
-    QString text;
-    text += QStringLiteral("=== DEPENDENCY GRAPH ===\n\n");
+    if (m_graph && m_project)
+        m_graph->rebuildFromProject(m_project);
+    buildGraph();
+}
 
-    const auto& ops = project->operations();
+void DependencyGraphDialog::buildGraph()
+{
+    m_tree->clear();
+    if (!m_project) return;
+
+    // Object → uses in operations → results
+    // Show structure: each operation lists its input objects, then its result
+    const auto& ops = m_project->operations();
+
     for (auto* op : ops) {
         if (!op) continue;
-        text += QStringLiteral("Operation: %1\n").arg(op->name());
 
+        auto* opItem = new QTreeWidgetItem(m_tree);
+        opItem->setText(0, op->name());
+        opItem->setText(1, QStringLiteral("Operation"));
+        opItem->setExpanded(true);
+
+        // Show input parameters
         for (int i = 0; i < op->paramCount(); ++i) {
-            QString prefix = op->paramPrefixOnTree(i);
             QString paramName = op->paramName(i);
+            QString prefix = op->paramPrefixOnTree(i);
+            auto* paramItem = new QTreeWidgetItem(opItem);
+            paramItem->setText(0, prefix + paramName);
             if (op->isParamObject(i)) {
-                CustomObject* paramObj = project->findObject(paramName);
-                if (paramObj) {
-                    text += QStringLiteral("  %1%2 (object)\n").arg(prefix, paramName);
-                } else {
-                    text += QStringLiteral("  %1%2 (missing)\n").arg(prefix, paramName);
-                }
+                CustomObject* paramObj = m_project->findObject(paramName);
+                paramItem->setText(1, paramObj ? QStringLiteral("Object ✓") : QStringLiteral("Object (missing)"));
             } else {
-                text += QStringLiteral("  %1%2 (value)\n").arg(prefix, paramName);
+                paramItem->setText(1, QStringLiteral("Value"));
             }
         }
 
-        CustomObject* result = graph->resultOfOperation(op);
-        if (result) {
-            text += QStringLiteral("  → Result: %1\n").arg(result->name());
-        } else {
-            text += QStringLiteral("  → Result: %1 (not found)\n").arg(op->resultName());
-        }
-        text += QStringLiteral("\n");
+        // Show result
+        auto* resultItem = new QTreeWidgetItem(opItem);
+        CustomObject* result = nullptr;
+        if (m_graph)
+            result = m_graph->resultOfOperation(op);
+        if (!result)
+            result = m_project->findObject(op->resultName());
+
+        resultItem->setText(0, result ? result->name() : op->resultName());
+        resultItem->setText(1, result ? QStringLiteral("Result ✓") : QStringLiteral("Result (not found)"));
     }
 
     if (ops.isEmpty()) {
-        text += QStringLiteral("No operations in project.\n");
+        auto* emptyItem = new QTreeWidgetItem(m_tree);
+        emptyItem->setText(0, QStringLiteral("No operations in project"));
+        emptyItem->setText(1, QStringLiteral(""));
     }
-
-    m_textEdit->setText(text);
 }
 
 } // namespace ExpressDesigner
