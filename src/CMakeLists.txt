@@ -10,6 +10,8 @@ set(CORE_SOURCES
     core/CarthesianOvalOperation.cpp
     core/PropagateWFOperation.cpp
     core/ObjectFactory.cpp
+    core/DependencyGraph.cpp
+    core/CommandHistory.cpp
 )
 
 set(GEOMETRY_SOURCES
@@ -51,6 +53,8 @@ set(UI_SOURCES
     ui/dialogs/SetScaleDialog.cpp
     ui/dialogs/ProjectHistoryDialog.cpp
     ui/dialogs/PreferencesDialog.cpp
+    ui/dialogs/RotateObjectDialog.cpp
+    ui/dialogs/TranslateObjectDialog.cpp
     ui/widgets/ObjectTreeWidget.cpp
     ui/widgets/PropertiesWidget.cpp
     ui/widgets/ChartWidget.cpp

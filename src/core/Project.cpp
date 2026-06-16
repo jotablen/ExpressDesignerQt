@@ -82,6 +82,21 @@ void Project::addResultObject(CustomObject* obj)
 {
     if (!obj) return;
     obj->setParent(this);
+
+    // Ensure unique name (auto-rename if duplicate, like ODs)
+    QString baseName = obj->name();
+    if (isNameInUse(baseName)) {
+        int suffix = 2;
+        QString newName;
+        do {
+            newName = baseName + QStringLiteral("_") + QString::number(suffix);
+            ++suffix;
+        } while (isNameInUse(newName));
+        QString oldName = baseName;
+        obj->setName(newName);
+        emit objectAutoRenamed(oldName, newName);
+    }
+
     int idx = m_resultObjects.size();
     m_resultObjects.append(obj);
     emit resultObjectAdded(obj, idx);

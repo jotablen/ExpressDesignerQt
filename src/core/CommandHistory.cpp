@@ -187,8 +187,13 @@ bool ExecuteOperationCommand::execute(Project* project)
     m_resultObj = project->findObject(resultName);
 
     if (m_resultObj) {
-        // Result already exists, just re-execute
-        m_op->execute(project);
+        // Remove old result first, then re-execute (avoids duplicate names)
+        project->removeResultObject(m_resultObj);
+        if (m_op->execute(project)) {
+            m_resultObj = project->findObject(resultName);
+        } else {
+            m_resultObj = nullptr;
+        }
         m_wasAdded = false;
     } else {
         // First execution

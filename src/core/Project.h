@@ -83,6 +83,7 @@ signals:
     void operationRemoved(CustomOperation* op, int index);
     void scaleChanged();
     void projectCleared();
+    void objectAutoRenamed(const QString& oldName, const QString& newName);
 
 private:
     QVector<CustomObject*> m_dataObjects;

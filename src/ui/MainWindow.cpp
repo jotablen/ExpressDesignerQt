@@ -852,6 +852,25 @@ void MainWindow::recalcDependents(CustomObject* modifiedObj)
     QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(modifiedObj);
     if (ops.isEmpty()) return;
 
+    // Build list of results that will be recalculated
+    QStringList resultNames;
+    for (auto* op : ops) {
+        if (!op) continue;
+        CustomObject* oldResult = m_depGraph->resultOfOperation(op);
+        if (oldResult)
+            resultNames << oldResult->name();
+        else
+            resultNames << op->resultName();
+    }
+
+    // Warn user that the hierarchical tree will be modified
+    auto answer = QMessageBox::information(this, tr("Cascade recalculation"),
+        tr("Modifying '%1' will recalculate the following result objects:\n\n%2\n\n"
+           "These results will be replaced. You can undo with Ctrl+Z.")
+           .arg(modifiedObj->name(), resultNames.join(QStringLiteral("\n"))),
+        QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
+    if (answer != QMessageBox::Ok) return;
+
     // Compound command so one undo undoes the whole cascade
     auto* compound = new CompoundCommand(tr("Recalculate dependents of %1").arg(modifiedObj->name()));
 
