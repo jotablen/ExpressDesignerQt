@@ -22,7 +22,9 @@ CustomObject* DependencyGraph::objectByUuid(const QUuid& uuid) const
 void DependencyGraph::addObjectDependency(CustomObject* obj, CustomOperation* op)
 {
     if (!obj || !op) return;
-    m_objToOps[obj->uuid()].append(op);
+    QVector<CustomOperation*>& ops = m_objToOps[obj->uuid()];
+    if (!ops.contains(op))
+        ops.append(op);
 }
 
 void DependencyGraph::addOperationResult(CustomOperation* op, CustomObject* resultObj)

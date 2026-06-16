@@ -55,6 +55,7 @@ set(UI_SOURCES
     ui/dialogs/PreferencesDialog.cpp
     ui/dialogs/RotateObjectDialog.cpp
     ui/dialogs/TranslateObjectDialog.cpp
+    ui/dialogs/DependencyGraphDialog.cpp
     ui/widgets/ObjectTreeWidget.cpp
     ui/widgets/PropertiesWidget.cpp
     ui/widgets/ChartWidget.cpp

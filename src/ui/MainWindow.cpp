@@ -6,6 +6,7 @@
 #include <ui/dialogs/OffsetWFDialog.h>
 #include <ui/dialogs/RotateObjectDialog.h>
 #include <ui/dialogs/TranslateObjectDialog.h>
+#include <ui/dialogs/DependencyGraphDialog.h>
 #include <core/CarthesianOvalOperation.h>
 #include <core/PropagateWFOperation.h>
 #include <core/CurveObject.h>
@@ -134,6 +135,8 @@ void MainWindow::setupMenuBar()
     viewMenu->addAction(tr("Zoom &In"), QKeySequence::ZoomIn, this, &MainWindow::onZoomIn);
     viewMenu->addAction(tr("Zoom &Out"), QKeySequence::ZoomOut, this, &MainWindow::onZoomOut);
     viewMenu->addAction(tr("Zoom &All"), this, &MainWindow::onZoomAll);
+    viewMenu->addSeparator();
+    viewMenu->addAction(tr("&Dependency Graph..."), this, &MainWindow::onShowDependencyGraph);
     viewMenu->addSeparator();
     viewMenu->addAction(tr("Toggle &Control Points"), this, &MainWindow::onToggleControlPoints);
     viewMenu->addAction(tr("Toggle &Labels"), this, &MainWindow::onToggleLabels);
@@ -301,8 +304,8 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
             if (m_chart) {
                 // viewport-local → chart-view-local → scene coordinates
                 QPoint vp = we->position().toPoint();
-                QPoint cv = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp));
-                QPointF cursorScene = m_chartView->mapToScene(cv);
+                QPointF cursorValue = m_chart->mapToValue(m_chartView->mapToScene(
+                    m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp))));
                 const auto axes = m_chart->axes();
                 QValueAxis* ay = nullptr;
                 for (auto* axis : axes) {
@@ -311,7 +314,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                 if (ay) {
                     double factor = (we->angleDelta().y() > 0) ? 0.9 : 1.1111;
                     double yHalf = (ay->max() - ay->min()) * factor * 0.5;
-                    ay->setRange(cursorScene.y() - yHalf, cursorScene.y() + yHalf);
+                    ay->setRange(cursorValue.y() - yHalf, cursorValue.y() + yHalf);
                     maintainChartAspectRatio();
                 }
             }
@@ -751,6 +754,14 @@ void MainWindow::onChartClicked(const QPointF& point)
 void MainWindow::onAbout() { AboutDialog dlg(this); dlg.exec(); }
 void MainWindow::onShowHistory() {}
 
+void MainWindow::onShowDependencyGraph()
+{
+    if (!m_currentProject) return;
+    DependencyGraphDialog dlg(this);
+    dlg.setProject(m_currentProject, m_depGraph);
+    dlg.exec();
+}
+
 void MainWindow::onRotateObject()
 {
     if (!m_currentProject) return;
@@ -842,34 +853,17 @@ void MainWindow::updateUndoRedoActions()
 void MainWindow::recalcDependents(CustomObject* modifiedObj)
 {
     if (!m_currentProject || !m_depGraph) return;
+    if (m_recalcInProgress) return;
+    m_recalcInProgress = true;
 
     // Rebuild dependency graph to stay in sync
     m_depGraph->rebuildFromProject(m_currentProject);
 
-    if (!modifiedObj) return;
+    if (!modifiedObj) { m_recalcInProgress = false; return; }
 
     // Find all operations that use this object as parameter
     QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(modifiedObj);
     if (ops.isEmpty()) return;
-
-    // Build list of results that will be recalculated
-    QStringList resultNames;
-    for (auto* op : ops) {
-        if (!op) continue;
-        CustomObject* oldResult = m_depGraph->resultOfOperation(op);
-        if (oldResult)
-            resultNames << oldResult->name();
-        else
-            resultNames << op->resultName();
-    }
-
-    // Warn user that the hierarchical tree will be modified
-    auto answer = QMessageBox::information(this, tr("Cascade recalculation"),
-        tr("Modifying '%1' will recalculate the following result objects:\n\n%2\n\n"
-           "These results will be replaced. You can undo with Ctrl+Z.")
-           .arg(modifiedObj->name(), resultNames.join(QStringLiteral("\n"))),
-        QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok);
-    if (answer != QMessageBox::Ok) return;
 
     // Compound command so one undo undoes the whole cascade
     auto* compound = new CompoundCommand(tr("Recalculate dependents of %1").arg(modifiedObj->name()));
@@ -883,6 +877,7 @@ void MainWindow::recalcDependents(CustomObject* modifiedObj)
 
     m_cmdHistory->push(compound, m_currentProject);
     updateUndoRedoActions();
+    m_recalcInProgress = false;
 }
 
 void MainWindow::refreshChart()

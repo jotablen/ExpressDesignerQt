@@ -71,6 +71,7 @@ private slots:
     void onZoomIn();
     void onZoomOut();
     void onZoomAll();
+    void onShowDependencyGraph();
     void onToggleControlPoints();
     void onToggleLabels();
     void onToggleNormals();
@@ -149,6 +150,9 @@ private:
     // Pan state
     bool m_isPanning = false;
     QPoint m_panLastPos;
+
+    // Guard against recursive cascade recalculation
+    bool m_recalcInProgress = false;
 
     // Chart helpers
     void maintainChartAspectRatio();
