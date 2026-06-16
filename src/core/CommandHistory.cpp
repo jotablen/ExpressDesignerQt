@@ -187,8 +187,9 @@ bool ExecuteOperationCommand::execute(Project* project)
     m_resultObj = project->findObject(resultName);
 
     if (m_resultObj) {
-        // Remove old result first, then re-execute (avoids duplicate names)
+        // Remove old object from BOTH lists before re-executing (avoid rename on recalc)
         project->removeResultObject(m_resultObj);
+        project->removeDataObject(m_resultObj);
         if (m_op->execute(project)) {
             m_resultObj = project->findObject(resultName);
         } else {
