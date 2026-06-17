@@ -1,10 +1,10 @@
 #pragma once
-
 #include <QObject>
 #include <QVector>
 #include <QPointF>
 #include <QString>
 #include <QDateTime>
+#include <memory>
 
 namespace ExpressDesigner {
 
@@ -13,26 +13,23 @@ class CustomObject;
 class CustomOperation;
 
 // ============================================================================
-// Command — Abstract base for undoable actions
+// Command — Abstract base
 // ============================================================================
 class Command {
 public:
-    explicit Command(const QString& description = QString());
+    explicit Command(const QString& description = {});
     virtual ~Command();
-
     virtual bool execute(Project* project) = 0;
     virtual bool undo(Project* project) = 0;
-
     QString description() const;
     QDateTime timestamp() const;
-
 protected:
     QString m_description;
     QDateTime m_timestamp;
 };
 
 // ============================================================================
-// AddObjectCommand
+// Concrete commands
 // ============================================================================
 class AddObjectCommand : public Command {
 public:
@@ -42,43 +39,33 @@ public:
     CustomObject* object() const;
 private:
     CustomObject* m_obj;
-    bool m_wasResult;
+    bool m_wasResult = false;
 };
 
-// ============================================================================
-// DeleteObjectCommand
-// ============================================================================
 class DeleteObjectCommand : public Command {
 public:
     explicit DeleteObjectCommand(CustomObject* obj, bool isResult);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
-    CustomObject* object() const;
 private:
     CustomObject* m_obj;
     bool m_isResult;
-    int m_index;
+    int m_index = -1;
 };
 
-// ============================================================================
-// ModifyObjectCommand
-// ============================================================================
 class ModifyObjectCommand : public Command {
 public:
-    ModifyObjectCommand(CustomObject* obj, const QString& propertyName,
-                        const QVariant& oldValue, const QVariant& newValue);
+    ModifyObjectCommand(CustomObject* obj, const QString& property,
+                       const QVariant& oldVal, const QVariant& newVal);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
 private:
     CustomObject* m_obj;
-    QString m_propertyName;
+    QString m_property;
     QVariant m_oldValue;
     QVariant m_newValue;
 };
 
-// ============================================================================
-// ModifyControlPointsCommand
-// ============================================================================
 class ModifyControlPointsCommand : public Command {
 public:
     ModifyControlPointsCommand(CustomObject* obj,
@@ -92,32 +79,26 @@ private:
     QVector<QPointF> m_newPoints;
 };
 
-// ============================================================================
-// ExecuteOperationCommand
-// ============================================================================
 class ExecuteOperationCommand : public Command {
 public:
-    ExecuteOperationCommand(CustomOperation* op);
+    explicit ExecuteOperationCommand(CustomOperation* op);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomOperation* operation() const;
     CustomObject* resultObject() const;
 private:
     CustomOperation* m_op;
-    CustomObject* m_resultObj;
-    bool m_wasAdded;
+    CustomObject* m_resultObj = nullptr;
+    bool m_wasAdded = false;
 };
 
-// ============================================================================
-// RotateObjectCommand
-// ============================================================================
 class RotateObjectCommand : public Command {
 public:
     enum PivotMode { StartPoint, MidPoint, EndPoint };
-
     RotateObjectCommand(CustomObject* obj, double degrees, PivotMode pivot);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
+    CustomObject* object() const { return m_obj; }
 private:
     CustomObject* m_obj;
     double m_degrees;
@@ -126,74 +107,43 @@ private:
     QPointF m_pivotPoint;
 };
 
-// ============================================================================
-// TranslateObjectCommand
-// ============================================================================
 class TranslateObjectCommand : public Command {
 public:
     TranslateObjectCommand(CustomObject* obj, const QPointF& delta);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
+    CustomObject* object() const { return m_obj; }
 private:
     CustomObject* m_obj;
     QPointF m_delta;
 };
 
 // ============================================================================
-// CompoundCommand — Group multiple commands into one undoable unit
-// ============================================================================
-class CompoundCommand : public Command {
-public:
-    explicit CompoundCommand(const QString& description = QString());
-    ~CompoundCommand() override;
-
-    void addCommand(Command* cmd);
-    bool execute(Project* project) override;
-    bool undo(Project* project) override;
-    int count() const;
-
-private:
-    QVector<Command*> m_commands;
-};
-
-// ============================================================================
-// CommandHistory — Stack-based undo/redo manager
+// CommandHistory — Stack-based undo/redo
 // ============================================================================
 class CommandHistory : public QObject {
     Q_OBJECT
-
 public:
     explicit CommandHistory(QObject* parent = nullptr);
     ~CommandHistory() override;
 
-    /** Execute a command and push it onto the undo stack.
-     *  Clears the redo stack. Returns true on success. */
-    bool push(Command* cmd, Project* project);
-
-    /** Undo the last command. Returns true on success. */
+    bool push(std::unique_ptr<Command> cmd, Project* project);
     bool undo(Project* project);
-
-    /** Redo the last undone command. Returns true on success. */
     bool redo(Project* project);
 
     bool canUndo() const;
     bool canRedo() const;
     QString undoText() const;
     QString redoText() const;
-
     void clear();
-    int undoCount() const;
-    int redoCount() const;
-
-    const QVector<Command*>& undoStack() const { return m_undoStack; }
-    const QVector<Command*>& redoStack() const { return m_redoStack; }
 
 signals:
     void stackChanged();
 
 private:
-    QVector<Command*> m_undoStack;
-    QVector<Command*> m_redoStack;
+    static constexpr int kMaxStack = 200;
+    std::vector<std::unique_ptr<Command>> m_undoStack;
+    std::vector<std::unique_ptr<Command>> m_redoStack;
 };
 
 } // namespace ExpressDesigner

@@ -513,8 +513,8 @@ void MainWindow::onDeleteObject()
     }
 
     bool isResult = m_currentProject->resultObjects().contains(obj);
-    auto* cmd = new DeleteObjectCommand(obj, isResult);
-    m_cmdHistory->push(cmd, m_currentProject);
+    auto cmd = std::make_unique<DeleteObjectCommand>(obj, isResult);
+    m_cmdHistory->push(std::move(cmd), m_currentProject);
     if (m_depGraph)
         m_depGraph->removeObject(obj);
     m_history->recordObjectDeletion(obj->name());
@@ -563,8 +563,8 @@ void MainWindow::onCalculateOval()
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
         // push() internally calls execute()
-        auto* execCmd = new ExecuteOperationCommand(op);
-        m_cmdHistory->push(execCmd, m_currentProject);
+        auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
+        m_cmdHistory->push(std::move(execCmd), m_currentProject);
         m_currentProject->addOperation(op);
         m_history->recordObjectCreation(op->name());
         setModified(true);
@@ -590,8 +590,8 @@ void MainWindow::onPropagateWF()
         op->setParamName(PropagateWFOperation::PARAM_SURFACE, dlg.wfDestCombo()->currentText());
         op->setParamName(PropagateWFOperation::PARAM_IOR, dlg.indexDestEdit()->text());
         // push() internally calls execute()
-        auto* execCmd = new ExecuteOperationCommand(op);
-        m_cmdHistory->push(execCmd, m_currentProject);
+        auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
+        m_cmdHistory->push(std::move(execCmd), m_currentProject);
         m_currentProject->addOperation(op);
         m_history->recordObjectCreation(op->name());
         setModified(true);
@@ -781,8 +781,8 @@ void MainWindow::onRotateObject()
         double degrees = dlg.degreesEdit()->text().toDouble();
         RotateObjectCommand::PivotMode pivot =
             static_cast<RotateObjectCommand::PivotMode>(dlg.pivotMode());
-        auto* cmd = new RotateObjectCommand(obj, degrees, pivot);
-        m_cmdHistory->push(cmd, m_currentProject);
+        auto cmd = std::make_unique<RotateObjectCommand>(obj, degrees, pivot);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
         m_history->recordObjectModification(obj->name(), QStringLiteral("rotate"),
             QString(), QString::number(degrees) + QStringLiteral("°"));
         setModified(true);
@@ -805,8 +805,8 @@ void MainWindow::onTranslateObject()
         double dx = dlg.deltaXEdit()->text().toDouble();
         double dy = dlg.deltaYEdit()->text().toDouble();
         QPointF delta(dx, dy);
-        auto* cmd = new TranslateObjectCommand(obj, delta);
-        m_cmdHistory->push(cmd, m_currentProject);
+        auto cmd = std::make_unique<TranslateObjectCommand>(obj, delta);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
         m_history->recordObjectModification(obj->name(), QStringLiteral("translate"),
             QString(), QStringLiteral("Δ(%1,%2)").arg(dx).arg(dy));
         setModified(true);
