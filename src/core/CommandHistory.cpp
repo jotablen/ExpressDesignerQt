@@ -174,9 +174,6 @@ bool RotateObjectCommand::execute(Project* project) {
     m_obj->setControlPoints(newPts);
     return true;
 }
-QString RotateObjectCommand::modifiedObjectName() const {
-    return m_obj ? m_obj->name() : QString();
-}
 
 bool RotateObjectCommand::undo(Project* project) {
     Q_UNUSED(project);
@@ -200,9 +197,6 @@ bool TranslateObjectCommand::execute(Project* project) {
     for (const QPointF& p : pts) newPts.append(p + m_delta);
     m_obj->setControlPoints(newPts);
     return true;
-}
-QString TranslateObjectCommand::modifiedObjectName() const {
-    return m_obj ? m_obj->name() : QString();
 }
 
 bool TranslateObjectCommand::undo(Project* project) {
@@ -264,15 +258,6 @@ bool CommandHistory::redo(Project* project) {
 
 bool CommandHistory::canUndo() const { return !m_undoStack.empty(); }
 bool CommandHistory::canRedo() const { return !m_redoStack.empty(); }
-
-QString CommandHistory::lastUndoneModifiedObjectName() const {
-    if (m_redoStack.empty()) return {};
-    return m_redoStack.back()->modifiedObjectName();
-}
-QString CommandHistory::lastRedoneModifiedObjectName() const {
-    if (m_undoStack.empty()) return {};
-    return m_undoStack.back()->modifiedObjectName();
-}
 
 QString CommandHistory::undoText() const {
     if (m_undoStack.empty()) return {};

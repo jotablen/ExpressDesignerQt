@@ -1,444 +1,297 @@
-# ExpressDesigner — Recalculation Architecture
+# ExpressDesigner — Recalculation Architecture (Simplified)
 ## Generated: June 2026
 
 ---
 
 ## 1. Overview
 
-The recalculation system ensures that when a source object (data object or intermediate result) is modified — rotated, translated, edited at control-point level, or created by an operation — all downstream results are automatically recomputed. This is essential because the application models an **optical design pipeline** where operations form a dependency chain (e.g., `S1 → PropagateWF → WF1Propg → CalcOval → S2`).
+The recalculation system ensures that when any object or operation parameter changes, **all results are recomputed from scratch** by re-executing every operation in creation order. This replaces the previous "surgical" approach that required a `DependencyGraph` inside the recalculation loop.
 
-The system uses a **DependencyGraph** to model object-to-operation-to-result relationships and a **transitive iterative algorithm** in `MainWindow::recalcDependents()` to cascade changes through the entire graph.
+The key insight: **operations are already stored in `Project::m_operations` in dependency order** (the user creates them sequentially, each one depending on previously created results). Re-executing them in that order naturally propagates changes through the chain.
 
 ---
 
-## 2. Core Classes
-
-### 2.1 `DependencyGraph`
-**File:** `src/core/DependencyGraph.h` / `src/core/DependencyGraph.cpp`
+## 2. The Algorithm: `recalculateAll()`
 
 ```cpp
-class DependencyGraph : public QObject {
-    // Object → Operations that use it as input
-    QMap<QUuid, QVector<CustomOperation*>> m_objToOps;
+void MainWindow::recalculateAll()
+{
+    if (!m_currentProject) return;
 
-    // Operation → Result object it produces
-    QMap<CustomOperation*, CustomObject*> m_opToResult;
+    // 1. Block all project signals during recalculation
+    const QSignalBlocker blocker(m_currentProject);
 
-    // Result UUID → Operation that produced it
-    QMap<QUuid, CustomOperation*> m_resultToOp;
+    // 2. Remove all current result objects
+    //    Iterate backwards to avoid index invalidation
+    for (int i = m_currentProject->resultObjectCount() - 1; i >= 0; --i)
+        m_currentProject->removeResultObject(i);
 
-    // UUID → Object lookup
-    QMap<QUuid, CustomObject*> m_uuidToObj;
-};
-```
-
-**Data flow representation:**
-
-```
-  m_objToOps                    m_opToResult               m_resultToOp
-┌──────────────┐            ┌──────────────────┐        ┌──────────────────┐
-│ uuid(S1)     │──→ [Op1]──→│  Op1 → WF1Propg  │        │ uuid(WF1Propg)   │──→ Op1
-│ uuid(S2)     │──→ [Op2]   │  Op2 → Oval2     │        │ uuid(Oval2)      │──→ Op2
-│ uuid(WF1Propg)──→ [Op2]  └──────────────────┘        └──────────────────┘
-└──────────────┘
-```
-
-This shows that:
-- S1 is used by Op1 (PropagateWF)
-- WF1Propg is used by Op2 (CalcOval) — this is the transitive link
-- Op1 produces WF1Propg
-- Op2 produces Oval2
-
-### 2.2 `DependencyGraph::rebuildFromProject()`
-
-```cpp
-void DependencyGraph::rebuildFromProject(Project* project) {
-    clear();
-    // 1. Register all objects (data + result) in m_uuidToObj
-    for (auto* obj : project->dataObjects()) registerObject(obj);
-    for (auto* obj : project->resultObjects()) registerObject(obj);
-
-    // 2. Scan all operations
-    const auto& ops = project->operations();
+    // 3. Re-execute every operation in insertion order
+    const auto& ops = m_currentProject->operations();
     for (auto* op : ops) {
-        // 2a. For each parameter that references an object, register dependency
-        for (int i = 0; i < op->paramCount(); ++i) {
-            if (op->isParamObject(i)) {
-                CustomObject* paramObj = project->findObject(op->paramName(i));
-                if (paramObj) addObjectDependency(paramObj, op);  // obj → op
-            }
-        }
-        // 2b. Register operation → result relationship
-        CustomObject* resultObj = project->findObject(op->resultName());
-        if (resultObj) addOperationResult(op, resultObj);  // op → result, result → op
+        if (!op) continue;
+        bool ok = op->execute(m_currentProject);
+        // If ok == false: operation could not execute
+        //   (missing parameters, invalid indices, etc.)
+        //   No result is created. Downstream operations that depend
+        //   on this result's name will also fail → chain breaks cleanly.
+        // If ok == true: result was added to project.
+        //   It may have 0 control points (e.g., no ray-surface hits).
+        //   Downstream operations receive it as-is.
     }
-}
-```
 
-This is called **before and during** recalculation. It's a full scan — O(operations × parameters) — but operations and parameters are small in practice (typically < 50 operations with 1-3 object parameters each).
-
-### 2.3 `DependencyGraph::transitiveDependents()`
-
-```cpp
-QSet<CustomObject*> DependencyGraph::transitiveDependents(CustomObject* obj) const {
-    QSet<QUuid> visited;
-    collectTransitive(obj->uuid(), visited);
-    visited.remove(obj->uuid());  // exclude self
-    // Map UUIDs back to object pointers
-    QSet<CustomObject*> result;
-    for (const QUuid& uid : visited) {
-        CustomObject* depObj = m_uuidToObj.value(uid, nullptr);
-        if (depObj) result.insert(depObj);
-    }
-    return result;
-}
-```
-
-The helper `collectTransitive()` performs a **DFS** through operations and their results:
-
-```
-collectTransitive(startUuid):
-    mark visited
-    for each operation that uses this object:
-        find the result of that operation
-        recursively collectTransitive on the result
-```
-
-**Example:** Starting from S1:
-1. S1 → Op1 (PropagateWF) → WF1Propg
-2. WF1Propg → Op2 (CalcOval) → S2
-3. S2 has no dependent operations → recursion ends
-
-Result: `{WF1Propg, S2}` — both need recalculation when S1 changes.
-
-### 2.4 `DependencyGraph::transitiveAncestors()`
-
-Performs a **BFS upward** to find all source objects that ultimately affect a given result:
-
-```cpp
-QSet<CustomObject*> DependencyGraph::transitiveAncestors(CustomObject* obj) const {
-    QSet<QUuid> visited;
-    QList<QUuid> toVisit;
-    toVisit.append(obj->uuid());
-    while (!toVisit.isEmpty()) {
-        QUuid current = toVisit.takeFirst();
-        if (visited.contains(current)) continue;
-        visited.insert(current);
-        CustomOperation* parentOp = m_resultToOp.value(current, nullptr);
-        if (!parentOp) continue;
-        // Find all objects that use parentOp as dependency
-        for (auto it = m_objToOps.begin(); it != m_objToOps.end(); ++it)
-            if (it.value().contains(parentOp))
-                toVisit.append(it.key());
-    }
-    visited.remove(obj->uuid());
-    // Map back to objects
-}
-```
-
-This is used by the DependencyGraphDialog to show the user which source objects a result depends on.
-
----
-
-## 3. The Recalculation Algorithm: `MainWindow::recalcDependents()`
-
-**File:** `src/ui/MainWindow.cpp`, line 886
-
-```cpp
-void MainWindow::recalcDependents(CustomObject* modifiedObj) {
-    if (!m_currentProject || !m_depGraph) return;
-    if (m_recalcInProgress) return;   // guard against reentry
-    m_recalcInProgress = true;
-
-    m_depGraph->rebuildFromProject(m_currentProject);
-
-    if (!modifiedObj) { m_recalcInProgress = false; return; }
-
-    // Transitive recalculation
-    QSet<CustomOperation*> processed;   // ops already recalculated
-    QSet<CustomObject*> modified;       // objects whose dependents need checking
-    modified.insert(modifiedObj);
-
-    const QSignalBlocker blocker(m_currentProject);  // suppress signals
-
-    while (!modified.isEmpty()) {
-        CustomObject* obj = *modified.begin();
-        modified.erase(modified.begin());
-
-        // Rebuild graph to see newly created results
+    // 4. Rebuild dependency graph ONCE for UI queries (dialog, delete warnings)
+    if (m_depGraph)
         m_depGraph->rebuildFromProject(m_currentProject);
 
-        QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(obj);
-        for (auto* op : ops) {
-            if (!op || processed.contains(op)) continue;
-            processed.insert(op);
-
-            // Remove old result by name
-            QString resName = op->resultName();
-            CustomObject* oldResult = m_currentProject->findObject(resName);
-            if (oldResult) {
-                m_currentProject->removeResultObject(oldResult);
-                m_currentProject->removeDataObject(oldResult);
-            }
-
-            // Execute — creates new result
-            op->execute(m_currentProject);
-
-            // New result now needs its dependents checked too
-            CustomObject* newResult = m_currentProject->findObject(resName);
-            if (newResult)
-                modified.insert(newResult);
-        }
-    }
-
-    m_depGraph->rebuildFromProject(m_currentProject);
-    m_recalcInProgress = false;
+    // 5. Update UI
+    refreshChart();
+    updateStatusBar();
+    setModified(true);
 }
 ```
 
-### 3.1 Algorithm Walkthrough (Pseudocode)
+### 2.1 Why this works
 
-```
-recalcDependents(modifiedObj):
-    1. GUARD: if recalc already in progress, exit immediately
-    2. SET flag m_recalcInProgress = true
-    3. REBUILD dependency graph from current project state
-    4. INIT: processedOps = {}           // ops already recomputed
-    5. INIT: modifiedSet = {modifiedObj} // objects to check
-    6. BLOCK all project signals (QSignalBlocker)
+Operations resolve their inputs **by name** at execution time:
 
-    7. WHILE modifiedSet is not empty:
-        a. PICK and remove one object from modifiedSet
-        b. REBUILD dependency graph (to see newly created results from previous iteration)
-        c. FIND all operations that use this object as input
-        d. FOR each operation not yet processed:
-            i.   MARK operation as processed
-            ii.  REMOVE old result by name (both from resultObjects and dataObjects)
-            iii. EXECUTE the operation → creates new result object
-            iv.  FIND the new result by name
-            v.   ADD new result to modifiedSet (it may have its own dependents)
-
-    8. FINAL rebuild of dependency graph
-    9. CLEAR flag m_recalcInProgress = false
+```cpp
+// Inside PropagateWFOperation::execute():
+CustomObject* wf = project->findObject(m_paramNames.value(PARAM_WF));
+CustomObject* surface = project->findObject(m_paramNames.value(PARAM_SURFACE));
 ```
 
-### 3.2 Key Design Decisions
+When operations execute in order:
 
-**Why rebuild the graph inside the loop (step 7b)?**
-The previous iteration may have created new result objects. These results weren't in the graph at the start of the loop. Rebuilding ensures the next iteration sees the current state, including newly created objects and their relationships to downstream operations.
+1. Op1 executes → finds its inputs (data objects S1, S2) → creates result "WF1Propg"
+2. Op2 executes → finds its input "WF1Propg" (just created by Op1) → creates result "Oval"
+3. Op3 executes → finds its inputs... etc.
 
-**Why remove old result by name before executing (step 7d-ii)?**
-This avoids auto-rename collisions. `Project::addResultObject()` auto-renames if a result with the same name exists. By removing the old result first, the new result gets the original name (no `_2` suffix).
+The insertion order in `m_operations` already mirrors the dependency chain because the user creates operations sequentially.
 
-**Why `removeDataObject` in addition to `removeResultObject` (step 7d-ii)?**
-Results can exist in either list depending on project state. Both are checked and removed for safety.
+### 2.2 What disappears compared to the old design
 
-**Why `QSignalBlocker` (step 6)?**
-Project emits signals on every add/remove (`dataObjectAdded`, `resultObjectRemoved`, etc.). Without blocking, these signals would trigger UI updates (tree model rebuild, chart refresh) during the intermediate states of recalculation. Blocking ensures the UI only updates once, at the end, when `refreshChart()` is called.
-
-**Why `m_recalcInProgress` guard (step 1)?**
-Prevents reentrant calls. Without this, a signal emitted during recalculation could trigger another `recalcDependents()` call, leading to infinite recursion or inconsistent state.
-
-**Why use a `QSet<CustomObject*>` for the work queue instead of a simple list?**
-A set automatically deduplicates. If the same result object is reachable through multiple paths (unlikely but possible), it won't be processed twice.
+| Old (surgical) | New (total) |
+|---|---|
+| `recalcDependents(CustomObject* modifiedObj)` — 50 lines | `recalculateAll()` — 15 lines |
+| `m_recalcInProgress` guard | Not needed — signals are blocked |
+| `QSet<CustomOperation*> processed` | Not needed |
+| `QSet<CustomObject*> modified` work queue | Not needed |
+| Graph rebuild inside the `while` loop | 1 rebuild at the end |
+| `Command::modifiedObjectName()` as recalc bridge | Not needed |
+| `lastUndoneModifiedObjectName()` / `lastRedoneModifiedObjectName()` | Not needed |
 
 ---
 
-## 4. Full Transitive Recalculation Example
+## 3. Failure Handling
 
-### Setup
-```
-Project state:
-  Data objects:   [S1, S2]
-  Result objects: [WF1Propg, OvalS2]
-  Operations:     [Op1(PropagateWF: S1→WF1Propg), Op2(CalcOval: WF1Propg→OvalS2)]
+The user asked about cases where "after a property change, results can no longer be calculated." Here's how each case behaves:
 
-Dependency Graph:
-  S1       → [Op1]
-  WF1Propg → [Op2]
-  Op1 → WF1Propg
-  Op2 → OvalS2
-```
+### 3.1 Missing input object
 
-### User rotates S1
+**Scenario:** Object "S1" is deleted. An operation references "S1" as a parameter.
 
-```
-MainWindow::onRotateObject():
-  → RotateObjectCommand applied to S1
-  → recalcDependents(S1)
+```cpp
+// Inside operation::execute():
+CustomObject* wf = project->findObject("S1");  // → nullptr
+if (!wf || !surface) {
+    m_errorCode = -2;
+    return false;  // execute() returns false
+}
 ```
 
-### `recalcDependents(S1)` execution trace
+**Result:** `execute()` returns `false`. No result object is added to the project. Downstream operations that reference this result by name will also get `nullptr` from `findObject()` and return `false`. The entire chain downstream of the missing object fails cleanly.
 
-```
-Iteration 0 (initial):
-  modifiedSet = {S1}
-  processed   = {}
+### 3.2 Invalid refractive index
 
-Iteration 1:
-  obj = S1 (extracted from modifiedSet)
-  modifiedSet = {}
-  rebuild graph
-  operationsUsingObject(S1) = [Op1]
-  
-  Process Op1:
-    processed = {Op1}
-    remove old result WF1Propg
-    execute Op1 → creates new WF1Propg with S1's new geometry
-    find newResult = WF1Propg
-    modifiedSet = {WF1Propg}
+**Scenario:** User sets `refractiveIndex` to 0 or a negative value on a wavefront.
 
-Iteration 2:
-  obj = WF1Propg (extracted from modifiedSet)
-  modifiedSet = {}
-  rebuild graph
-  operationsUsingObject(WF1Propg) = [Op2]
-  
-  Process Op2:
-    processed = {Op1, Op2}
-    remove old result OvalS2
-    execute Op2 → creates new OvalS2 with WF1Propg's new geometry
-    find newResult = OvalS2
-    modifiedSet = {OvalS2}
-
-Iteration 3:
-  obj = OvalS2 (extracted from modifiedSet)
-  modifiedSet = {}
-  rebuild graph
-  operationsUsingObject(OvalS2) = []  // no downstream operations
-
-  modifiedSet is empty → loop ends
-
-Final:
-  rebuild graph
-  m_recalcInProgress = false
-  refreshChart() → redraw all objects with updated geometry
+```cpp
+double n1 = wf->refractiveIndex();  // → 0.0
+// Snell's law: division by n1 would be problematic
+// The operation should validate and set m_errorCode
 ```
 
-### Result
-- S1: rotated (geometry changed by RotateObjectCommand)
-- WF1Propg: recalculated (new wavefront propagation from new S1)
-- OvalS2: recalculated (new oval coupling from new WF1Propg)
+**Current behavior:** The code uses `n1` in `OPL = n1 * hitDist` and later in Snell's law. If `n1` is 0, the optical path length is 0, and Snell's law division could produce infinity or NaN. The operation's `execute()` should validate `n1 > 0` and return `false` if invalid.
 
----
+**Proposed improvement:** Add validation at the top of each `execute()`:
 
-## 5. Triggers — When Recalculation Happens
+```cpp
+if (n1 <= 0.0 || n2 <= 0.0) {
+    m_errorCode = -3;  // Invalid refractive index
+    return false;
+}
+```
 
-| User Action | Command Pushed? | Recalc Called? | Recalc Source |
+### 3.3 Geometry change makes ray-surface intersection impossible
+
+**Scenario:** User rotates/translates S2 so far that rays from the WF no longer hit the surface.
+
+```cpp
+// In PropagateWFOperation::execute():
+for (int i = 0; i < numPoints; ++i) {
+    QPointF surfHit = rayCurveIntersection(srcPt, norm, surfPts, &hitSeg, &hitDist);
+    if (hitSeg < 0) {
+        continue;  // No hit — skip this point
+    }
+    // ... compute propagation
+}
+```
+
+**Result:** `propagatedPts` ends up empty (or partially empty). A `CurveObject` with 0 control points is created and added to the project. Downstream operations (e.g., CalcOval) receive a curve with 0 points and also produce an empty result. The chart will simply not render anything for those curves — graceful degradation.
+
+### 3.4 Total Internal Reflection (TIR)
+
+**Scenario:** The incidence angle at the surface exceeds the critical angle.
+
+```cpp
+bool tir = false;
+QPointF deflectedDir = Optics::getDeflectedVector(norm, surfNormal, n1, n2, tir);
+if (!tir)
+    remaining /= n2;  // transmitted
+// If TIR, the point is still added but with remaining/n2? No:
+// Actually, the code continues regardless — TIR is detected but handled
+```
+
+**Current behavior:** The TIR flag is set but the deflected vector is still computed. The result may be physically incorrect for TIR cases. This is an optics domain concern, not a recalculation architecture concern.
+
+### 3.5 Summary of failure modes
+
+| Failure | execute() returns | Result object created? | Downstream impact |
 |---|---|---|---|
-| Insert object (via dialog) | Yes (`AddObjectCommand`) | No | N/A — no dependents yet |
-| Delete object | Yes (`DeleteObjectCommand`) | After removing dependents (manual check in MainWindow) | `MainWindow::onDeleteObject()` |
-| Rotate object | Yes (`RotateObjectCommand`) | Yes | `MainWindow::onRotateObject()` → `recalcDependents(obj)` |
-| Translate object | Yes (`TranslateObjectCommand`) | Yes | `MainWindow::onTranslateObject()` → `recalcDependents(obj)` |
-| Edit control points | Yes (`ModifyControlPointsCommand`) | Yes | `MainWindow::onEditPoints()` → `recalcDependents(obj)` |
-| Execute CalcOval | Yes (`ExecuteOperationCommand`) | Yes | `MainWindow::onCalcOval()` → `recalcDependents(newResult)` |
-| Execute PropagateWF | Yes (`ExecuteOperationCommand`) | Yes | `MainWindow::onPropagateWF()` → `recalcDependents(newResult)` |
-| Undo (Ctrl+Z) | `undo()` called on CommandHistory | Yes, via `modifiedObjectName()` | `MainWindow::onUndo()` → `recalcDependents(modifiedObj)` |
-| Redo (Ctrl+Y) | `redo()` called on CommandHistory | Yes, via `modifiedObjectName()` | `MainWindow::onRedo()` → `recalcDependents(modifiedObj)` |
+| Missing input object | `false` | No | findObject() → nullptr → downstream also fails |
+| Invalid refractiveIndex | `false` (after validation) | No | Same as above |
+| No ray-surface intersection | `true` | Yes, empty CurveObject | Downstream processes empty input → empty output |
+| TIR on all rays | `true` | Yes, CurveObject with TIR-deflected points | Downstream uses these points |
+| Operation calculation error | `false` via `m_errorCode` | No | Chain breaks |
+
+**Key property:** The system degrades gracefully. If an operation fails, it doesn't corrupt the project — it simply produces no result, and the chain stops there. The chart refreshes with whatever valid results exist.
+
+---
+
+## 4. Integration with Undo/Redo
+
+In the simplified design, undo and redo call `recalculateAll()` directly without needing `modifiedObjectName()`:
+
+```
+MainWindow::onUndo()
+  → m_cmdHistory->undo(project)        // restores previous state
+  → recalculateAll()                   // re-executes all operations
+  → refreshChart()
+  → updateStatusBar()
+  → setModified(true)
+
+MainWindow::onRedo()
+  → m_cmdHistory->redo(project)        // re-applies state
+  → recalculateAll()                   // re-executes all operations
+  → refreshChart()
+  → updateStatusBar()
+  → setModified(true)
+```
+
+The `modifiedObjectName()` / `lastUndoneModifiedObjectName()` mechanism is no longer needed as a bridge between undo/redo and recalculation.
+
+---
+
+## 5. Triggers — All Use `recalculateAll()`
+
+| User Action | Command Pushed? | Recalc Called? |
+|---|---|---|
+| Insert object | Yes (`AddObjectCommand`) | No — no operations yet |
+| Delete object | Yes (`DeleteObjectCommand`) | Yes, after removing dependents |
+| Rotate object | Yes (`RotateObjectCommand`) | Yes, `recalculateAll()` |
+| Translate object | Yes (`TranslateObjectCommand`) | Yes, `recalculateAll()` |
+| Edit control points | Yes (`ModifyControlPointsCommand`) | Yes, `recalculateAll()` |
+| Execute CalcOval | Yes (`ExecuteOperationCommand`) | Yes, `recalculateAll()` |
+| Execute PropagateWF | Yes (`ExecuteOperationCommand`) | Yes, `recalculateAll()` |
+| Undo (Ctrl+Z) | `undo()` on CommandHistory | Yes, `recalculateAll()` |
+| Redo (Ctrl+Y) | `redo()` on CommandHistory | Yes, `recalculateAll()` |
 
 ### Delete Object Special Case
-Deleting an object that is used by operations requires special handling — the dependent results must also be removed:
+
+When deleting an object that is used by operations, the dependent results must be removed first. `DependencyGraph::transitiveDependents()` is used for this (its only remaining runtime role):
 
 ```cpp
 // In MainWindow::onDeleteObject()
 QSet<CustomObject*> deps = m_depGraph->transitiveDependents(obj);
-// Warn user about dependents
+// Warn user: "These results will be lost: ..."
 // Remove dependent results
-for (auto* dep : deps) {
-    if (dep->isResult()) project->removeResultObject(dep);
-    else project->removeDataObject(dep);
-}
-// Then remove the object itself
+for (auto* dep : deps)
+    project->removeResultObject(dep);
+// Remove the object itself
+project->removeDataObject(obj);
+// Rebuild graph, recalculateAll, refreshChart
 ```
-
-After deletion, `recalcDependents()` is **not** called — there's nothing to recalculate since the dependents were removed. But `m_depGraph->rebuildFromProject()` is still called to update the graph.
 
 ---
 
-## 6. Integration with `CustomOperation`
+## 6. `DependencyGraph` — Remaining Role
 
-**File:** `src/core/CustomOperation.h`
+`DependencyGraph` is **no longer part of the recalculation engine**. Its only uses are:
 
-Operations are the "edges" in the dependency graph. Each operation:
-- Has named parameters via `paramNames()` / `paramName(index)` — these are object names
-- Knows which parameters reference objects via `isParamObject(index)`
-- Has a `resultName()` — the name of the object it produces
-- Has an `execute(Project*)` method that performs the computation and adds the result to the project
+| Use | Method |
+|---|---|
+| Dependency visualization dialog | `transitiveDependents()` + `transitiveAncestors()` |
+| Delete warning (show users what will be lost) | `transitiveDependents()` |
+| Graph rebuild after load | `rebuildFromProject()` (called once on project load) |
 
-```cpp
-class CustomOperation : public BaseObject {
-    virtual bool execute(Project* project);
-    virtual bool isParamObject(int index) const;
-    virtual QString resultName() const = 0;
-    virtual QString paramPrefixOnTree(int index) const;
-};
-```
-
-Concrete operations like `CarthesianOvalOperation` and `PropagateWFOperation` implement:
-- `execute()`: reads parameter objects from the project, performs optical computation (via SISL geometry library), creates a new `CurveObject` with computed control points, adds it to the project via `project->addResultObject()`.
-- `isParamObject()`: returns true for parameters that are object references (vs numeric values).
-- `resultName()`: returns the fixed result name (e.g., "WF1Propg").
+The graph is rebuilt **once** at the end of `recalculateAll()` to keep the UI dialogs in sync.
 
 ---
 
-## 7. Signal Flow During Recalculation
+## 7. Signal Flow
 
 ```
-recalcDependents(S1)
+recalculateAll()
   │
   ├─ QSignalBlocker(m_currentProject)        ← blocks ALL project signals
   │
-  ├─ op1->execute(project)
-  │   ├─ project->removeResultObject(old)    ← signal BLOCKED
-  │   ├─ project->removeDataObject(old)      ← signal BLOCKED
-  │   ├─ project->addResultObject(new)       ← signal BLOCKED
-  │   └─ project->addOperation(op1)          ← signal BLOCKED
-  │
-  ├─ op2->execute(project)
-  │   └─ (same pattern)
-  │
-  └─ QSignalBlocker destroyed                ← signals UNBLOCKED (no emission for past events)
-  
-  → refreshChart()                           ← explicit UI update
+  ├─ removeResultObject(0)                   ← signal BLOCKED
+  ├─ removeResultObject(1)                   ← signal BLOCKED
+  │   ...
+  ├─ op1->execute(project)                   ← signal BLOCKED (emits operationExecuted)
+  │   └─ project->addResultObject(result1)   ← signal BLOCKED
+  ├─ op2->execute(project)                   ← signal BLOCKED
+  │   └─ project->addResultObject(result2)   ← signal BLOCKED
+  │   ...
+  └─ QSignalBlocker destroyed                ← signals UNBLOCKED
+
+  → m_depGraph->rebuildFromProject()         ← single graph rebuild
+  → refreshChart()                           ← explicit UI redraw
+  → updateStatusBar()
 ```
 
-**Important:** `QSignalBlocker` only suppresses signals while in scope. When the blocker is destroyed at the end of `recalcDependents()`, **no queued signals are re-emitted** — they are simply lost. This is intentional: the intermediate add/remove events are irrelevant to the UI; only the final state matters.
-
-After recalculation completes, `MainWindow` explicitly calls:
-- `refreshChart()` — redraws all curves
-- `updateStatusBar()` — updates object count
-- `setModified(true)` — marks project as unsaved
-
-And the `m_treeModel` (ObjectTreeModel) automatically reflects the project state because it queries `project->dataObjects()` and `project->resultObjects()` directly.
+No queued signals are re-emitted after the blocker is destroyed — intermediate add/remove events are irrelevant to the UI.
 
 ---
 
-## 8. Thread Safety & Reentrancy
+## 8. Performance
 
-| Mechanism | Purpose |
+For a project with N operations, each with M parameters:
+
+| Metric | Value |
 |---|---|
-| `m_recalcInProgress` (bool) | Prevents reentrant calls to `recalcDependents()`. Set at entry, cleared at exit. |
-| `QSignalBlocker` | Suppresses all project signals during recalculation to prevent UI updates and signal cascades. |
-| No threading | All recalculation runs on the Qt main thread. `Project` and `DependencyGraph` are not thread-safe and do not need to be. |
-| `QSet<CustomOperation*> processed` | Prevents an operation from being executed twice within a single recalc cascade (safety net). |
+| Removals | O(R) where R = number of result objects |
+| Re-executions | N |
+| Each execute() | O(points × intersection_checks) |
+| Graph rebuilds | 1 (at end) |
+| Total complexity | O(N × M_points) |
+
+For typical projects (N < 50, M_points < 200), this runs in milliseconds. The `QSignalBlocker` ensures no UI overhead during the process.
 
 ---
 
-## 9. Edge Cases & Design Decisions
+## 9. Edge Cases
 
-1. **Operation execution failure:** If `op->execute(project)` returns false, the code does not currently handle the error explicitly — the old result was already removed. The new result won't be found by `findObject()` and won't be added to `modifiedSet`. The dependency chain breaks at that point, but downstream operations that depend on this result will have their input removed. A future improvement could add error recovery (re-insert the old result from a snapshot).
+1. **Empty project:** `m_operations` is empty → loop does nothing. `refreshChart()` redraws data objects only.
 
-2. **Name collision during recalculation:** By removing the old result by name before executing, the new result gets the exact original name. `Project::addResultObject()` only auto-renames when a name collision exists within the object lists.
+2. **Operation with no params:** `execute()` receives `nullptr` for inputs → returns `false`. Result not created.
 
-3. **Empty modifiedSet:** If `modifiedObj` is null (e.g., caller had no specific object), `recalcDependents()` exits immediately after rebuilding the graph. This is used in some code paths where only a graph rebuild is needed.
+3. **Multiple operations with same `resultName`:** The second `addResultObject()` auto-renames via `Project`'s deduplication logic (appends `_2`). Downstream ops looking for the original name won't find the renamed result → they fail. This is correct: two operations shouldn't share a result name.
 
-4. **Multiple operations producing the same result name:** This is not supported by design — each operation has a unique `resultName()`. If two operations produced results with the same name, the `removeResultObject` + `removeDataObject` calls would only remove one, and `addResultObject` would auto-rename the second.
+4. **Operation execution failure mid-chain:** Operations after the failure will `findObject()` the expected result name and get `nullptr` → they also fail. The chain breaks cleanly without partial state.
 
-5. **Recalculation during undo/redo of non-geometry commands:** For `AddObjectCommand`, `DeleteObjectCommand`, `ModifyObjectCommand`, `ModifyControlPointsCommand`, and `ExecuteOperationCommand`, `modifiedObjectName()` returns empty string. In `onUndo()`/`onRedo()`, `recalcDependents()` is only called if the name is non-empty. The dependency graph rebuild is still performed.
-
-6. **Graph rebuild frequency:** The graph is rebuilt once at the beginning and once per iteration of the while loop. For a chain of N operations, this is N+2 rebuilds. Each rebuild is O(total_objects + total_operations × avg_params). For typical projects (< 100 objects, < 50 operations), this is negligible.
-
-7. **Circular dependencies:** The current design does not explicitly prevent cycles (A → op1 → B → op2 → A). `collectTransitive()` tracks `visited` uuids to prevent infinite recursion, but a cycle would cause `recalcDependents()` to loop indefinitely because each iteration creates a new result that gets added to `modifiedSet`. In practice, the optical design domain does not create cycles (a wavefront cannot be the source for its own propagation).
+5. **Reentrancy:** `QSignalBlocker` prevents signal-based reentry. If a direct recursive call somehow occurs, the second call removes results and re-executes from scratch — wasteful but not corrupting.
 
 ---
 
@@ -446,12 +299,10 @@ And the `m_treeModel` (ObjectTreeModel) automatically reflects the project state
 
 | File | Purpose |
 |---|---|
-| `src/core/DependencyGraph.h` | Class declaration, data structures (`m_objToOps`, `m_opToResult`, `m_resultToOp`, `m_uuidToObj`) |
-| `src/core/DependencyGraph.cpp` | `rebuildFromProject()`, `transitiveDependents()`, `transitiveAncestors()`, `collectTransitive()` |
-| `src/core/CustomOperation.h` | Operation base class with `execute()`, `paramNames()`, `resultName()`, `isParamObject()` |
-| `src/core/PropagateWFOperation.cpp` | PropagateWF operation — reads source object, propagates wavefront, creates result CurveObject |
-| `src/core/CarthesianOvalOperation.cpp` / similar | CalcOval operation — reads two WFs, computes oval coupling, creates result |
-| `src/core/Project.h` | `dataObjects()`, `resultObjects()`, `operations()`, `findObject()`, `addResultObject()`, `removeResultObject()` |
-| `src/ui/MainWindow.h` | `m_depGraph`, `m_recalcInProgress`, `recalcDependents()` declaration |
-| `src/ui/MainWindow.cpp` | `recalcDependents()` implementation (line 886), all call sites (rotate, translate, edit points, calcOval, propagateWF, undo, redo, delete) |
-| `src/ui/widgets/PropertiesWidget.cpp` | `onSaveCalcOval()` and `onSavePropagate()` emit signals that trigger recalculation |
+| `src/core/Project.h` / `.cpp` | `m_operations` (ordered list), `dataObjects()`, `resultObjects()`, `addResultObject()`, `removeResultObject()` |
+| `src/core/CustomOperation.h` | `execute(Project*)`, `paramName()`, `resultName()`, `isParamObject()` |
+| `src/core/PropagateWFOperation.cpp` | Concrete `execute()` — reads inputs by name, computes propagation, adds result |
+| `src/core/CarthesianOvalOperation.cpp` | Concrete `execute()` — reads two WFs, computes oval coupling, adds result |
+| `src/core/DependencyGraph.h` / `.cpp` | `rebuildFromProject()`, `transitiveDependents()`, `transitiveAncestors()` — UI only |
+| `src/ui/MainWindow.h` | `m_depGraph`, `recalculateAll()` declaration |
+| `src/ui/MainWindow.cpp` | `recalculateAll()` implementation, all call sites |

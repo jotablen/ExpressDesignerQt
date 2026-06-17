@@ -106,8 +106,8 @@ private:
     void updateDeleteActionState();
     void updateUndoRedoActions();
 
-    // Cascade recalculation
-    void recalcDependents(CustomObject* modifiedObj = nullptr);
+    // Cascade recalculation — re-executes all operations in order
+    void recalculateAll();
 
     // Widgets
     QTreeView* m_objectTree = nullptr;
@@ -151,9 +151,6 @@ private:
     bool m_isPanning = false;
     QPoint m_panLastPos;
 
-    // Guard against recursive cascade recalculation
-    bool m_recalcInProgress = false;
-    bool m_inUndoRedo = false;
 
     // Chart helpers
     void maintainChartAspectRatio();

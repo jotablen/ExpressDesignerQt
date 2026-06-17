@@ -7,7 +7,7 @@
 
 The undo/redo subsystem implements the **Command Pattern** with a dual-stack history. Every mutation to the project model flows through `CommandHistory::push()`, which executes the command immediately and records it. Undo/redo reverses or replays the command by calling `undo()` or `execute()` respectively on the stored command object.
 
-The system is **not** a snapshot-based approach — each command stores only the minimum data needed to revert the change (deltas, old values, old control points). On undo/redo, the `DependencyGraph` is rebuilt and `recalcDependents()` is called as a side-effect to propagate changes through the operation chain.
+The system is **not** a snapshot-based approach — each command stores only the minimum data needed to revert the change (deltas, old values, old control points). After undo/redo, `MainWindow` calls `recalculateAll()`, which removes all current result objects and re-executes every operation in creation order. This ensures all downstream results are recomputed from the restored state.
 
 ---
 
@@ -23,7 +23,6 @@ public:
     virtual ~Command();
     virtual bool execute(Project* project) = 0;  // perform the action
     virtual bool undo(Project* project) = 0;      // revert the action
-    virtual QString modifiedObjectName() const { return {}; }  // for recalc routing
     QString description() const;
     QDateTime timestamp() const;
 protected:
@@ -34,8 +33,8 @@ protected:
 
 **Key design decisions:**
 - Every command carries a human-readable `description()` and a `timestamp()` for audit/history display.
-- `modifiedObjectName()` returns the name of the object directly affected. This is used after undo/redo to identify which object needs recalculation of its dependents. Only `RotateObjectCommand` and `TranslateObjectCommand` override this — all others return empty string (meaning no targeted recalc needed after undo/redo of those command types).
 - `execute()` and `undo()` receive a `Project*` — the command itself is stateless regarding the project; it operates on whatever project is passed.
+- No `modifiedObjectName()` method — after undo/redo, `recalculateAll()` re-executes all operations unconditionally. There is no need to identify a specific "affected object."
 
 ### 2.2 `CommandHistory`
 **File:** `src/core/CommandHistory.h` / `src/core/CommandHistory.cpp`
@@ -55,39 +54,39 @@ class CommandHistory : public QObject {
 - `redo()` pops from `m_redoStack`, calls `cmd->execute(project)`, and pushes to `m_undoStack`. Same failure rollback pattern.
 - `stackChanged()` signal is emitted on every mutation of either stack. Connected to `MainWindow::updateUndoRedoActions()`.
 
-### 2.3 `lastUndoneModifiedObjectName()` / `lastRedoneModifiedObjectName()`
+### 2.3 Undo/Redo + Recalculation Bridge
 
-These are the bridge between undo/redo and the recalculation system:
+In the simplified architecture, undo and redo simply call `recalculateAll()` after restoring/redoing the state. There is no surgical recalculation or targeted object identification:
 
-- **`lastUndoneModifiedObjectName()`** reads the `modifiedObjectName()` from the top of the **redo** stack (the command that was just undone). Conceptually: "which object did we just revert?"
-- **`lastRedoneModifiedObjectName()`** reads from the top of the **undo** stack (the command that was just redone). Conceptually: "which object did we just re-apply?"
+```
+MainWindow::onUndo()
+  → m_cmdHistory->undo(project)      // restore previous state
+  → recalculateAll()                 // re-execute ALL operations
+  → refreshChart()
 
-Example: If the user rotates object "S1" and then presses Undo:
-1. `RotateObjectCommand` moves from undo stack to redo stack
-2. `lastUndoneModifiedObjectName()` returns `"S1"`
-3. `MainWindow::onUndo()` calls `recalcDependents(S1)` to cascade-recalculate
+MainWindow::onRedo()
+  → m_cmdHistory->redo(project)      // re-apply state
+  → recalculateAll()                 // re-execute ALL operations
+  → refreshChart()
+```
+
+This is simpler than the previous approach which used `modifiedObjectName()` to surgically recalculate only the affected object's dependents. By always re-executing everything, correctness is guaranteed with no dependency tracking needed at the CommandHistory level.
 
 ---
 
 ## 3. Concrete Commands
 
-| Command Class | Trigger | Data Stored | Execute | Undo | modifiedObjectName |
-|---|---|---|---|---|---|
-| `AddObjectCommand` | Insert dialog | `CustomObject*`, `m_wasResult` | Calls `project->addDataObject()` or `addResultObject()` | Calls `project->removeDataObject()` or `removeResultObject()` | Empty |
-| `DeleteObjectCommand` | Delete action | `CustomObject*`, `m_isResult`, `m_index` | `removeDataObject()` or `removeResultObject()`, saves index | `addDataObject()` or `addResultObject()` | Empty |
-| `ModifyObjectCommand` | Property editor change | `CustomObject*`, property name, old/new `QVariant` | Applies new value via `setName()`/`setRefractiveIndex()`/etc. | Restores old value | Empty |
-| `ModifyControlPointsCommand` | Point editor | `CustomObject*`, old & new `QVector<QPointF>` | `m_obj->setControlPoints(m_newPoints)` | `m_obj->setControlPoints(m_oldPoints)` | Empty |
-| `ExecuteOperationCommand` | CalcOval / PropagateWF | `CustomOperation*`, `m_resultObj`, `m_wasAdded` | Calls `op->execute()`, tracks result object | Removes resultObject and operation | Empty |
-| `RotateObjectCommand` | Rotate dialog | `CustomObject*`, `m_oldPoints`, pivot, degrees | Computes rotation matrix, applies new points | Restores `m_oldPoints` | **Name of rotated object** |
-| `TranslateObjectCommand` | Translate dialog | `CustomObject*`, `m_delta` (QPointF) | Adds delta to all control points | Subtracts delta from all control points | **Name of translated object** |
+| Command Class | Trigger | Data Stored | Execute | Undo |
+|---|---|---|---|---|
+| `AddObjectCommand` | Insert dialog | `CustomObject*`, `m_wasResult` | Calls `project->addDataObject()` or `addResultObject()` | Calls `project->removeDataObject()` or `removeResultObject()` |
+| `DeleteObjectCommand` | Delete action | `CustomObject*`, `m_isResult`, `m_index` | `removeDataObject()` or `removeResultObject()`, saves index | `addDataObject()` or `addResultObject()` |
+| `ModifyObjectCommand` | Property editor change | `CustomObject*`, property name, old/new `QVariant` | Applies new value via `setName()`/`setRefractiveIndex()`/etc. | Restores old value |
+| `ModifyControlPointsCommand` | Point editor | `CustomObject*`, old & new `QVector<QPointF>` | `m_obj->setControlPoints(m_newPoints)` | `m_obj->setControlPoints(m_oldPoints)` |
+| `ExecuteOperationCommand` | CalcOval / PropagateWF | `CustomOperation*`, `m_resultObj`, `m_wasAdded` | Calls `op->execute()`, tracks result object | Removes resultObject and operation |
+| `RotateObjectCommand` | Rotate dialog | `CustomObject*`, `m_oldPoints`, pivot, degrees | Computes rotation matrix, applies new points | Restores `m_oldPoints` |
+| `TranslateObjectCommand` | Translate dialog | `CustomObject*`, `m_delta` (QPointF) | Adds delta to all control points | Subtracts delta from all control points |
 
-### 3.1 Why only Rotate/Translate return modifiedObjectName?
-
-Rotate and Translate modify an object's geometry (control points) without changing its existence or operations. The object keeps the same name and identity, so dependents can be recalculated by name. 
-
-For `ExecuteOperationCommand` (CalcOval, PropagateWF), undo/redo adds/removes the operation and its result — the dependency graph gets fully rebuilt instead.
-
-For `ModifyControlPointsCommand`, the current implementation returns empty — recalc is triggered directly by the caller in `MainWindow` (e.g., `onEditPoints()`) rather than through the undo/redo path.
+**Note:** All commands are self-contained — they only modify the project model (objects, operations, control points). After undo or redo, `recalculateAll()` handles downstream result recomputation.
 
 ---
 
@@ -164,7 +163,7 @@ MainWindow::onRotateObject()
       → push to m_undoStack
       → clear m_redoStack
       → emit stackChanged()
-  → recalcDependents(S1)              // side-effect: recalculate downstream
+  → recalculateAll()                 // re-execute all operations
   → refreshChart()
 ```
 
@@ -178,12 +177,10 @@ MainWindow::onUndo()
           - return true
       → push to m_redoStack
       → emit stackChanged()
-  → m_depGraph->rebuildFromProject(project)
-  → objName = m_cmdHistory->lastUndoneModifiedObjectName()
-      → reads m_redoStack.back()->modifiedObjectName() → "S1"
-  → modifiedObj = project->findObject("S1")
-  → recalcDependents(modifiedObj)     // S1 was restored, recalc its dependents
+  → recalculateAll()                 // re-execute all operations from restored state
   → refreshChart()
+  → updateStatusBar()
+  → setModified(true)
 ```
 
 ### Step 3: Redo (via `onRedo()`, Ctrl+Y)
@@ -192,51 +189,46 @@ MainWindow::onRedo()
   → m_cmdHistory->redo(project)
       → pop RotateObjectCommand from m_redoStack
       → cmd.execute(project):
-          - apply rotation again (m_oldPoints were restored in step 2,
-            m_newPoints were computed in step 1 and stored in the command)
-          - wait — this re-executes from the current state
-          - Actually: execute() recomputes the rotation from current points
-            and saves them as m_oldPoints again. The rotation is re-applied.
+          - reads current points of S1 (pre-rotation after undo)
+          - saves them as m_oldPoints
+          - computes rotation again using m_degrees and m_pivot
+          - obj->setControlPoints(newPoints)
           - return true
       → push to m_undoStack
       → emit stackChanged()
-  → m_depGraph->rebuildFromProject(project)
-  → objName = m_cmdHistory->lastRedoneModifiedObjectName() → "S1"
-  → recalcDependents(modifiedObj)
+  → recalculateAll()                 // re-execute all operations
   → refreshChart()
+  → updateStatusBar()
+  → setModified(true)
 ```
 
-**Important subtlety for RotateObjectCommand::execute():** On redo, `execute()` reads the current points of S1 (which are the pre-rotation points after undo), saves them as `m_oldPoints`, computes the rotation again from scratch using `m_degrees` and `m_pivot`, and applies the result. This means the command is **idempotent** — execute always produces the same rotation regardless of whether it's the first call or a redo.
+**Important subtlety for RotateObjectCommand::execute():** On redo, `execute()` reads the current points of S1 (which are the pre-rotation points after undo), saves them as `m_oldPoints`, computes the rotation again from scratch using `m_degrees` and `m_pivot`, and applies the result. The command is **idempotent** — execute always produces the same rotation regardless of whether it's the first call or a redo.
 
 ---
 
-## 8. ModifiedObjectName + Recalc Bridge
+## 8. Recalculation After Undo/Redo
 
-The `modifiedObjectName()` mechanism is the key link between undo/redo and recalculation:
+After every undo or redo operation, `MainWindow` calls `recalculateAll()`:
 
 ```
-CommandHistory storage:
-  undoStack: [cmd_N, cmd_N-1, ..., cmd_0]   (most recent at back)
-  redoStack: [undone_cmd_0, ..., undone_cmd_M]
-
-After undo():
-  - lastUndoneModifiedObjectName() reads redoStack.back()->modifiedObjectName()
-  - returns the name of the object that was just restored
-
-After redo():
-  - lastRedoneModifiedObjectName() reads undoStack.back()->modifiedObjectName()
-  - returns the name of the object that was just re-applied
+recalculateAll():
+    1. Block project signals (QSignalBlocker)
+    2. Remove ALL current result objects
+    3. Re-execute every operation in m_operations (insertion order)
+    4. Rebuild DependencyGraph (for UI dialogs only)
+    5. Refresh chart, status bar, mark as modified
 ```
 
-Commands without `modifiedObjectName` (AddObject, DeleteObject, ModifyObject, ModifyControlPoints, ExecuteOperation) return empty string. In those cases, `MainWindow` skips the targeted recalc call — the dependency graph rebuild alone is sufficient.
+This replaces the previous surgical approach (`recalcDependents(obj)`) that used `DependencyGraph` inside the loop and required `modifiedObjectName()` to identify which object changed. The new approach is simpler and guarantees correctness by recomputing everything.
+
+See `RecalculateArchitecture.md` for the full recalculation design.
 
 ---
 
 ## 9. Thread Safety & Signal Handling
 
 - **Single-threaded:** All command execution, undo, and redo happen on the Qt main thread. No synchronization primitives needed.
-- **Signal blocking:** `CommandHistory::push()`, `undo()`, and `redo()` do **not** block project signals. It's the caller's responsibility (`MainWindow::recalcDependents()`) to block signals during recalculation via `QSignalBlocker`.
-- **Guard against reentry:** `MainWindow::m_recalcInProgress` prevents nested recalculation calls from signal cascades.
+- **Signal blocking:** `CommandHistory::push()`, `undo()`, and `redo()` do **not** block project signals. It's the caller's responsibility (`MainWindow::recalculateAll()`) to block signals during recalculation via `QSignalBlocker`.
 
 ---
 
@@ -262,5 +254,5 @@ Commands without `modifiedObjectName` (AddObject, DeleteObject, ModifyObject, Mo
 |---|---|
 | `src/core/CommandHistory.h` | `Command` base class, all concrete commands, `CommandHistory` class |
 | `src/core/CommandHistory.cpp` | Full implementation of all commands and stack logic |
-| `src/ui/MainWindow.h` | `m_cmdHistory` member, `onUndo()`, `onRedo()`, `updateUndoRedoActions()` |
-| `src/ui/MainWindow.cpp` | `onUndo()` at line 822, `onRedo()` at line 845, `updateUndoRedoActions()` at line 868 |
+| `src/ui/MainWindow.h` | `m_cmdHistory` member, `onUndo()`, `onRedo()`, `updateUndoRedoActions()`, `recalculateAll()` |
+| `src/ui/MainWindow.cpp` | `onUndo()`, `onRedo()`, `updateUndoRedoActions()`, `recalculateAll()` |

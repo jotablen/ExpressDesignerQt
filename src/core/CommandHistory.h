@@ -21,7 +21,6 @@ public:
     virtual ~Command();
     virtual bool execute(Project* project) = 0;
     virtual bool undo(Project* project) = 0;
-    virtual QString modifiedObjectName() const { return {}; }
     QString description() const;
     QDateTime timestamp() const;
 protected:
@@ -100,7 +99,6 @@ public:
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomObject* object() const { return m_obj; }
-    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     double m_degrees;
@@ -115,7 +113,6 @@ public:
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomObject* object() const { return m_obj; }
-    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     QPointF m_delta;
@@ -138,8 +135,6 @@ public:
     bool canRedo() const;
     QString undoText() const;
     QString redoText() const;
-    QString lastUndoneModifiedObjectName() const;
-    QString lastRedoneModifiedObjectName() const;
     void clear();
 
 signals:

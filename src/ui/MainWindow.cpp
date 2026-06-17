@@ -236,8 +236,9 @@ void MainWindow::setupConnections()
 
     connect(m_propertiesWidget, &PropertiesWidget::objectModified,
             this, [this](CustomObject* obj) {
+                Q_UNUSED(obj);
                 setModified(true);
-                recalcDependents(obj);
+                recalculateAll();
                 refreshChart();
                 updateStatusBar();
             });
@@ -305,7 +306,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
         if (event->type() == QEvent::Wheel) {
             QWheelEvent* we = static_cast<QWheelEvent*>(event);
             if (m_chart) {
-                // viewport-local → chart-view-local → scene coordinates
+                // viewport-local -> chart-view-local -> scene coordinates
                 QPoint vp = we->position().toPoint();
                 QPointF cursorValue = m_chart->mapToValue(m_chartView->mapToScene(
                     m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp))));
@@ -324,7 +325,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
             return true;
         }
 
-        // --- Mouse press → begin pan ---
+        // --- Mouse press -> begin pan ---
         if (event->type() == QEvent::MouseButtonPress) {
             QMouseEvent* me = static_cast<QMouseEvent*>(event);
             if (me->button() == Qt::LeftButton) {
@@ -334,7 +335,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
             }
         }
 
-        // --- Mouse move → pan chart ---
+        // --- Mouse move -> pan chart ---
         if (event->type() == QEvent::MouseMove && m_isPanning) {
             QMouseEvent* me = static_cast<QMouseEvent*>(event);
             if (m_chart) {
@@ -351,7 +352,7 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
             return true;
         }
 
-        // --- Mouse release → end pan + click-select ---
+        // --- Mouse release -> end pan + click-select ---
         if (event->type() == QEvent::MouseButtonRelease) {
             QMouseEvent* me = static_cast<QMouseEvent*>(event);
             if (me->button() == Qt::LeftButton) {
@@ -571,7 +572,7 @@ void MainWindow::onCalculateOval()
         m_currentProject->addOperation(op);
         m_history->recordObjectCreation(op->name());
         setModified(true);
-        if (m_depGraph) m_depGraph->rebuildFromProject(m_currentProject);
+        recalculateAll();
         updateUndoRedoActions();
         refreshChart();
         updateStatusBar();
@@ -598,7 +599,7 @@ void MainWindow::onPropagateWF()
         m_currentProject->addOperation(op);
         m_history->recordObjectCreation(op->name());
         setModified(true);
-        if (m_depGraph) m_depGraph->rebuildFromProject(m_currentProject);
+        recalculateAll();
         updateUndoRedoActions();
         refreshChart();
         updateStatusBar();
@@ -650,7 +651,7 @@ void MainWindow::onOffsetWF()
     }
 }
 
-void MainWindow::onRecalculate() { refreshChart(); }
+void MainWindow::onRecalculate() { recalculateAll(); refreshChart(); }
 
 void MainWindow::onZoomIn()
 {
@@ -789,7 +790,7 @@ void MainWindow::onRotateObject()
         m_history->recordObjectModification(obj->name(), QStringLiteral("rotate"),
             QString(), QString::number(degrees) + QStringLiteral("°"));
         setModified(true);
-        recalcDependents(obj);
+        recalculateAll();
         refreshChart();
         updateStatusBar();
     }
@@ -813,7 +814,7 @@ void MainWindow::onTranslateObject()
         m_history->recordObjectModification(obj->name(), QStringLiteral("translate"),
             QString(), QStringLiteral("Δ(%1,%2)").arg(dx).arg(dy));
         setModified(true);
-        recalcDependents(obj);
+        recalculateAll();
         refreshChart();
         updateStatusBar();
     }
@@ -825,17 +826,7 @@ void MainWindow::onUndo()
 
     m_cmdHistory->undo(m_currentProject);
 
-    // Rebuild graph and recalculate dependents for the affected object
-    if (m_depGraph) {
-        m_depGraph->rebuildFromProject(m_currentProject);
-        QString objName = m_cmdHistory->lastUndoneModifiedObjectName();
-        if (!objName.isEmpty()) {
-            CustomObject* modifiedObj = m_currentProject->findObject(objName);
-            if (modifiedObj)
-                recalcDependents(modifiedObj);
-        }
-    }
-
+    recalculateAll();
     updateUndoRedoActions();
     refreshChart();
     updateStatusBar();
@@ -848,17 +839,7 @@ void MainWindow::onRedo()
 
     m_cmdHistory->redo(m_currentProject);
 
-    // Rebuild graph and recalculate dependents for the affected object
-    if (m_depGraph) {
-        m_depGraph->rebuildFromProject(m_currentProject);
-        QString objName = m_cmdHistory->lastRedoneModifiedObjectName();
-        if (!objName.isEmpty()) {
-            CustomObject* modifiedObj = m_currentProject->findObject(objName);
-            if (modifiedObj)
-                recalcDependents(modifiedObj);
-        }
-    }
-
+    recalculateAll();
     updateUndoRedoActions();
     refreshChart();
     updateStatusBar();
@@ -883,58 +864,35 @@ void MainWindow::updateUndoRedoActions()
     }
 }
 
-void MainWindow::recalcDependents(CustomObject* modifiedObj)
+void MainWindow::recalculateAll()
 {
-    if (!m_currentProject || !m_depGraph) return;
-    if (m_recalcInProgress) return;
-    m_recalcInProgress = true;
+    if (!m_currentProject) return;
 
-    // Rebuild dependency graph to stay in sync
-    m_depGraph->rebuildFromProject(m_currentProject);
-
-    if (!modifiedObj) { m_recalcInProgress = false; return; }
-
-    // Transitive recalculation: keep recalculating until no more dependents
-    QSet<CustomOperation*> processed;   // ops already recalculated
-    QSet<CustomObject*> modified;       // objects whose dependents need checking
-    modified.insert(modifiedObj);
-
-    // Block signals during entire recalc cascade to avoid side-effects
+    // Block all project signals during recalculation
     const QSignalBlocker blocker(m_currentProject);
 
-    while (!modified.isEmpty()) {
-        // Take one object and find its dependent operations
-        CustomObject* obj = *modified.begin();
-        modified.erase(modified.begin());
+    // Remove all current result objects
+    // Iterate backwards to avoid index invalidation
+    for (int i = m_currentProject->resultObjectCount() - 1; i >= 0; --i)
+        m_currentProject->removeResultObject(i);
 
-        // Rebuild so the graph knows about newly created results from previous iterations
-        m_depGraph->rebuildFromProject(m_currentProject);
-
-        QVector<CustomOperation*> ops = m_depGraph->operationsUsingObject(obj);
-        for (auto* op : ops) {
-            if (!op || processed.contains(op)) continue;
-            processed.insert(op);
-
-            // Remove old result by name
-            QString resName = op->resultName();
-            CustomObject* oldResult = m_currentProject->findObject(resName);
-            if (oldResult) {
-                m_currentProject->removeResultObject(oldResult);
-                m_currentProject->removeDataObject(oldResult);
-            }
-            // Execute — creates new result
-            op->execute(m_currentProject);
-
-            // The new result now needs its dependents checked too
-            CustomObject* newResult = m_currentProject->findObject(resName);
-            if (newResult)
-                modified.insert(newResult);
-        }
+    // Re-execute every operation in insertion order
+    const auto& ops = m_currentProject->operations();
+    for (auto* op : ops) {
+        if (!op) continue;
+        op->execute(m_currentProject);
+        // If execute returns false: operation could not execute
+        // (missing parameters, invalid indices, etc.)
+        // No result is created. Downstream operations that depend
+        // on this result's name will also fail -> chain breaks cleanly.
+        // If execute returns true: result was added to project.
+        // It may have 0 control points (e.g., no ray-surface hits).
+        // Downstream operations receive it as-is.
     }
 
-    // Rebuild dependency graph to reflect new results
-    m_depGraph->rebuildFromProject(m_currentProject);
-    m_recalcInProgress = false;
+    // Rebuild dependency graph ONCE for UI queries (dialog, delete warnings)
+    if (m_depGraph)
+        m_depGraph->rebuildFromProject(m_currentProject);
 }
 
 void MainWindow::refreshChart()
