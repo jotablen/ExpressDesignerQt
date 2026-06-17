@@ -257,6 +257,15 @@ bool CommandHistory::redo(Project* project) {
 bool CommandHistory::canUndo() const { return !m_undoStack.empty(); }
 bool CommandHistory::canRedo() const { return !m_redoStack.empty(); }
 
+QString CommandHistory::lastUndoneModifiedObjectName() const {
+    if (m_redoStack.empty()) return {};
+    return m_redoStack.back()->modifiedObjectName();
+}
+QString CommandHistory::lastRedoneModifiedObjectName() const {
+    if (m_undoStack.empty()) return {};
+    return m_undoStack.back()->modifiedObjectName();
+}
+
 QString CommandHistory::undoText() const {
     if (m_undoStack.empty()) return {};
     return tr("Undo %1").arg(m_undoStack.back()->description());

@@ -248,6 +248,9 @@ void MainWindow::setupConnections()
                 updateStatusBar();
             });
 
+    connect(m_cmdHistory, &CommandHistory::stackChanged,
+            this, &MainWindow::updateUndoRedoActions);
+
     connect(m_rightSplitter, &QSplitter::splitterMoved,
             this, [this](int, int) { maintainChartAspectRatio(); });
     connect(m_mainSplitter, &QSplitter::splitterMoved,
@@ -822,9 +825,16 @@ void MainWindow::onUndo()
 
     m_cmdHistory->undo(m_currentProject);
 
-    // Rebuild graph and refresh — results already restored by command undo
-    if (m_depGraph)
+    // Rebuild graph and recalculate dependents for the affected object
+    if (m_depGraph) {
         m_depGraph->rebuildFromProject(m_currentProject);
+        QString objName = m_cmdHistory->lastUndoneModifiedObjectName();
+        if (!objName.isEmpty()) {
+            CustomObject* modifiedObj = m_currentProject->findObject(objName);
+            if (modifiedObj)
+                recalcDependents(modifiedObj);
+        }
+    }
 
     updateUndoRedoActions();
     refreshChart();
@@ -838,9 +848,16 @@ void MainWindow::onRedo()
 
     m_cmdHistory->redo(m_currentProject);
 
-    // Rebuild graph and refresh — results already restored by command redo
-    if (m_depGraph)
+    // Rebuild graph and recalculate dependents for the affected object
+    if (m_depGraph) {
         m_depGraph->rebuildFromProject(m_currentProject);
+        QString objName = m_cmdHistory->lastRedoneModifiedObjectName();
+        if (!objName.isEmpty()) {
+            CustomObject* modifiedObj = m_currentProject->findObject(objName);
+            if (modifiedObj)
+                recalcDependents(modifiedObj);
+        }
+    }
 
     updateUndoRedoActions();
     refreshChart();
