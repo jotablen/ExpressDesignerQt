@@ -153,6 +153,7 @@ private:
 
     // Guard against recursive cascade recalculation
     bool m_recalcInProgress = false;
+    bool m_inUndoRedo = false;
 
     // Chart helpers
     void maintainChartAspectRatio();

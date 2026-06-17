@@ -38,38 +38,29 @@ void DependencyGraph::removeObject(CustomObject* obj)
 {
     if (!obj) return;
     QUuid uid = obj->uuid();
-
     m_objToOps.remove(uid);
     m_uuidToObj.remove(uid);
-
     if (m_resultToOp.contains(uid)) {
         CustomOperation* op = m_resultToOp.take(uid);
         m_opToResult.remove(op);
     }
-
-    // Clean up any nullptrs
     for (auto it = m_objToOps.begin(); it != m_objToOps.end(); ) {
         it.value().removeAll(nullptr);
-        if (it.value().isEmpty()) {
+        if (it.value().isEmpty())
             it = m_objToOps.erase(it);
-        } else {
+        else
             ++it;
-        }
     }
 }
 
 void DependencyGraph::removeOperation(CustomOperation* op)
 {
     if (!op) return;
-
     if (m_opToResult.contains(op)) {
         CustomObject* result = m_opToResult.take(op);
         if (result) m_resultToOp.remove(result->uuid());
     }
-
-    for (auto& ops : m_objToOps) {
-        ops.removeAll(op);
-    }
+    for (auto& ops : m_objToOps) ops.removeAll(op);
 }
 
 QVector<CustomOperation*> DependencyGraph::operationsUsingObject(CustomObject* obj) const
@@ -94,15 +85,11 @@ void DependencyGraph::collectTransitive(const QUuid& startUuid, QSet<QUuid>& vis
 {
     if (visited.contains(startUuid)) return;
     visited.insert(startUuid);
-
-    // Follow: object → ops that use it → their results
     const auto& ops = m_objToOps.value(startUuid);
     for (auto* op : ops) {
         if (!op) continue;
         CustomObject* result = m_opToResult.value(op, nullptr);
-        if (result) {
-            collectTransitive(result->uuid(), visited);
-        }
+        if (result) collectTransitive(result->uuid(), visited);
     }
 }
 
@@ -110,11 +97,9 @@ QSet<CustomObject*> DependencyGraph::transitiveDependents(CustomObject* obj) con
 {
     QSet<CustomObject*> result;
     if (!obj) return result;
-
     QSet<QUuid> visited;
     collectTransitive(obj->uuid(), visited);
     visited.remove(obj->uuid());
-
     for (const QUuid& uid : visited) {
         CustomObject* depObj = m_uuidToObj.value(uid, nullptr);
         if (depObj) result.insert(depObj);
@@ -126,31 +111,20 @@ QSet<CustomObject*> DependencyGraph::transitiveAncestors(CustomObject* obj) cons
 {
     QSet<CustomObject*> result;
     if (!obj) return result;
-
-    // Walk backwards: obj → parent op → input objs → their parent ops → ...
     QSet<QUuid> visited;
     QList<QUuid> toVisit;
-
-    if (m_resultToOp.contains(obj->uuid())) {
+    if (m_resultToOp.contains(obj->uuid()))
         toVisit.append(obj->uuid());
-    }
-
     while (!toVisit.isEmpty()) {
         QUuid current = toVisit.takeFirst();
         if (visited.contains(current)) continue;
         visited.insert(current);
-
         CustomOperation* parentOp = m_resultToOp.value(current, nullptr);
         if (!parentOp) continue;
-
-        // Find all objects that feed into this operation
-        for (auto it = m_objToOps.begin(); it != m_objToOps.end(); ++it) {
-            if (it.value().contains(parentOp)) {
+        for (auto it = m_objToOps.begin(); it != m_objToOps.end(); ++it)
+            if (it.value().contains(parentOp))
                 toVisit.append(it.key());
-            }
-        }
     }
-
     visited.remove(obj->uuid());
     for (const QUuid& uid : visited) {
         CustomObject* anc = m_uuidToObj.value(uid, nullptr);
@@ -171,34 +145,19 @@ void DependencyGraph::rebuildFromProject(Project* project)
 {
     clear();
     if (!project) return;
-
-    // Register all objects for UUID lookup
-    for (auto* obj : project->dataObjects()) {
-        registerObject(obj);
-    }
-    for (auto* obj : project->resultObjects()) {
-        registerObject(obj);
-    }
-
+    for (auto* obj : project->dataObjects()) registerObject(obj);
+    for (auto* obj : project->resultObjects()) registerObject(obj);
     const auto& ops = project->operations();
     for (auto* op : ops) {
         if (!op) continue;
-
         for (int i = 0; i < op->paramCount(); ++i) {
             if (op->isParamObject(i)) {
-                QString paramName = op->paramName(i);
-                CustomObject* paramObj = project->findObject(paramName);
-                if (paramObj) {
-                    addObjectDependency(paramObj, op);
-                }
+                CustomObject* paramObj = project->findObject(op->paramName(i));
+                if (paramObj) addObjectDependency(paramObj, op);
             }
         }
-
-        QString resName = op->resultName();
-        CustomObject* resultObj = project->findObject(resName);
-        if (resultObj) {
-            addOperationResult(op, resultObj);
-        }
+        CustomObject* resultObj = project->findObject(op->resultName());
+        if (resultObj) addOperationResult(op, resultObj);
     }
 }
 

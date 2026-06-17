@@ -818,24 +818,34 @@ void MainWindow::onTranslateObject()
 
 void MainWindow::onUndo()
 {
-    if (m_cmdHistory && m_cmdHistory->canUndo()) {
-        m_cmdHistory->undo(m_currentProject);
-        updateUndoRedoActions();
-        refreshChart();
-        updateStatusBar();
-        setModified(true);
-    }
+    if (!m_cmdHistory || !m_cmdHistory->canUndo()) return;
+
+    m_cmdHistory->undo(m_currentProject);
+
+    // Rebuild graph and refresh — results already restored by command undo
+    if (m_depGraph)
+        m_depGraph->rebuildFromProject(m_currentProject);
+
+    updateUndoRedoActions();
+    refreshChart();
+    updateStatusBar();
+    setModified(true);
 }
 
 void MainWindow::onRedo()
 {
-    if (m_cmdHistory && m_cmdHistory->canRedo()) {
-        m_cmdHistory->redo(m_currentProject);
-        updateUndoRedoActions();
-        refreshChart();
-        updateStatusBar();
-        setModified(true);
-    }
+    if (!m_cmdHistory || !m_cmdHistory->canRedo()) return;
+
+    m_cmdHistory->redo(m_currentProject);
+
+    // Rebuild graph and refresh — results already restored by command redo
+    if (m_depGraph)
+        m_depGraph->rebuildFromProject(m_currentProject);
+
+    updateUndoRedoActions();
+    refreshChart();
+    updateStatusBar();
+    setModified(true);
 }
 
 void MainWindow::updateUndoRedoActions()

@@ -111,7 +111,7 @@ void Project::removeResultObject(int index)
     CustomObject* obj = m_resultObjects.takeAt(index);
     emit resultObjectRemoved(obj, index);
     emit objectModified(QStringLiteral("resultObjects"));
-    obj->deleteLater();
+    delete obj;  // immediate to avoid stale pointers in dependency graph
 }
 
 void Project::removeResultObject(CustomObject* obj)
