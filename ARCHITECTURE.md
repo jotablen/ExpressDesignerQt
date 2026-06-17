@@ -22,31 +22,35 @@
 
 ## Undoable Actions (all stored in CommandHistory stack)
 
-| Action        | Command Class             | What it stores                              |
-|---------------|---------------------------|---------------------------------------------|
-| Insert object | AddObjectCommand          | CustomObject* pointer, wasResult flag       |
-| Delete object | DeleteObjectCommand       | CustomObject* pointer, index, isResult flag |
-| Rotate object | RotateObjectCommand       | obj*, oldPoints, pivot, degrees             |
-| Translate obj | TranslateObjectCommand    | obj*, delta                                 |
-| Propagate WF  | ExecuteOperationCommand   | CustomOperation* pointer                    |
-| Calc Oval     | ExecuteOperationCommand   | CustomOperation* pointer                    |
-| Modify prop.  | ModifyObjectCommand       | obj*, propertyName, oldValue, newValue      |
-| Mod. ctrl pts | ModifyControlPointsCmd    | obj*, oldPoints, newPoints                  |
+| Action        | Command Class             | What it stores                              | modifiedObjectName()           |
+|---------------|---------------------------|---------------------------------------------|-------------------------------|
+| Insert object | AddObjectCommand          | CustomObject* pointer, wasResult flag       | "" (none)                     |
+| Delete object | DeleteObjectCommand       | CustomObject* pointer, index, isResult flag | "" (none)                     |
+| Rotate object | RotateObjectCommand       | obj*, oldPoints, pivot, degrees             | obj→name()                    |
+| Translate obj | TranslateObjectCommand    | obj*, delta                                 | obj→name()                    |
+| Propagate WF  | ExecuteOperationCommand   | CustomOperation* pointer                    | "" (none)                     |
+| Calc Oval     | ExecuteOperationCommand   | CustomOperation* pointer                    | "" (none)                     |
+| Modify prop.  | ModifyObjectCommand       | obj*, propertyName, oldValue, newValue      | "" (none)                     |
+| Mod. ctrl pts | ModifyControlPointsCmd    | obj*, oldPoints, newPoints                  | "" (none)                     |
 
 ## Key Rules
 
 1. **All mutations go through CommandHistory.push()**
    - push() calls cmd->execute() internally
    - On success, pushes to undo stack
+   - Emits `stackChanged()` → `MainWindow::updateUndoRedoActions()` keeps menu captions in sync
 
 2. **RecalcDependents is NOT a command**
    - It is a side-effect executed directly after rotate/translate/modify
    - It does NOT push anything to CommandHistory
    - It blocks Project signals during execution to avoid cascading
 
-3. **Undo/Redo does NOT trigger recalcDependents**
-   - Flag `m_inUndoRedo` prevents any recalc during undo/redo
-   - After undo/redo, only the dependency graph is rebuilt (no recalc)
+3. **Undo/Redo triggers recalcDependents via modifiedObjectName()**
+   - `Command::modifiedObjectName()` returns the name of the object affected by the command
+   - `RotateObjectCommand` and `TranslateObjectCommand` return the object name
+   - After undo/redo, `CommandHistory::lastUndoneModifiedObjectName()` / `lastRedoneModifiedObjectName()` returns the name
+   - `MainWindow` resolves the name via `Project::findObject()` and calls `recalcDependents()`
+   - This ensures that undoing a Rotate/Translate on S1 also recalculates WF1Propg and Oval
 
 4. **Transitive recalculation**
    - When obj A is modified/rotated/translated:
@@ -100,6 +104,9 @@ onPropagateWF()
 onUndo()
   → m_cmdHistory->undo(project)         ← restores previous state
   → DependencyGraph::rebuildFromProject()  ← re-scans operations
+  → cmdHistory->lastUndoneModifiedObjectName()  ← get affected object name
+  → project->findObject(objName)        ← resolve name safely (no raw pointer)
+  → recalcDependents(modifiedObj)       ← cascade-recalculate dependents
   → refreshChart()
 ```
 
@@ -112,10 +119,14 @@ onUndo()
 - m_uuidToObj:  QUuid → CustomObject*                (UUID lookup)
 
 ### CommandHistory
-- m_undoStack: QVector<Command*>   (up to 200)
-- m_redoStack: QVector<Command*>   (cleared on new command)
+- m_undoStack: std::vector<std::unique_ptr<Command>>   (up to 200)
+- m_redoStack: std::vector<std::unique_ptr<Command>>   (cleared on new command)
+- stackChanged() signal → connected to MainWindow::updateUndoRedoActions()
+- lastUndoneModifiedObjectName() → QString (object name from redo stack top)
+- lastRedoneModifiedObjectName() → QString (object name from undo stack top)
 
 ### Command base class
 - execute(Project*) = 0
 - undo(Project*) = 0
 - description() → "Rotate MyObject", "Delete MyObject", etc.
+- modifiedObjectName() → QString (returns object name for recalc; empty by default)
