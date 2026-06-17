@@ -174,6 +174,10 @@ bool RotateObjectCommand::execute(Project* project) {
     m_obj->setControlPoints(newPts);
     return true;
 }
+QString RotateObjectCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
+
 bool RotateObjectCommand::undo(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
@@ -197,6 +201,10 @@ bool TranslateObjectCommand::execute(Project* project) {
     m_obj->setControlPoints(newPts);
     return true;
 }
+QString TranslateObjectCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
+
 bool TranslateObjectCommand::undo(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;

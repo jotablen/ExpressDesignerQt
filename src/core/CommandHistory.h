@@ -100,7 +100,7 @@ public:
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomObject* object() const { return m_obj; }
-    QString modifiedObjectName() const override { return m_obj ? m_obj->name() : QString(); }
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     double m_degrees;
@@ -115,7 +115,7 @@ public:
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomObject* object() const { return m_obj; }
-    QString modifiedObjectName() const override { return m_obj ? m_obj->name() : QString(); }
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     QPointF m_delta;
