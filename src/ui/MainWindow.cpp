@@ -868,6 +868,11 @@ void MainWindow::recalculateAll()
 {
     if (!m_currentProject) return;
 
+    // Clear selection — the object may be destroyed or removed during recalc
+    m_selectedObject = nullptr;
+    if (m_propertiesWidget)
+        m_propertiesWidget->setObject(nullptr);
+
     // Block all project signals during recalculation
     const QSignalBlocker blocker(m_currentProject);
 
