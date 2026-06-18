@@ -35,9 +35,9 @@ void ObjectTreeModel::setProject(Project* project)
             beginRemoveRows(parent, index, index);
             endRemoveRows();
         });
-        // Refresh display when any object changes
-        connect(m_project, &QObject::objectNameChanged, this, [this]() {
-            emit dataChanged(index(0, 0), index(rowCount() - 1, 0));
+        // Refresh header when project name changes
+        connect(m_project, &BaseObject::nameChanged, this, [this](const QString&) {
+            emit headerDataChanged(Qt::Horizontal, 0, 0);
         });
     }
 
@@ -115,7 +115,7 @@ QVariant ObjectTreeModel::data(const QModelIndex& index, int role) const
 QVariant ObjectTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
-        return QStringLiteral("Name");
+        return m_project ? m_project->name() : QStringLiteral("Name");
     return QVariant();
 }
 

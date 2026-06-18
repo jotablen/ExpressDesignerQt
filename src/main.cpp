@@ -5,6 +5,7 @@
 #include <QCommandLineParser>
 #include <QDebug>
 #include "app/OvalDesignerApp.h"
+#include <utils/Logger.h>
 
 static QIcon createAppIcon()
 {
@@ -80,6 +81,8 @@ int main(int argc, char* argv[])
     parser.addVersionOption();
     parser.addPositionalArgument(QStringLiteral("project"), QStringLiteral("Project file (.json) to open"));
     parser.process(app);
+
+    ExpressDesigner::Logger::instance().setFile(QStringLiteral("ExpressDesigner.log"));
 
     ExpressDesigner::ExpressDesignerApp designerApp;
     designerApp.initialize();

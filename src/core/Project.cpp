@@ -159,7 +159,11 @@ const QVector<CustomOperation*>& Project::operations() const { return m_operatio
 
 void Project::addOperation(CustomOperation* op)
 {
-    if (!op) return;
+    if (!op || m_operations.contains(op)) return;
+    // Prevent duplicate operations by result name (operations produce results with their own name)
+    for (const auto* existing : m_operations) {
+        if (existing && existing->name() == op->name()) return;
+    }
     op->setParent(this);
     int idx = m_operations.size();
     m_operations.append(op);
@@ -171,13 +175,22 @@ void Project::removeOperation(int index)
     if (index < 0 || index >= m_operations.size()) return;
     CustomOperation* op = m_operations.takeAt(index);
     emit operationRemoved(op, index);
-    op->deleteLater();
+    delete op;  // immediate — commands may hold QPointer<CustomOperation>
 }
 
 void Project::removeOperation(CustomOperation* op)
 {
     int idx = m_operations.indexOf(op);
     if (idx >= 0) removeOperation(idx);
+}
+
+CustomOperation* Project::takeOperation(CustomOperation* op)
+{
+    int idx = m_operations.indexOf(op);
+    if (idx < 0) return nullptr;
+    CustomOperation* taken = m_operations.takeAt(idx);
+    emit operationRemoved(taken, idx);
+    return taken;
 }
 
 bool Project::isOperationNameInUse(const QString& name) const

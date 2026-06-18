@@ -4,6 +4,7 @@
 #include "Project.h"
 #include <QtMath>
 #include <QVariant>
+#include <utils/Logger.h>
 
 namespace ExpressDesigner {
 
@@ -114,26 +115,42 @@ ExecuteOperationCommand::ExecuteOperationCommand(CustomOperation* op)
     : Command(QStringLiteral("Execute ") + (op ? op->name() : QString())), m_op(op) {}
 
 bool ExecuteOperationCommand::execute(Project* project) {
-    if (!project || !m_op) return false;
+    TRACE_CAT(QStringLiteral("CMD"));
+    if (!project || !m_op) { LOG_WARN(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: null project or op")); return false; }
     QString resultName = m_op->resultName();
-    m_resultObj = project->findObject(resultName);
-    if (m_resultObj) {
-        project->removeResultObject(m_resultObj);
-        project->removeDataObject(m_resultObj);
-        m_op->execute(project);
-        m_resultObj = project->findObject(resultName);
-        return true;
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: execute() name='%1'").arg(resultName));
+
+    // Remove existing result by name if present (e.g. from a previous exec)
+    CustomObject* existing = project->findObject(resultName);
+    if (existing) {
+        LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: removing existing result '%1'").arg(resultName));
+        project->removeResultObject(existing);
     }
-    // First execution
-    if (!m_op->execute(project)) return false;
+
+    // Ensure the operation recipe is in the project
+    if (!project->operations().contains(m_op)) {
+        LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: re-adding op '%1' to project").arg(m_op->name()));
+        project->addOperation(m_op);
+    }
+
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: calling op->execute()..."));
+    if (!m_op->execute(project)) { LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: op->execute() FAILED")); return false; }
+
     m_resultObj = project->findObject(resultName);
     m_wasAdded = true;
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: OK, result=%1").arg(m_resultObj ? QStringLiteral("VALID") : QStringLiteral("NULL")));
     return true;
 }
 bool ExecuteOperationCommand::undo(Project* project) {
-    if (!project || !m_resultObj || !m_wasAdded) return false;
+    TRACE_CAT(QStringLiteral("CMD"));
+    if (!project || !m_resultObj || !m_wasAdded) { LOG_WARN(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: undo() precondition failed")); return false; }
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: undo() removing result '%1'").arg(m_resultObj->name()));
     project->removeResultObject(m_resultObj);
-    project->removeOperation(m_op);
+    m_resultObj = nullptr;
+    m_wasAdded = false;
+    // Remove operation from project so recalculateAll won't re-execute it
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: undo() taking op '%1' from project").arg(m_op->name()));
+    project->takeOperation(m_op);
     return true;
 }
 CustomOperation* ExecuteOperationCommand::operation() const { return m_op; }
@@ -216,8 +233,10 @@ CommandHistory::CommandHistory(QObject* parent) : QObject(parent) {}
 CommandHistory::~CommandHistory() { clear(); }
 
 bool CommandHistory::push(std::unique_ptr<Command> cmd, Project* project) {
-    if (!cmd) return false;
-    if (!cmd->execute(project)) return false;
+    TRACE_CAT(QStringLiteral("CMD"));
+    if (!cmd) { LOG_WARN(QStringLiteral("CMD"), QStringLiteral("push: null command")); return false; }
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("push: %1 (undoStack=%2)").arg(cmd->description()).arg(m_undoStack.size() + 1));
+    if (!cmd->execute(project)) { LOG_WARN(QStringLiteral("CMD"), QStringLiteral("push: execute failed for '%1'").arg(cmd->description())); return false; }
 
     m_redoStack.clear();
     m_undoStack.push_back(std::move(cmd));
@@ -230,29 +249,37 @@ bool CommandHistory::push(std::unique_ptr<Command> cmd, Project* project) {
 }
 
 bool CommandHistory::undo(Project* project) {
+    TRACE_CAT(QStringLiteral("CMD"));
     if (m_undoStack.empty()) return false;
     auto cmd = std::move(m_undoStack.back());
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("undo: %1 (undoStack=%2)").arg(cmd->description()).arg(m_undoStack.size() - 1));
     m_undoStack.pop_back();
     if (!cmd->undo(project)) {
+        LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("undo: FAILED for '%1' — re-executing").arg(cmd->description()));
         cmd->execute(project);
         m_undoStack.push_back(std::move(cmd));
         return false;
     }
     m_redoStack.push_back(std::move(cmd));
     emit stackChanged();
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("undo: OK (redoStack=%1)").arg(m_redoStack.size()));
     return true;
 }
 
 bool CommandHistory::redo(Project* project) {
+    TRACE_CAT(QStringLiteral("CMD"));
     if (m_redoStack.empty()) return false;
     auto cmd = std::move(m_redoStack.back());
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("redo: %1 (redoStack=%2)").arg(cmd->description()).arg(m_redoStack.size() - 1));
     m_redoStack.pop_back();
     if (!cmd->execute(project)) {
+        LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("redo: FAILED for '%1'").arg(cmd->description()));
         m_redoStack.push_back(std::move(cmd));
         return false;
     }
     m_undoStack.push_back(std::move(cmd));
     emit stackChanged();
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("redo: OK (undoStack=%1)").arg(m_undoStack.size()));
     return true;
 }
 

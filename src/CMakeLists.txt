@@ -71,6 +71,7 @@ set(APP_SOURCES
 set(UTILS_SOURCES
     utils/NumericUtils.cpp
     utils/StringUtils.cpp
+    utils/Logger.cpp
 )
 
 # Main executable

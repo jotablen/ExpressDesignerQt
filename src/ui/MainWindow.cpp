@@ -566,13 +566,11 @@ void MainWindow::onCalculateOval()
         op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
-        // push() internally calls execute()
+        // push() internally calls execute() — operation runs and result is added
         auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
         m_cmdHistory->push(std::move(execCmd), m_currentProject);
-        m_currentProject->addOperation(op);
         m_history->recordObjectCreation(op->name());
         setModified(true);
-        recalculateAll();
         updateUndoRedoActions();
         refreshChart();
         updateStatusBar();
@@ -593,13 +591,11 @@ void MainWindow::onPropagateWF()
         op->setParamName(PropagateWFOperation::PARAM_WF, dlg.wfOrgCombo()->currentText());
         op->setParamName(PropagateWFOperation::PARAM_SURFACE, dlg.wfDestCombo()->currentText());
         op->setParamName(PropagateWFOperation::PARAM_IOR, dlg.indexDestEdit()->text());
-        // push() internally calls execute()
+        // push() internally calls execute() — operation runs and result is added
         auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
         m_cmdHistory->push(std::move(execCmd), m_currentProject);
-        m_currentProject->addOperation(op);
         m_history->recordObjectCreation(op->name());
         setModified(true);
-        recalculateAll();
         updateUndoRedoActions();
         refreshChart();
         updateStatusBar();
@@ -826,7 +822,12 @@ void MainWindow::onUndo()
 
     m_cmdHistory->undo(m_currentProject);
 
-    recalculateAll();
+    // Undo may have deleted objects (e.g., result objects from operations);
+    // clear the selection to avoid dangling pointer in refreshChart()
+    m_selectedObject = nullptr;
+    if (m_propertiesWidget)
+        m_propertiesWidget->setObject(nullptr);
+
     updateUndoRedoActions();
     refreshChart();
     updateStatusBar();
@@ -839,7 +840,11 @@ void MainWindow::onRedo()
 
     m_cmdHistory->redo(m_currentProject);
 
-    recalculateAll();
+    // If the result object was re-created, the old selection pointer is stale
+    m_selectedObject = nullptr;
+    if (m_propertiesWidget)
+        m_propertiesWidget->setObject(nullptr);
+
     updateUndoRedoActions();
     refreshChart();
     updateStatusBar();
@@ -868,16 +873,10 @@ void MainWindow::recalculateAll()
 {
     if (!m_currentProject) return;
 
-    // Clear selection — the object may be destroyed or removed during recalc
-    m_selectedObject = nullptr;
-    if (m_propertiesWidget)
-        m_propertiesWidget->setObject(nullptr);
-
     // Block all project signals during recalculation
     const QSignalBlocker blocker(m_currentProject);
 
     // Remove all current result objects
-    // Iterate backwards to avoid index invalidation
     for (int i = m_currentProject->resultObjectCount() - 1; i >= 0; --i)
         m_currentProject->removeResultObject(i);
 
@@ -886,13 +885,6 @@ void MainWindow::recalculateAll()
     for (auto* op : ops) {
         if (!op) continue;
         op->execute(m_currentProject);
-        // If execute returns false: operation could not execute
-        // (missing parameters, invalid indices, etc.)
-        // No result is created. Downstream operations that depend
-        // on this result's name will also fail -> chain breaks cleanly.
-        // If execute returns true: result was added to project.
-        // It may have 0 control points (e.g., no ray-surface hits).
-        // Downstream operations receive it as-is.
     }
 
     // Rebuild dependency graph ONCE for UI queries (dialog, delete warnings)

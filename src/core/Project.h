@@ -48,6 +48,7 @@ public:
     void addOperation(CustomOperation* op);
     void removeOperation(int index);
     void removeOperation(CustomOperation* op);
+    CustomOperation* takeOperation(CustomOperation* op);
     bool isOperationNameInUse(const QString& name) const;
 
     // Scale
