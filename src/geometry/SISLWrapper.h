@@ -47,6 +47,11 @@ public:
     QPointF derivative(double t) const;
     QPointF normal(double t, bool flipped = false) const;
 
+    // Continuous geometry operations (no discretization)
+    QPointF closestPoint(const QPointF& p, double* outT = nullptr) const;
+    double   rayIntersection(const QPointF& origin, const QPointF& dir) const;
+    QPointF normalAt(const QPointF& p) const;
+
     QVector<QPointF> controlPoints() const;
     void setControlPoints(const QVector<QPointF>& points);
 

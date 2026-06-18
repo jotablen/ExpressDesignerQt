@@ -22,53 +22,29 @@ static double distSq(const QPointF& a, const QPointF& b)
     return dx * dx + dy * dy;
 }
 
-// Find the closest point on a polyline to a target point
-static int closestPointIndex(const QVector<QPointF>& pts, const QPointF& target)
-{
-    double best = 1e18;
-    int idx = 0;
-    for (int i = 0; i < pts.size(); ++i) {
-        double d2 = distSq(pts[i], target);
-        if (d2 < best) { best = d2; idx = i; }
-    }
-    return idx;
-}
-
-// Compute unit normal at a polyline segment near index i
-static QPointF segmentNormal(const QVector<QPointF>& pts, int i)
-{
-    if (pts.size() < 2) return QPointF(0, 1);
-    int seg = qBound(0, i, (int)pts.size() - 2);
-    QPointF dir = pts[seg + 1] - pts[seg];
-    double len = qSqrt(dir.x() * dir.x() + dir.y() * dir.y());
-    if (len < 1e-9) return QPointF(0, 1);
-    return QPointF(-dir.y() / len, dir.x() / len);
-}
-
-// CalcCarthesianPoint2D algorithm (Ovals Designer parity):
-// Given WF1 point p1 + normal n1, find X along ray p1 + n1 * t such that
-// OPL = dot(p1→X, n1)*n1 + dot(closest_p2→X, n2)*n2 = target C
-//
-// Uses secant iteration on t, with two fallback iteration strategies.
+// CalcCarthesianPoint2D — continuous version using SISLCurve
+// Given WF1 point p1 + normal n1, find X along ray p1 + n1*t such that
+// OPL = n1 * dist(p1,X) + n2 * dist(closestPointOnWF2,X) = target C
 static bool calcCarthesianPoint2D(
-    const QPointF& p1, const QPointF& n1, double fIndex_Org,
-    const QVector<QPointF>& pts2, double fIndex_Dest,
+    const QPointF& p1, const QPointF& n1, double n1_idx,
+    Geometry::SISLCurve& curve2, double n2_idx,
     double OpticalPathLen, QPointF& result)
 {
     const int maxIter = 90;
     const double tolerance = 1e-5;
 
     auto oplError = [&](double t, QPointF& X, QPointF& p2, QPointF& n2) -> double {
-        X = p1 + n1 * (t * fIndex_Org);
-        int idx = closestPointIndex(pts2, X);
-        p2 = pts2[idx];
-        n2 = segmentNormal(pts2, idx);
+        double dist1 = t * n1_idx;
+        X = p1 + n1 * dist1;
+        double ct;
+        p2 = curve2.closestPoint(X, &ct);
+        n2 = curve2.normalAt(p2);
 
         QPointF v1 = X - p1;
         QPointF v2 = X - p2;
         double d1 = v1.x() * n1.x() + v1.y() * n1.y();
         double d2 = v2.x() * n2.x() + v2.y() * n2.y();
-        double OPL = d1 * fIndex_Org + d2 * fIndex_Dest;
+        double OPL = d1 * n1_idx + d2 * n2_idx;
         return OpticalPathLen - OPL;
     };
 
@@ -161,20 +137,19 @@ bool CarthesianOvalOperation::execute(Project* project)
     double n1 = wf1->refractiveIndex();
     double n2 = wf2->refractiveIndex();
     bool flip1 = wf1->isNormalFlipped();
-    int n = m_amountOfPoints;
-    if (n < 2) n = 100;
+    int nPts = m_amountOfPoints;
+    if (nPts < 2) nPts = 100;
 
+    // Continuous curves — no discretization
     Geometry::SISLCurve curve1(wf1->controlPoints(), 3, true);
     Geometry::SISLCurve curve2(wf2->controlPoints(), 3, true);
 
-    QVector<QPointF> pts1 = curve1.evaluateAll(n);
-    QVector<QPointF> pts2Fine = curve2.evaluateAll(4 * n);
-
-    // Compute OPL constant C at reference point
-    int ci1 = closestPointIndex(pts1, refPoint);
-    int ci2 = closestPointIndex(pts2Fine, refPoint);
-    double d1ref = qSqrt(distSq(pts1[ci1], refPoint));
-    double d2ref = qSqrt(distSq(pts2Fine[ci2], refPoint));
+    // Compute OPL constant C at reference point (continuous closest point)
+    double t1r, t2r;
+    QPointF cp1 = curve1.closestPoint(refPoint, &t1r);
+    QPointF cp2 = curve2.closestPoint(refPoint, &t2r);
+    double d1ref = qSqrt(distSq(cp1, refPoint));
+    double d2ref = qSqrt(distSq(cp2, refPoint));
     double C = n1 * d1ref + n2 * d2ref;
 
     auto* result = new CurveObject(resultName());
@@ -182,18 +157,18 @@ bool CarthesianOvalOperation::execute(Project* project)
     result->setRefractiveIndex((n1 + n2) * 0.5);
 
     QVector<QPointF> ovalPts;
-    ovalPts.reserve(n);
+    ovalPts.reserve(nPts);
 
-    for (int i = 0; i < n; ++i) {
-        double t1 = (n > 1) ? static_cast<double>(i) / (n - 1) : 0.0;
-        QPointF p1 = pts1[i];
+    for (int i = 0; i < nPts; ++i) {
+        double t1 = (nPts > 1) ? static_cast<double>(i) / (nPts - 1) : 0.0;
+        QPointF p1 = curve1.evaluate(t1);
         QPointF n1v = curve1.normal(t1, flip1);
         QPointF ovalPt;
-        calcCarthesianPoint2D(p1, n1v, n1, pts2Fine, n2, C, ovalPt);
+        calcCarthesianPoint2D(p1, n1v, n1, curve2, n2, C, ovalPt);
         ovalPts.append(ovalPt);
     }
 
-    // Force reference point onto curve
+    // Force reference point onto curve (continuous closest)
     int closestIdx = 0;
     double closestDist = 1e18;
     for (int i = 0; i < ovalPts.size(); ++i) {

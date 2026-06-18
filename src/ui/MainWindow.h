@@ -66,6 +66,7 @@ private slots:
     // Transform actions
     void onRotateObject();
     void onTranslateObject();
+    void onCopyObject();
 
     // View actions
     void onZoomIn();

@@ -1,6 +1,7 @@
 #include "SISLWrapper.h"
 #include <QtMath>
 #include <algorithm>
+#include <limits>
 
 namespace ExpressDesigner {
 namespace Geometry {
@@ -54,31 +55,86 @@ QPointF SISLCurve::derivative(double t) const
 
 QPointF SISLCurve::normal(double t, bool flipped) const
 {
-    QPointF tang = derivative(t);
-    double len = qSqrt(tang.x() * tang.x() + tang.y() * tang.y());
-    if (len < 1e-12) return flipped ? QPointF(-1.0, 0.0) : QPointF(1.0, 0.0);
-    QPointF norm(-tang.y() / len, tang.x() / len);
-    if (flipped) norm = -norm;
-    return norm;
+    QPointF d = derivative(t);
+    double len = qSqrt(d.x() * d.x() + d.y() * d.y());
+    if (len < 1e-12) return flipped ? QPointF(0, -1) : QPointF(0, 1);
+    QPointF n(-d.y() / len, d.x() / len);
+    return flipped ? QPointF(-n.x(), -n.y()) : n;
 }
 
-SISLCurve SISLCurve::interpolate(const QVector<QPointF>& points, int order)
+// --- Continuous operations on polyline ---
+
+QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
 {
-    return SISLCurve(points, order, true);
+    if (m_points.size() < 2) return m_points.isEmpty() ? QPointF() : m_points[0];
+    double bestDistSq = std::numeric_limits<double>::max();
+    QPointF bestPt;
+    double bestT = 0.0;
+    int n = m_points.size();
+
+    for (int i = 0; i < n - 1; ++i) {
+        QPointF a = m_points[i];
+        QPointF b = m_points[i + 1];
+        QPointF ab = b - a;
+        double abLenSq = ab.x() * ab.x() + ab.y() * ab.y();
+        if (abLenSq < 1e-18) {
+            // Degenerate segment – just check the point
+            double d2 = (p.x() - a.x()) * (p.x() - a.x()) + (p.y() - a.y()) * (p.y() - a.y());
+            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = static_cast<double>(i) / (n - 1); }
+            continue;
+        }
+        // Project p onto segment a->b
+        double t = ((p.x() - a.x()) * ab.x() + (p.y() - a.y()) * ab.y()) / abLenSq;
+        t = qBound(0.0, t, 1.0);
+        QPointF proj = a + ab * t;
+        double d2 = (p.x() - proj.x()) * (p.x() - proj.x()) + (p.y() - proj.y()) * (p.y() - proj.y());
+        if (d2 < bestDistSq) {
+            bestDistSq = d2;
+            bestPt = proj;
+            bestT = (i + t) / (n - 1);
+        }
+    }
+    if (outT) *outT = qBound(0.0, bestT, 1.0);
+    return bestPt;
 }
 
-SISLCurve SISLCurve::approximate(const QVector<QPointF>& points, double)
+double SISLCurve::rayIntersection(const QPointF& origin, const QPointF& dir) const
 {
-    return SISLCurve(points, 3, true);
+    if (m_points.size() < 2) return -1.0;
+    double bestT = std::numeric_limits<double>::max();
+    bool found = false;
+    int n = m_points.size();
+
+    for (int i = 0; i < n - 1; ++i) {
+        QPointF seg = m_points[i + 1] - m_points[i];
+        double denom = dir.x() * seg.y() - dir.y() * seg.x();
+        if (qAbs(denom) < 1e-12) continue;
+        QPointF diff = m_points[i] - origin;
+        double tRay   = (diff.x() * seg.y() - diff.y() * seg.x()) / denom;
+        double tSeg   = (diff.x() * dir.y() - diff.y() * dir.x()) / -denom;
+        if (tRay >= 0.0 && tSeg >= 0.0 && tSeg <= 1.0) {
+            if (tRay < bestT) { bestT = tRay; found = true; }
+        }
+    }
+    return found ? bestT : -1.0;
 }
 
-// SISLSurface
+QPointF SISLCurve::normalAt(const QPointF& p) const
+{
+    double t;
+    closestPoint(p, &t);
+    return normal(t);
+}
+
+// --- SISLSurface ---
+
 SISLSurface::SISLSurface() = default;
 SISLSurface::~SISLSurface() = default;
 bool SISLSurface::isValid() const { return m_valid; }
 QPointF SISLSurface::evaluate(double, double) const { return {}; }
 
-// Operations
+// --- Operations ---
+
 namespace Operations {
 
 QVector<QPointF> offsetCurve(const QVector<QPointF>& points, double distance)
@@ -86,15 +142,13 @@ QVector<QPointF> offsetCurve(const QVector<QPointF>& points, double distance)
     if (points.size() < 2) return points;
     QVector<QPointF> result;
     result.reserve(points.size());
-    for (int i = 0; i < points.size() - 1; ++i) {
-        QPointF dir = points[i + 1] - points[i];
-        double len = qSqrt(dir.x() * dir.x() + dir.y() * dir.y());
-        if (len > 1e-12) {
-            QPointF normal(-dir.y() / len, dir.x() / len);
-            result.append(points[i] + normal * distance);
-        }
+    SISLCurve curve(points, 3, true);
+    int n = points.size();
+    for (int i = 0; i < n; ++i) {
+        double t = n > 1 ? static_cast<double>(i) / (n - 1) : 0.0;
+        QPointF nrm = curve.normal(t);
+        result.append(points[i] + nrm * distance);
     }
-    if (!result.isEmpty()) result.append(result.last());
     return result;
 }
 
@@ -107,23 +161,13 @@ QVector<QPointF> intersectCurves(const QVector<QPointF>& a, const QVector<QPoint
 QVector<Normal> computeNormals2D(const QVector<QPointF>& points, int numRays, double rayLength, bool flipped)
 {
     QVector<Normal> result;
-    if (points.size() < 2 || numRays < 1) return result;
     result.reserve(numRays);
-    int totalSegs = points.size() - 1;
+    SISLCurve curve(points, 3, true);
     for (int i = 0; i < numRays; ++i) {
         double t = numRays > 1 ? static_cast<double>(i) / (numRays - 1) : 0.0;
-        double seg = t * totalSegs;
-        int idx = qMin(static_cast<int>(seg), totalSegs - 1);
-        QPointF p0 = points[idx], p1 = points[idx + 1];
-        double lt = seg - idx;
-        QPointF pos = p0 + (p1 - p0) * lt;
-        QPointF dir = p1 - p0;
-        double len = qSqrt(dir.x() * dir.x() + dir.y() * dir.y());
-        if (len > 1e-12) {
-            QPointF normal(-dir.y() / len, dir.x() / len);
-            if (flipped) normal = -normal;
-            result.append({pos, pos + normal * rayLength});
-        }
+        QPointF origin = curve.evaluate(t);
+        QPointF nrm = curve.normal(t, flipped);
+        result.append({origin, origin + nrm * rayLength});
     }
     return result;
 }
@@ -132,11 +176,9 @@ QVector<QPointF> discretizeArc(const QPointF& center, double radius, double star
 {
     QVector<QPointF> result;
     result.reserve(numPoints);
-    double range = endAngle - startAngle;
-    double radStart = qDegreesToRadians(startAngle);
     for (int i = 0; i < numPoints; ++i) {
         double t = numPoints > 1 ? static_cast<double>(i) / (numPoints - 1) : 0.0;
-        double angle = radStart + qDegreesToRadians(range * t);
+        double angle = startAngle + (endAngle - startAngle) * t;
         result.append(QPointF(center.x() + radius * qCos(angle), center.y() + radius * qSin(angle)));
     }
     return result;

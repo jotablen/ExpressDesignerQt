@@ -79,12 +79,11 @@ bool PropagateWFOperation::execute(Project* project)
     int numPoints = m_amountOfPoints;
     if (numPoints < 2) numPoints = 100;
 
-    // Build SISL curves — use continuous derivative for normals
+    // Build SISL curves — use continuous normals (no discretization)
     Geometry::SISLCurve wfCurve(wf->controlPoints(), 3, true);
     Geometry::SISLCurve surfCurve(surface->controlPoints(), 3, true);
 
     QVector<QPointF> wfPts = wfCurve.evaluateAll(numPoints);
-    QVector<QPointF> surfPts = surfCurve.evaluateAll(numPoints);
 
     auto* result = new CurveObject(resultName());
     result->setObjectType(withWavefront(withResult(ObjectType::Curve)));
@@ -99,29 +98,23 @@ bool PropagateWFOperation::execute(Project* project)
     for (int i = 0; i < numPoints; ++i) {
         double t = numPoints > 1 ? static_cast<double>(i) / (numPoints - 1) : 0.0;
         QPointF srcPt = wfPts[i];
-        // Continuous normal from SISLCurve::normal(t) using derivative
         QPointF norm = wfCurve.normal(t, flipWF);
 
-        // Step 1: Cast ray from WF point along normal to intersect the surface
-        int hitSeg = -1;
-        double hitDist = 0.0;
-        QPointF surfHit = rayCurveIntersection(srcPt, norm, surfPts, &hitSeg, &hitDist);
+        // Step 1: Cast ray from WF point along normal to intersect the surface (continuous)
+        double hitDist = surfCurve.rayIntersection(srcPt, norm);
 
-        if (hitSeg < 0) {
+        if (hitDist < 0.0) {
             continue; // No hit — discard
         }
+
+        QPointF surfHit = srcPt + norm * hitDist;
 
         // Step 2: Optical path length from WF to surface
         double OPL = n1 * hitDist;
         double remaining = fDistance - OPL;
 
-        // Surface normal at hit point — use SISLCurve::normal at fractional parameter
-        double hitT = static_cast<double>(hitSeg + (surfHit - surfPts[hitSeg]).x() /
-            qMax(qSqrt((surfPts[hitSeg+1] - surfPts[hitSeg]).x() * (surfPts[hitSeg+1] - surfPts[hitSeg]).x() +
-                        (surfPts[hitSeg+1] - surfPts[hitSeg]).y() * (surfPts[hitSeg+1] - surfPts[hitSeg]).y()), 1e-9))
-            / qMax(static_cast<double>(surfPts.size() - 1), 1.0);
-        hitT = qBound(0.0, hitT, 1.0);
-        QPointF surfNormal = surfCurve.normal(hitT, false);
+        // Surface normal at hit point — use continuous curve normal
+        QPointF surfNormal = surfCurve.normalAt(surfHit);
 
         // Snell's law deflection — vectorial approach with surface normal
         bool tir = false;

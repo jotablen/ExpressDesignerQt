@@ -7,6 +7,7 @@
 #include <ui/dialogs/RotateObjectDialog.h>
 #include <ui/dialogs/TranslateObjectDialog.h>
 #include <ui/dialogs/DependencyGraphDialog.h>
+#include <ui/dialogs/CopyObjectDialog.h>
 #include <core/CarthesianOvalOperation.h>
 #include <core/PropagateWFOperation.h>
 #include <core/CurveObject.h>
@@ -128,6 +129,8 @@ void MainWindow::setupMenuBar()
     tasksMenu->addAction(tr("&Rotate Object..."), this, &MainWindow::onRotateObject);
     tasksMenu->addAction(tr("&Translate Object..."), this, &MainWindow::onTranslateObject);
     tasksMenu->addSeparator();
+    tasksMenu->addAction(tr("&Copy Object..."), this, &MainWindow::onCopyObject);
+    tasksMenu->addSeparator();
     tasksMenu->addAction(tr("&Recalculate All"), this, &MainWindow::onRecalculate);
 
     // View menu
@@ -159,6 +162,7 @@ void MainWindow::setupToolBar()
     toolbar->addAction(tr("Offset"), this, &MainWindow::onOffsetWF);
     toolbar->addAction(tr("Rotate"), this, &MainWindow::onRotateObject);
     toolbar->addAction(tr("Translate"), this, &MainWindow::onTranslateObject);
+    toolbar->addAction(tr("Copy"), this, &MainWindow::onCopyObject);
     toolbar->addSeparator();
 
     m_deleteAction = new QAction(tr("Delete"), this);
@@ -561,7 +565,28 @@ void MainWindow::onCalculateOval()
     CalcOvalDialog dlg(this);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
-        auto* op = new CarthesianOvalOperation(dlg.resultNameEdit()->text(), this);
+        QString resultName = dlg.resultNameEdit()->text();
+        // Check for name collision with existing objects
+        CustomObject* existing = m_currentProject->findObject(resultName);
+        if (existing) {
+            QMessageBox nameDlg(this);
+            nameDlg.setWindowTitle(tr("Name collision"));
+            nameDlg.setText(tr("A result named '%1' already exists.\nWhat would you like to do?").arg(resultName));
+            QPushButton* overwriteBtn = nameDlg.addButton(tr("Overwrite existing"), QMessageBox::AcceptRole);
+            QPushButton* autoRenameBtn = nameDlg.addButton(tr("Auto-rename new"), QMessageBox::YesRole);
+            QPushButton* cancelBtn = nameDlg.addButton(tr("Cancel"), QMessageBox::RejectRole);
+            nameDlg.setDefaultButton(cancelBtn);
+            nameDlg.exec();
+            if (nameDlg.clickedButton() == overwriteBtn) {
+                m_currentProject->removeResultObject(existing);
+                m_currentProject->removeDataObject(existing);
+            } else if (nameDlg.clickedButton() == autoRenameBtn) {
+                // proceed — addResultObject will auto-rename
+            } else {
+                return; // Cancel
+            }
+        }
+        auto* op = new CarthesianOvalOperation(resultName, this);
         op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
         op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
@@ -585,7 +610,28 @@ void MainWindow::onPropagateWF()
         dlg.setSelectedWF(m_selectedObject);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
-        auto* op = new PropagateWFOperation(dlg.resultNameEdit()->text(), this);
+        QString resultName = dlg.resultNameEdit()->text();
+        // Check for name collision with existing objects
+        CustomObject* existing = m_currentProject->findObject(resultName);
+        if (existing) {
+            QMessageBox nameDlg(this);
+            nameDlg.setWindowTitle(tr("Name collision"));
+            nameDlg.setText(tr("A result named '%1' already exists.\nWhat would you like to do?").arg(resultName));
+            QPushButton* overwriteBtn = nameDlg.addButton(tr("Overwrite existing"), QMessageBox::AcceptRole);
+            QPushButton* autoRenameBtn = nameDlg.addButton(tr("Auto-rename new"), QMessageBox::YesRole);
+            QPushButton* cancelBtn = nameDlg.addButton(tr("Cancel"), QMessageBox::RejectRole);
+            nameDlg.setDefaultButton(cancelBtn);
+            nameDlg.exec();
+            if (nameDlg.clickedButton() == overwriteBtn) {
+                m_currentProject->removeResultObject(existing);
+                m_currentProject->removeDataObject(existing);
+            } else if (nameDlg.clickedButton() == autoRenameBtn) {
+                // proceed — addResultObject will auto-rename
+            } else {
+                return; // Cancel
+            }
+        }
+        auto* op = new PropagateWFOperation(resultName, this);
         op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
         op->setOffset(dlg.offsetEdit()->text().toDouble());
         op->setParamName(PropagateWFOperation::PARAM_WF, dlg.wfOrgCombo()->currentText());
@@ -641,6 +687,30 @@ void MainWindow::onOffsetWF()
             m_currentProject->addResultObject(result);
             m_history->recordObjectCreation(resultName);
         } else { srcWf->setControlPoints(offsetPts); }
+        setModified(true);
+        refreshChart();
+        updateStatusBar();
+    }
+}
+
+void MainWindow::onCopyObject()
+{
+    if (!m_currentProject) return;
+    CopyObjectDialog dlg(this);
+    dlg.setProject(m_currentProject);
+    if (dlg.exec() == QDialog::Accepted) {
+        QString srcName = dlg.sourceName();
+        QString newName = dlg.newName();
+        if (srcName.isEmpty() || newName.isEmpty()) return;
+        CustomObject* src = m_currentProject->findObject(srcName);
+        if (!src) return;
+        // Manual copy: duplicate control points
+        auto* copy = new CurveObject(newName, true);
+        copy->setObjectType(src->objectType());
+        copy->setControlPoints(src->controlPoints());
+        copy->setRefractiveIndex(src->refractiveIndex());
+        m_currentProject->addDataObject(copy);
+        m_history->recordObjectCreation(newName);
         setModified(true);
         refreshChart();
         updateStatusBar();
