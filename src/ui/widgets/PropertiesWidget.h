@@ -10,6 +10,7 @@
 #include <core/CustomObject.h>
 #include <core/Project.h>
 #include <core/CustomOperation.h>
+#include <core/CommandHistory.h>
 
 namespace ExpressDesigner {
 
@@ -19,6 +20,7 @@ public:
     explicit PropertiesWidget(QWidget* parent = nullptr);
     void setObject(CustomObject* obj);
     void setProject(Project* project);
+    void setCommandHistory(CommandHistory* ch) { m_cmdHistory = ch; }
     void setOperations(Project* project);
     void refresh();
     QTabWidget* tabWidget() const { return m_tabs; }
@@ -114,6 +116,7 @@ private:
     QPushButton* m_cvDelBtn = nullptr;
     QPushButton* m_cvEditCurveBtn = nullptr;
     QCheckBox* m_cvFlipNCheck = nullptr;
+    CommandHistory* m_cmdHistory = nullptr;
     QLabel* m_cvWFStatusLabel = nullptr;
 
     // Objects tab widgets

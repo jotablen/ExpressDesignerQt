@@ -256,34 +256,51 @@ void PropertiesWidget::onRestoreProject() { if (m_currentProject) { m_prjNameEdi
 
 void PropertiesWidget::onSavePoint() {
     if (!m_currentObject) return;
-    m_currentObject->setName(m_ptNameEdit->text());
-    m_currentObject->setRefractiveIndex(m_ptRefIndexEdit->text().toDouble());
-    m_currentObject->setNormalFlipped(m_ptFlipNCheck->isChecked());
+    QString oldName = m_currentObject->name();
+    double oldIR = m_currentObject->refractiveIndex();
+    bool oldFlip = m_currentObject->isNormalFlipped();
+    QVector<QPointF> oldPts = m_currentObject->controlPoints();
+    QString newName = m_ptNameEdit->text();
+    double newIR = m_ptRefIndexEdit->text().toDouble();
+    bool newFlip = m_ptFlipNCheck->isChecked();
     QPointF pt(m_ptXEdit->text().toDouble(), m_ptYEdit->text().toDouble());
-    if (m_currentObject->controlPoints().isEmpty())
-        m_currentObject->addControlPoint(pt);
-    else
-        m_currentObject->updateControlPoint(0, pt);
+    QVector<QPointF> newPts = {pt};
+    if (m_cmdHistory) {
+        auto cmd = std::make_unique<ModifyObjectPropertiesCommand>(
+            m_currentObject, oldName, oldIR, oldFlip, oldPts, newName, newIR, newFlip, newPts);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
+    }
     emit objectModified(m_currentObject);
 }
 void PropertiesWidget::onRestorePoint() { if (m_currentObject) showObjectTabs(m_currentObject); }
 
 void PropertiesWidget::onSaveLine() {
     if (!m_currentObject) return;
-    m_currentObject->setName(m_lnNameEdit->text());
-    m_currentObject->setRefractiveIndex(m_lnRefIndexEdit->text().toDouble());
-    m_currentObject->setNormalFlipped(m_lnFlipNCheck->isChecked());
+    QString oldName = m_currentObject->name();
+    double oldIR = m_currentObject->refractiveIndex();
+    bool oldFlip = m_currentObject->isNormalFlipped();
+    QVector<QPointF> oldPts = m_currentObject->controlPoints();
+    QString newName = m_lnNameEdit->text();
+    double newIR = m_lnRefIndexEdit->text().toDouble();
+    bool newFlip = m_lnFlipNCheck->isChecked();
     QPointF p1(m_lnP1XEdit->text().toDouble(), m_lnP1YEdit->text().toDouble());
     QPointF p2(m_lnP2XEdit->text().toDouble(), m_lnP2YEdit->text().toDouble());
-    auto* ln = dynamic_cast<LineObject*>(m_currentObject);
-    if (ln) { ln->setStartPoint(p1); ln->setEndPoint(p2); }
-    else { if (m_currentObject->controlPoints().size() < 2) { m_currentObject->clearControlPoints(); m_currentObject->addControlPoint(p1); m_currentObject->addControlPoint(p2); } else { m_currentObject->updateControlPoint(0, p1); m_currentObject->updateControlPoint(1, p2); } }
+    QVector<QPointF> newPts = {p1, p2};
+    if (m_cmdHistory) {
+        auto cmd = std::make_unique<ModifyObjectPropertiesCommand>(
+            m_currentObject, oldName, oldIR, oldFlip, oldPts, newName, newIR, newFlip, newPts);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
+    }
     emit objectModified(m_currentObject);
 }
 void PropertiesWidget::onRestoreLine() { if (m_currentObject) showObjectTabs(m_currentObject); }
 
 void PropertiesWidget::onSaveArc() {
     if (!m_currentObject) return;
+    QString oldName = m_currentObject->name();
+    double oldIR = m_currentObject->refractiveIndex();
+    bool oldFlip = m_currentObject->isNormalFlipped();
+    QVector<QPointF> oldPts = m_currentObject->controlPoints();
     m_currentObject->setName(m_arcNameEdit->text());
     m_currentObject->setRefractiveIndex(m_arcRefIndexEdit->text().toDouble());
     m_currentObject->setNormalFlipped(m_arcFlipNCheck->isChecked());
@@ -294,8 +311,13 @@ void PropertiesWidget::onSaveArc() {
         ao->setStartAngle(m_arcStartAngleEdit->text().toDouble());
         ao->setEndAngle(m_arcEndAngleEdit->text().toDouble());
         ao->setNumPoints(m_arcAmntPtsEdit->text().toInt());
-        // Generate control points from arc params
         ao->setControlPoints(ao->generateArcPoints());
+    }
+    QVector<QPointF> newPts = m_currentObject->controlPoints();
+    if (m_cmdHistory) {
+        auto cmd = std::make_unique<ModifyObjectPropertiesCommand>(
+            m_currentObject, oldName, oldIR, oldFlip, oldPts, m_currentObject->name(), m_currentObject->refractiveIndex(), m_currentObject->isNormalFlipped(), newPts);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
     }
     emit objectModified(m_currentObject);
 }
@@ -303,15 +325,23 @@ void PropertiesWidget::onRestoreArc() { if (m_currentObject) showObjectTabs(m_cu
 
 void PropertiesWidget::onSaveCurve() {
     if (!m_currentObject) return;
-    m_currentObject->setName(m_cvNameEdit->text());
-    m_currentObject->setRefractiveIndex(m_cvRefIndexEdit->text().toDouble());
-    m_currentObject->setNormalFlipped(m_cvFlipNCheck->isChecked());
-    QVector<QPointF> pts;
+    QString oldName = m_currentObject->name();
+    double oldIR = m_currentObject->refractiveIndex();
+    bool oldFlip = m_currentObject->isNormalFlipped();
+    QVector<QPointF> oldPts = m_currentObject->controlPoints();
+    QString newName = m_cvNameEdit->text();
+    double newIR = m_cvRefIndexEdit->text().toDouble();
+    bool newFlip = m_cvFlipNCheck->isChecked();
+    QVector<QPointF> newPts;
     for (int r = 0; r < m_cvGrid->rowCount(); ++r) {
         auto* xi = m_cvGrid->item(r, 0); auto* yi = m_cvGrid->item(r, 1);
-        if (xi && yi) pts.append(QPointF(xi->text().toDouble(), yi->text().toDouble()));
+        if (xi && yi) newPts.append(QPointF(xi->text().toDouble(), yi->text().toDouble()));
     }
-    m_currentObject->setControlPoints(pts);
+    if (m_cmdHistory) {
+        auto cmd = std::make_unique<ModifyObjectPropertiesCommand>(
+            m_currentObject, oldName, oldIR, oldFlip, oldPts, newName, newIR, newFlip, newPts);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
+    }
     emit objectModified(m_currentObject);
 }
 void PropertiesWidget::onRestoreCurve() { if (m_currentObject) showObjectTabs(m_currentObject); }

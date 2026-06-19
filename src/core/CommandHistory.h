@@ -66,6 +66,21 @@ private:
     QVariant m_newValue;
 };
 
+class ModifyObjectPropertiesCommand : public Command {
+public:
+    ModifyObjectPropertiesCommand(CustomObject* obj,
+        const QString& oldName, double oldIR, bool oldFlip, const QVector<QPointF>& oldPts,
+        const QString& newName, double newIR, bool newFlip, const QVector<QPointF>& newPts);
+    bool execute(Project* project) override;
+    bool undo(Project* project) override;
+private:
+    CustomObject* m_obj;
+    QString m_oldName, m_newName;
+    double m_oldIR, m_newIR;
+    bool m_oldFlip, m_newFlip;
+    QVector<QPointF> m_oldPts, m_newPts;
+};
+
 class ModifyControlPointsCommand : public Command {
 public:
     ModifyControlPointsCommand(CustomObject* obj,

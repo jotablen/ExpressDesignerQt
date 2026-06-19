@@ -87,6 +87,39 @@ bool ModifyObjectCommand::undo(Project* project) {
 }
 
 // ============================================================================
+// ModifyObjectPropertiesCommand — saves ALL properties at once for undo
+// ============================================================================
+ModifyObjectPropertiesCommand::ModifyObjectPropertiesCommand(CustomObject* obj,
+    const QString& oldName, double oldIR, bool oldFlip, const QVector<QPointF>& oldPts,
+    const QString& newName, double newIR, bool newFlip, const QVector<QPointF>& newPts)
+    : Command(QStringLiteral("Modify ") + (obj ? obj->name() : QString()))
+    , m_obj(obj), m_oldName(oldName), m_newName(newName)
+    , m_oldIR(oldIR), m_newIR(newIR)
+    , m_oldFlip(oldFlip), m_newFlip(newFlip)
+    , m_oldPts(oldPts), m_newPts(newPts)
+{
+}
+
+bool ModifyObjectPropertiesCommand::execute(Project* project) {
+    Q_UNUSED(project);
+    if (!m_obj) return false;
+    m_obj->setName(m_newName);
+    m_obj->setRefractiveIndex(m_newIR);
+    m_obj->setNormalFlipped(m_newFlip);
+    if (!m_newPts.isEmpty()) m_obj->setControlPoints(m_newPts);
+    return true;
+}
+bool ModifyObjectPropertiesCommand::undo(Project* project) {
+    Q_UNUSED(project);
+    if (!m_obj) return false;
+    m_obj->setName(m_oldName);
+    m_obj->setRefractiveIndex(m_oldIR);
+    m_obj->setNormalFlipped(m_oldFlip);
+    if (!m_oldPts.isEmpty()) m_obj->setControlPoints(m_oldPts);
+    return true;
+}
+
+// ============================================================================
 // ModifyControlPointsCommand
 // ============================================================================
 ModifyControlPointsCommand::ModifyControlPointsCommand(CustomObject* obj,
@@ -120,25 +153,26 @@ bool ExecuteOperationCommand::execute(Project* project) {
     QString resultName = m_op->resultName();
     LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: execute() name='%1'").arg(resultName));
 
-    // Remove existing result by name if present (e.g. from a previous exec)
-    CustomObject* existing = project->findObject(resultName);
-    if (existing) {
-        LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: removing existing result '%1'").arg(resultName));
-        project->removeResultObject(existing);
-    }
-
-    // Ensure the operation recipe is in the project
     if (!project->operations().contains(m_op)) {
         LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: re-adding op '%1' to project").arg(m_op->name()));
         project->addOperation(m_op);
     }
 
     LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: calling op->execute()..."));
-    if (!m_op->execute(project)) { LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: op->execute() FAILED")); return false; }
+    int prevResultCount = project->resultObjectCount();
+    if (!m_op->execute(project)) {
+        LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: op->execute() FAILED — removing operation"));
+        project->takeOperation(m_op);
+        return false;
+    }
 
-    m_resultObj = project->findObject(resultName);
+    if (project->resultObjectCount() > prevResultCount)
+        m_resultObj = project->resultObjects().last();
+    else
+        m_resultObj = project->findObject(resultName);
+
     m_wasAdded = true;
-    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: OK, result=%1").arg(m_resultObj ? QStringLiteral("VALID") : QStringLiteral("NULL")));
+    LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: OK, result=%1").arg(m_resultObj ? m_resultObj->name() : QStringLiteral("NULL")));
     return true;
 }
 bool ExecuteOperationCommand::undo(Project* project) {
@@ -148,7 +182,6 @@ bool ExecuteOperationCommand::undo(Project* project) {
     project->removeResultObject(m_resultObj);
     m_resultObj = nullptr;
     m_wasAdded = false;
-    // Remove operation from project so recalculateAll won't re-execute it
     LOG_INFO(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: undo() taking op '%1' from project").arg(m_op->name()));
     project->takeOperation(m_op);
     return true;
@@ -170,7 +203,6 @@ bool RotateObjectCommand::execute(Project* project) {
     if (pts.isEmpty()) return false;
     m_oldPoints = pts;
 
-    // Determine pivot
     switch (m_pivot) {
     case StartPoint: m_pivotPoint = pts.first(); break;
     case EndPoint:   m_pivotPoint = pts.last(); break;

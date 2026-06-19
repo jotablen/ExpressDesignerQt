@@ -4,29 +4,12 @@
 #include <QPointF>
 #include <QPair>
 
-#ifdef USE_SISL
-// Real SISL headers would be included here
-// #include <sisl.h>
-#endif
-
 namespace ExpressDesigner {
 namespace Geometry {
 
-/**
- * @brief Lightweight wrapper for 2D point list operations.
- * Replaces OURList from GSNLib with standard Qt container.
- */
 using PointList = QVector<QPointF>;
-
-/**
- * @brief Normal representation: (origin, direction_end)
- */
 using Normal = QPair<QPointF, QPointF>;
 
-/**
- * @brief 2D curve representation using control points.
- * When SISL is available, wraps SISLCurve for NURBS operations.
- */
 class SISLCurve {
 public:
     SISLCurve();
@@ -47,9 +30,9 @@ public:
     QPointF derivative(double t) const;
     QPointF normal(double t, bool flipped = false) const;
 
-    // Continuous geometry operations (no discretization)
     QPointF closestPoint(const QPointF& p, double* outT = nullptr) const;
-    double   rayIntersection(const QPointF& origin, const QPointF& dir) const;
+    double   planeIntersection(const QPointF& planePoint, const QPointF& planeNormal,
+                               QPointF* outHitPt = nullptr, double* outT = nullptr) const;
     QPointF normalAt(const QPointF& p) const;
 
     QVector<QPointF> controlPoints() const;
@@ -59,28 +42,26 @@ public:
     static SISLCurve approximate(const QVector<QPointF>& points, double tolerance = 0.01);
 
 private:
+    // SISL native curve (void* to avoid exposing sisl.h in this header)
+    void* m_curve = nullptr;
+
+    // Backup polyline for when SISL is not available
     QVector<QPointF> m_points;
     int m_order = 3;
     bool m_open = true;
     bool m_valid = false;
 };
 
-/**
- * @brief 2D surface representation.
- */
 class SISLSurface {
 public:
     SISLSurface();
     ~SISLSurface();
-
     bool isValid() const;
     QPointF evaluate(double u, double v) const;
-
 private:
     bool m_valid = false;
 };
 
-// Geometry operations
 namespace Operations {
     QVector<QPointF> offsetCurve(const QVector<QPointF>& points, double distance);
     QVector<QPointF> intersectCurves(const QVector<QPointF>& a, const QVector<QPointF>& b);

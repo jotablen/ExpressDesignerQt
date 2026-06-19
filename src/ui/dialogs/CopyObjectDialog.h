@@ -16,7 +16,7 @@ class CopyObjectDialog : public QDialog {
 public:
     explicit CopyObjectDialog(QWidget* parent = nullptr);
 
-    void setProject(Project* project);
+    void setProject(Project* project, const QString& preselected = {});
     QString sourceName() const;
     QString newName() const;
 

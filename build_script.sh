@@ -1,15 +1,26 @@
 #!/bin/bash
 set -e
+export PATH="/mingw64/bin:/usr/bin:$PATH"
 cd /e/Projects/newVibes/ExpressDesignerQt
+
+echo "=== Cleaning build directory ==="
 rm -rf build
 mkdir build
 cd build
+
+echo "=== Running CMake (USE_SISL=ON) ==="
 cmake .. -G "MinGW Makefiles" \
-  -DCMAKE_BUILD_TYPE=Debug \
+  -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTS=OFF \
-  -DUSE_SISL=OFF \
+  -DUSE_SISL=ON \
   -DCMAKE_PREFIX_PATH=/mingw64 2>&1
+
+echo "=== Building ==="
 cmake --build . -- -j4 2>&1
+
 echo "=== BUILD COMPLETED ==="
-ls -la ExpressDesigner.exe 2>&1 || echo "Binary not found, listing directory:"
-ls -la 2>&1
+echo "Executable:"
+ls -la src/ExpressDesigner.exe 2>&1
+
+echo ""
+echo "Now run: deploy_app.bat"

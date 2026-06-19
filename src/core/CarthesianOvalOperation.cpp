@@ -177,6 +177,13 @@ bool CarthesianOvalOperation::execute(Project* project)
     }
     ovalPts[closestIdx] = refPoint;
 
+    if (ovalPts.size() < 3) {
+        delete result;
+        m_errorCode = 1;
+        m_errorMessage = tr("Cartesian oval produced less than 3 points — operation failed.");
+        emit operationExecuted(false);
+        return false;
+    }
     result->setControlPoints(ovalPts);
     project->addResultObject(result);
 

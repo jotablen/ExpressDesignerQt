@@ -213,6 +213,7 @@ void MainWindow::setupCentralWidget()
     // Properties with 8 tabs matching Ovals Designer pctrlObjProperties
     m_propertiesWidget = new PropertiesWidget(m_rightSplitter);
     m_propertiesWidget->setMinimumHeight(150);
+    m_propertiesWidget->setCommandHistory(m_cmdHistory);
 
 #ifdef HAS_QT_CHARTS
     m_rightSplitter->addWidget(m_chartView);
@@ -270,10 +271,12 @@ void MainWindow::setupConnections()
         QAction* insertAct = menu.addAction(tr("&Insert object"));
         QAction* deleteAct = nullptr;
         QAction* hideAct = nullptr;
+        QAction* copyAct = nullptr;
         if (obj) {
             menu.addSeparator();
             deleteAct = menu.addAction(tr("&Delete object"));
             hideAct = menu.addAction(tr("&Hide object"));
+            copyAct = menu.addAction(tr("&Copy object..."));
         }
         menu.addSeparator();
         QAction* togglePtsAct = menu.addAction(tr("Toggle Ctrl Pts"));
@@ -287,6 +290,7 @@ void MainWindow::setupConnections()
         else if (hideAct && chosen == hideAct) {
             if (obj) { obj->setVisible(!obj->isVisible()); setModified(true); refreshChart(); }
         }
+        else if (copyAct && chosen == copyAct) onCopyObject();
         else if (chosen == togglePtsAct) onToggleControlPoints();
         else if (chosen == zoomInAct) onZoomIn();
         else if (chosen == zoomOutAct) onZoomOut();
@@ -593,7 +597,11 @@ void MainWindow::onCalculateOval()
         op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
         // push() internally calls execute() — operation runs and result is added
         auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
-        m_cmdHistory->push(std::move(execCmd), m_currentProject);
+        if (!m_cmdHistory->push(std::move(execCmd), m_currentProject)) {
+            QMessageBox::warning(this, tr("Calculation failed"),
+                tr("Cartesian Oval calculation failed.\nThe result has been removed."));
+            return;
+        }
         m_history->recordObjectCreation(op->name());
         setModified(true);
         updateUndoRedoActions();
@@ -639,7 +647,11 @@ void MainWindow::onPropagateWF()
         op->setParamName(PropagateWFOperation::PARAM_IOR, dlg.indexDestEdit()->text());
         // push() internally calls execute() — operation runs and result is added
         auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
-        m_cmdHistory->push(std::move(execCmd), m_currentProject);
+        if (!m_cmdHistory->push(std::move(execCmd), m_currentProject)) {
+            QMessageBox::warning(this, tr("Calculation failed"),
+                tr("Propagate WF calculation failed.\nThe result has been removed."));
+            return;
+        }
         m_history->recordObjectCreation(op->name());
         setModified(true);
         updateUndoRedoActions();
@@ -697,13 +709,30 @@ void MainWindow::onCopyObject()
 {
     if (!m_currentProject) return;
     CopyObjectDialog dlg(this);
-    dlg.setProject(m_currentProject);
+    dlg.setProject(m_currentProject, m_selectedObject ? m_selectedObject->name() : QString());
     if (dlg.exec() == QDialog::Accepted) {
         QString srcName = dlg.sourceName();
         QString newName = dlg.newName();
         if (srcName.isEmpty() || newName.isEmpty()) return;
         CustomObject* src = m_currentProject->findObject(srcName);
         if (!src) return;
+        // Check for name collision
+        CustomObject* existing = m_currentProject->findObject(newName);
+        if (existing) {
+            QMessageBox nameDlg(this);
+            nameDlg.setWindowTitle(tr("Name collision"));
+            nameDlg.setText(tr("An object named '%1' already exists.\nWhat would you like to do?").arg(newName));
+            QPushButton* overwriteBtn = nameDlg.addButton(tr("Overwrite existing"), QMessageBox::AcceptRole);
+            QPushButton* cancelBtn = nameDlg.addButton(tr("Cancel"), QMessageBox::RejectRole);
+            nameDlg.setDefaultButton(cancelBtn);
+            nameDlg.exec();
+            if (nameDlg.clickedButton() == overwriteBtn) {
+                m_currentProject->removeResultObject(existing);
+                m_currentProject->removeDataObject(existing);
+            } else {
+                return; // Cancel
+            }
+        }
         // Manual copy: duplicate control points
         auto* copy = new CurveObject(newName, true);
         copy->setObjectType(src->objectType());

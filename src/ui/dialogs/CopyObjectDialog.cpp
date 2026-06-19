@@ -28,14 +28,23 @@ CopyObjectDialog::CopyObjectDialog(QWidget* parent) : QDialog(parent)
     connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-void CopyObjectDialog::setProject(Project* project)
+void CopyObjectDialog::setProject(Project* project, const QString& preselected)
 {
     m_objectCombo->clear();
     if (!project) return;
     for (auto* obj : project->allObjects())
         m_objectCombo->addItem(obj->name());
+    if (!preselected.isEmpty()) {
+        int idx = m_objectCombo->findText(preselected);
+        if (idx >= 0)
+            m_objectCombo->setCurrentIndex(idx);
+    }
     if (m_objectCombo->count() > 0)
         m_newNameEdit->setText(m_objectCombo->currentText() + QStringLiteral("_copy"));
+
+    connect(m_objectCombo, &QComboBox::currentTextChanged, this, [this](const QString& text) {
+        m_newNameEdit->setText(text + QStringLiteral("_copy"));
+    });
 }
 
 QString CopyObjectDialog::sourceName() const { return m_objectCombo->currentText(); }

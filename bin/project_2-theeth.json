@@ -1,0 +1,418 @@
+{
+    "formatVersion": "2.0",
+    "project": {
+        "aspectRatioMode": 0,
+        "autoScaleX": true,
+        "autoScaleY": true,
+        "dataObjects": [
+            {
+                "center": {
+                    "x": -6,
+                    "y": 0
+                },
+                "controlPoints": [
+                    {
+                        "x": -5.003805301908255,
+                        "y": -0.08715574274765817
+                    },
+                    {
+                        "x": -5.001942084195468,
+                        "y": -0.06229283024485209
+                    },
+                    {
+                        "x": -5.000699295211602,
+                        "y": -0.037391194276325625
+                    },
+                    {
+                        "x": -5.000077707519025,
+                        "y": -0.012466314595415029
+                    },
+                    {
+                        "x": -5.000077707519025,
+                        "y": 0.012466314595415029
+                    },
+                    {
+                        "x": -5.000699295211602,
+                        "y": 0.03739119427632563
+                    },
+                    {
+                        "x": -5.001942084195468,
+                        "y": 0.062292830244852104
+                    },
+                    {
+                        "x": -5.003805301908255,
+                        "y": 0.08715574274765817
+                    },
+                    {
+                        "x": -5.006287790106757,
+                        "y": 0.11196447610330784
+                    },
+                    {
+                        "x": -5.009388005586947,
+                        "y": 0.13670360831007336
+                    },
+                    {
+                        "x": -5.0131040211432785,
+                        "y": 0.16135776063280666
+                    },
+                    {
+                        "x": -5.017433526766712,
+                        "y": 0.18591160716291455
+                    },
+                    {
+                        "x": -5.022373831080696,
+                        "y": 0.2103498843454957
+                    },
+                    {
+                        "x": -5.0279218630142255,
+                        "y": 0.23465740046771524
+                    },
+                    {
+                        "x": -5.034074173710931,
+                        "y": 0.25881904510252074
+                    },
+                    {
+                        "x": -5.040826938673012,
+                        "y": 0.2828197985018275
+                    },
+                    {
+                        "x": -5.0481759601386775,
+                        "y": 0.3066447409333343
+                    },
+                    {
+                        "x": -5.056116669691632,
+                        "y": 0.3302790619551671
+                    },
+                    {
+                        "x": -5.064644131100966,
+                        "y": 0.3537080696225814
+                    },
+                    {
+                        "x": -5.073753043389691,
+                        "y": 0.3769171996210053
+                    },
+                    {
+                        "x": -5.083437744130023,
+                        "y": 0.39989202431974097
+                    },
+                    {
+                        "x": -5.09369221296335,
+                        "y": 0.4226182617406994
+                    },
+                    {
+                        "x": -5.104510075342699,
+                        "y": 0.44508178443659235
+                    },
+                    {
+                        "x": -5.11588460649539,
+                        "y": 0.467268628273062
+                    },
+                    {
+                        "x": -5.127808735603395,
+                        "y": 0.4891650011092893
+                    },
+                    {
+                        "x": -5.1402750501988095,
+                        "y": 0.5107572913716856
+                    },
+                    {
+                        "x": -5.153275800771716,
+                        "y": 0.5320320765153366
+                    },
+                    {
+                        "x": -5.166802905587551,
+                        "y": 0.5529761313679394
+                    },
+                    {
+                        "x": -5.180847955711008,
+                        "y": 0.573576436351046
+                    },
+                    {
+                        "x": -5.195402220233332,
+                        "y": 0.5938201855735017
+                    },
+                    {
+                        "x": -5.210456651699765,
+                        "y": 0.6136947947920475
+                    },
+                    {
+                        "x": -5.226001891733772,
+                        "y": 0.6331879092341398
+                    },
+                    {
+                        "x": -5.242028276854547,
+                        "y": 0.6522874112781211
+                    },
+                    {
+                        "x": -5.258525844484173,
+                        "y": 0.67098142798597
+                    },
+                    {
+                        "x": -5.275484339140728,
+                        "y": 0.6892583384839471
+                    },
+                    {
+                        "x": -5.292893218813452,
+                        "y": 0.7071067811865475
+                    },
+                    {
+                        "x": -5.310741661516053,
+                        "y": 0.7245156608592727
+                    },
+                    {
+                        "x": -5.3290185720140295,
+                        "y": 0.7414741555158266
+                    },
+                    {
+                        "x": -5.347712588721879,
+                        "y": 0.7579717231454529
+                    },
+                    {
+                        "x": -5.36681209076586,
+                        "y": 0.7739981082662275
+                    },
+                    {
+                        "x": -5.386305205207953,
+                        "y": 0.7895433483002354
+                    },
+                    {
+                        "x": -5.4061798144264985,
+                        "y": 0.8045977797666684
+                    },
+                    {
+                        "x": -5.426423563648954,
+                        "y": 0.8191520442889917
+                    },
+                    {
+                        "x": -5.44702386863206,
+                        "y": 0.8331970944124489
+                    },
+                    {
+                        "x": -5.467967923484664,
+                        "y": 0.8467241992282841
+                    },
+                    {
+                        "x": -5.489242708628314,
+                        "y": 0.8597249498011904
+                    },
+                    {
+                        "x": -5.510834998890711,
+                        "y": 0.8721912643966053
+                    },
+                    {
+                        "x": -5.532731371726938,
+                        "y": 0.8841153935046098
+                    },
+                    {
+                        "x": -5.554918215563408,
+                        "y": 0.895489924657301
+                    },
+                    {
+                        "x": -5.577381738259301,
+                        "y": 0.9063077870366499
+                    }
+                ],
+                "endAngle": 65,
+                "name": "ArcWF",
+                "normalFlipped": true,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "numPoints": 50,
+                "objectSubType": "arc",
+                "objectType": 259,
+                "radius": 1,
+                "referencePoint": {
+                    "x": 0,
+                    "y": 0
+                },
+                "refractiveIndex": 1,
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "startAngle": -5,
+                "uuid": "78138037-cf56-48ef-b337-4d66ff37c08f",
+                "visible": true
+            },
+            {
+                "controlPoints": [
+                    {
+                        "x": 6,
+                        "y": 6
+                    },
+                    {
+                        "x": -6,
+                        "y": 6
+                    }
+                ],
+                "name": "LineWF",
+                "normalFlipped": false,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "objectSubType": "line",
+                "objectType": 258,
+                "referencePoint": {
+                    "x": 0,
+                    "y": 0
+                },
+                "refractiveIndex": 1,
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "uuid": "7b0dc29e-4129-4f1c-a8bc-afbd09b84a73",
+                "visible": true
+            },
+            {
+                "controlPoints": [
+                    {
+                        "x": -2.9,
+                        "y": 2.2
+                    }
+                ],
+                "name": "ptoRef",
+                "normalFlipped": false,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "objectSubType": "point",
+                "objectType": 1,
+                "radius": 0.3,
+                "referencePoint": {
+                    "x": 0,
+                    "y": 0
+                },
+                "refractiveIndex": 1,
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "uuid": "8c274305-4a5e-483d-a310-5562fcb4b329",
+                "visible": true
+            },
+            {
+                "controlPoints": [
+                    {
+                        "x": -3.2,
+                        "y": 4
+                    },
+                    {
+                        "x": -3,
+                        "y": 2
+                    }
+                ],
+                "name": "refLine",
+                "normalFlipped": false,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "objectSubType": "line",
+                "objectType": 2,
+                "referencePoint": {
+                    "x": 0,
+                    "y": 0
+                },
+                "refractiveIndex": 1,
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "uuid": "d43c7460-0c08-47b7-ac89-a4b618ac79b8",
+                "visible": true
+            },
+            {
+                "controlPoints": [
+                    {
+                        "x": -2.7,
+                        "y": 2.3
+                    },
+                    {
+                        "x": -2.616241207913998,
+                        "y": -0.0985379848458301
+                    }
+                ],
+                "isOpen": true,
+                "name": "refLine_copy",
+                "normalFlipped": false,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "objectSubType": "curve",
+                "objectType": 2,
+                "referencePoint": {
+                    "x": 0,
+                    "y": 0
+                },
+                "refractiveIndex": 1,
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "splineOrder": 3,
+                "uuid": "cceaeb65-7683-4223-876d-81e7ff443bb4",
+                "visible": true
+            },
+            {
+                "controlPoints": [
+                    {
+                        "x": -2.5,
+                        "y": 0
+                    }
+                ],
+                "isOpen": true,
+                "name": "ptoRef_copy",
+                "normalFlipped": false,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "objectSubType": "curve",
+                "objectType": 1,
+                "referencePoint": {
+                    "x": 0,
+                    "y": 0
+                },
+                "refractiveIndex": 1,
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "splineOrder": 3,
+                "uuid": "49dccb4c-539b-4ec8-88e7-9d4c0814047e",
+                "visible": true
+            }
+        ],
+        "name": "Project 1 (Mega Demo)",
+        "normalFlipped": false,
+        "normalRaysLen": 1,
+        "normalRaysQty": 10,
+        "objectType": 2048,
+        "operations": [
+            {
+                "amountOfPoints": 200,
+                "name": "ArcWF Propg",
+                "normalFlipped": false,
+                "normalRaysLen": 1,
+                "normalRaysQty": 10,
+                "objectType": 2048,
+                "offset": 0,
+                "operationSubType": "propagateWF",
+                "operationType": 17,
+                "paramNames": [
+                    "ArcWF",
+                    "refLine",
+                    "1.5",
+                    "Offset",
+                    "Result"
+                ],
+                "showLabel": true,
+                "showNormals": false,
+                "softwareVersion": 4,
+                "uuid": "051450a9-c31c-498c-95cc-20f004a83376",
+                "visible": true
+            }
+        ],
+        "resultObjects": [
+        ],
+        "scaleXMax": 10,
+        "scaleXMin": -10,
+        "scaleYMax": 10,
+        "scaleYMin": -10,
+        "showLabel": true,
+        "showNormals": false,
+        "softwareVersion": 4,
+        "uuid": "40b76337-5bc0-4bb3-8ded-ea671b494bfa",
+        "visible": true
+    },
+    "software": "ExpressDesigner",
+    "softwareVersion": "4.0.0"
+}

@@ -109,5 +109,6 @@ if(HAS_QT_CHARTS)
 endif()
 
 if(USE_SISL AND TARGET sisl)
+    target_include_directories(ExpressDesigner PRIVATE ${PROJECT_SOURCE_DIR}/third_party/sisl/include)
     target_link_libraries(ExpressDesigner PRIVATE sisl)
 endif()

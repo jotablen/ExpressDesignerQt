@@ -4,6 +4,7 @@
 #include <geometry/SISLWrapper.h>
 #include <optics/SnellLaw.h>
 #include <QtMath>
+#include <utils/Logger.h>
 
 namespace ExpressDesigner {
 
@@ -16,44 +17,6 @@ PropagateWFOperation::PropagateWFOperation(const QString& name, QObject* parent)
 }
 
 PropagateWFOperation::~PropagateWFOperation() = default;
-
-// Ray-segment intersection: solve origin + t*dir = a + u*(b-a), t>=0, 0<=u<=1
-static double raySegmentHit(const QPointF& origin, const QPointF& dir,
-                             const QPointF& a, const QPointF& b)
-{
-    QPointF seg = b - a;
-    double denom = dir.x() * seg.y() - dir.y() * seg.x();
-    if (qAbs(denom) < 1e-12) return -1.0;
-    QPointF diff = a - origin;
-    double t = (diff.x() * seg.y() - diff.y() * seg.x()) / denom;
-    double u = (diff.x() * dir.y() - diff.y() * dir.x()) / -denom;
-    if (t >= 0.0 && u >= 0.0 && u <= 1.0)
-        return t;
-    return -1.0;
-}
-
-// Find closest ray-curve intersection. Returns intersection point, sets hitSeg and hitDist.
-static QPointF rayCurveIntersection(const QPointF& origin, const QPointF& dir,
-                                     const QVector<QPointF>& curve, int* hitSeg,
-                                     double* hitDist)
-{
-    double bestT = 1e18;
-    int bestSeg = -1;
-    int m = curve.size();
-    for (int i = 0; i < m - 1; ++i) {
-        double t = raySegmentHit(origin, dir, curve[i], curve[i + 1]);
-        if (t >= 0.0 && t < bestT) {
-            bestT = t;
-            bestSeg = i;
-        }
-    }
-    if (bestSeg >= 0) {
-        *hitDist = bestT;
-        *hitSeg = bestSeg;
-        return origin + dir * bestT;
-    }
-    return QPointF(); // (0,0) if no hit
-}
 
 bool PropagateWFOperation::execute(Project* project)
 {
@@ -79,9 +42,12 @@ bool PropagateWFOperation::execute(Project* project)
     int numPoints = m_amountOfPoints;
     if (numPoints < 2) numPoints = 100;
 
-    // Build SISL curves — use continuous normals (no discretization)
+    // Continuous curves (no discretization)
     Geometry::SISLCurve wfCurve(wf->controlPoints(), 3, true);
     Geometry::SISLCurve surfCurve(surface->controlPoints(), 3, true);
+
+    LOG_INFO(QStringLiteral("GEO"), QStringLiteral("PropgWF: wf=%1 pts, surf=%2 pts, offset=%.3f")
+             .arg(wf->controlPoints().size()).arg(surface->controlPoints().size()).arg(fDistance));
 
     QVector<QPointF> wfPts = wfCurve.evaluateAll(numPoints);
 
@@ -100,20 +66,29 @@ bool PropagateWFOperation::execute(Project* project)
         QPointF srcPt = wfPts[i];
         QPointF norm = wfCurve.normal(t, flipWF);
 
-        // Step 1: Cast ray from WF point along normal to intersect the surface (continuous)
-        double hitDist = surfCurve.rayIntersection(srcPt, norm);
+        // Step 1: Curve-plane intersection (ODs SISLDrink algorithm)
+        // The plane passes through srcPt and its normal is perpendicular
+        // to the ray direction (cross with Z axis): planeNormal = (ny, -nx).
+        // This makes the plane CONTAIN the ray, and intersecting the surface
+        // curve against this plane gives the exact hit point.
+        QPointF planeNormal(-norm.y(), norm.x());
+        QPointF surfHit;
+        surfCurve.planeIntersection(srcPt, planeNormal, &surfHit);
 
-        if (hitDist < 0.0) {
-            continue; // No hit — discard
+        if (surfHit.isNull()) {
+            continue; // No intersection — discard
         }
 
-        QPointF surfHit = srcPt + norm * hitDist;
-
         // Step 2: Optical path length from WF to surface
+        // Use Euclidean distance from srcPt to surfHit (plane normal is perpendicular
+        // to ray direction, so planeIntersection distance is not along the ray)
+        double dx = surfHit.x() - srcPt.x();
+        double dy = surfHit.y() - srcPt.y();
+        double hitDist = qSqrt(dx * dx + dy * dy);
         double OPL = n1 * hitDist;
         double remaining = fDistance - OPL;
 
-        // Surface normal at hit point — use continuous curve normal
+        // Surface normal at hit point — continuous curve normal
         QPointF surfNormal = surfCurve.normalAt(surfHit);
 
         // Snell's law deflection — vectorial approach with surface normal
@@ -127,6 +102,13 @@ bool PropagateWFOperation::execute(Project* project)
         propagatedPts.append(resultPt);
     }
 
+    if (propagatedPts.size() < 3) {
+        delete result;
+        m_errorCode = 1;
+        m_errorMessage = tr("Propagation produced less than 3 points — operation failed.");
+        emit operationExecuted(false);
+        return false;
+    }
     result->setControlPoints(propagatedPts);
     project->addResultObject(result);
 
