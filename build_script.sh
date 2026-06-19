@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-export PATH="/mingw64/bin:/usr/bin:$PATH"
+export PATH="/mingw64/bin:/usr/bin:/c/Program Files/CMake/bin:$PATH"
 cd /e/Projects/newVibes/ExpressDesignerQt
 
 echo "=== Cleaning build directory ==="
@@ -9,14 +9,16 @@ mkdir build
 cd build
 
 echo "=== Running CMake (USE_SISL=ON) ==="
-cmake .. -G "MinGW Makefiles" \
+"/c/Program Files/CMake/bin/cmake.exe" .. \
+  -G "MinGW Makefiles" \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTS=OFF \
   -DUSE_SISL=ON \
-  -DCMAKE_PREFIX_PATH=/mingw64 2>&1
+  -DCMAKE_PREFIX_PATH=/mingw64 \
+  -DCMAKE_MAKE_PROGRAM=/mingw64/bin/mingw32-make.exe
 
 echo "=== Building ==="
-cmake --build . -- -j4 2>&1
+/mingw64/bin/mingw32-make.exe -j4
 
 echo "=== BUILD COMPLETED ==="
 echo "Executable:"

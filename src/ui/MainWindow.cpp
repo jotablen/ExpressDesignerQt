@@ -875,15 +875,19 @@ void MainWindow::onRotateObject()
         dlg.setSelectedObject(m_selectedObject);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
-        CustomObject* obj = m_currentProject->findObject(dlg.objectCombo()->currentText());
-        if (!obj) return;
         double degrees = dlg.degreesEdit()->text().toDouble();
         RotateObjectCommand::PivotMode pivot =
             static_cast<RotateObjectCommand::PivotMode>(dlg.pivotMode());
-        auto cmd = std::make_unique<RotateObjectCommand>(obj, degrees, pivot);
-        m_cmdHistory->push(std::move(cmd), m_currentProject);
-        m_history->recordObjectModification(obj->name(), QStringLiteral("rotate"),
-            QString(), QString::number(degrees) + QStringLiteral("°"));
+        const auto selected = dlg.objectList()->selectedItems();
+        if (selected.isEmpty()) return;
+        for (auto* item : selected) {
+            CustomObject* obj = m_currentProject->findObject(item->text());
+            if (!obj) continue;
+            auto cmd = std::make_unique<RotateObjectCommand>(obj, degrees, pivot);
+            m_cmdHistory->push(std::move(cmd), m_currentProject);
+            m_history->recordObjectModification(obj->name(), QStringLiteral("rotate"),
+                QString(), QString::number(degrees) + QStringLiteral("°"));
+        }
         setModified(true);
         recalculateAll();
         refreshChart();
@@ -899,15 +903,19 @@ void MainWindow::onTranslateObject()
         dlg.setSelectedObject(m_selectedObject);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
-        CustomObject* obj = m_currentProject->findObject(dlg.objectCombo()->currentText());
-        if (!obj) return;
         double dx = dlg.deltaXEdit()->text().toDouble();
         double dy = dlg.deltaYEdit()->text().toDouble();
         QPointF delta(dx, dy);
-        auto cmd = std::make_unique<TranslateObjectCommand>(obj, delta);
-        m_cmdHistory->push(std::move(cmd), m_currentProject);
-        m_history->recordObjectModification(obj->name(), QStringLiteral("translate"),
-            QString(), QStringLiteral("Δ(%1,%2)").arg(dx).arg(dy));
+        const auto selected = dlg.objectList()->selectedItems();
+        if (selected.isEmpty()) return;
+        for (auto* item : selected) {
+            CustomObject* obj = m_currentProject->findObject(item->text());
+            if (!obj) continue;
+            auto cmd = std::make_unique<TranslateObjectCommand>(obj, delta);
+            m_cmdHistory->push(std::move(cmd), m_currentProject);
+            m_history->recordObjectModification(obj->name(), QStringLiteral("translate"),
+                QString(), QStringLiteral("Δ(%1,%2)").arg(dx).arg(dy));
+        }
         setModified(true);
         recalculateAll();
         refreshChart();
@@ -927,6 +935,7 @@ void MainWindow::onUndo()
     if (m_propertiesWidget)
         m_propertiesWidget->setObject(nullptr);
 
+    recalculateAll();
     updateUndoRedoActions();
     refreshChart();
     updateStatusBar();
@@ -944,6 +953,7 @@ void MainWindow::onRedo()
     if (m_propertiesWidget)
         m_propertiesWidget->setObject(nullptr);
 
+    recalculateAll();
     updateUndoRedoActions();
     refreshChart();
     updateStatusBar();

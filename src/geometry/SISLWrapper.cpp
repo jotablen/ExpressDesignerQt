@@ -4,7 +4,6 @@
 #include <limits>
 #include <cstring>
 
-// SISL real headers
 #include <sisl.h>
 
 namespace ExpressDesigner {
@@ -18,11 +17,10 @@ static ::SISLCurve* buildSpline(const QVector<QPointF>& points)
     int n = points.size();
     if (n < 2) return nullptr;
 
-    int order = qMin(4, n);  // cubic if possible, linear for 2 pts
-    int ik = order;          // polynomial order
-    int in = n;              // number of control points
+    int order = qMin(4, n);
+    int ik = order;
+    int in = n;
 
-    // Build knot vector (open uniform)
     int nKnots = in + ik;
     double* et = new double[nKnots];
     for (int i = 0; i < ik; ++i)
@@ -32,7 +30,6 @@ static ::SISLCurve* buildSpline(const QVector<QPointF>& points)
     for (int i = in; i < nKnots; ++i)
         et[i] = 1.0;
 
-    // Control points in 2D (stored with z=0 for SISL compatibility)
     int idim = 3;
     double* ecoef = new double[n * idim];
     for (int i = 0; i < n; ++i) {
@@ -41,16 +38,12 @@ static ::SISLCurve* buildSpline(const QVector<QPointF>& points)
         ecoef[i * idim + 2] = 0.0;
     }
 
-    int icopy = 0;  // 0 = take ownership of arrays
-    int status = 0;
+    int icopy = 0;
     ::SISLCurve* curve = newCurve(in, ik, et, ecoef, 1, idim, icopy);
-    if (status < 0 || !curve) {
+    if (!curve) {
         delete[] et;
         delete[] ecoef;
-        return nullptr;
     }
-    // Arrays were copied by SISL (icopy=1 means SISL copies), free ours
-    // Actually icopy=0 means SISL takes ownership — don't free
     return curve;
 }
 
@@ -65,16 +58,14 @@ SISLCurve::SISLCurve(const QVector<QPointF>& controlPoints, int order, bool open
     m_valid = !controlPoints.isEmpty() && order >= 2;
     if (m_valid && controlPoints.size() >= 2) {
         m_curve = buildSpline(controlPoints);
-        if (!m_curve) {
-            m_valid = false;
-        }
+        if (!m_curve) m_valid = false;
     }
 }
 
 SISLCurve::~SISLCurve()
 {
     if (m_curve) {
-        freeCurve(m_curve);
+        freeCurve(static_cast< ::SISLCurve*>(m_curve));
         m_curve = nullptr;
     }
 }
@@ -89,7 +80,7 @@ SISLCurve::SISLCurve(SISLCurve&& other) noexcept
 SISLCurve& SISLCurve::operator=(SISLCurve&& other) noexcept
 {
     if (this != &other) {
-        if (m_curve) freeCurve(m_curve);
+        if (m_curve) freeCurve(static_cast< ::SISLCurve*>(m_curve));
         m_curve = other.m_curve;
         m_points = std::move(other.m_points);
         m_order = other.m_order;
@@ -108,7 +99,7 @@ QVector<QPointF> SISLCurve::controlPoints() const { return m_points; }
 
 void SISLCurve::setControlPoints(const QVector<QPointF>& points)
 {
-    if (m_curve) { freeCurve(m_curve); m_curve = nullptr; }
+    if (m_curve) { freeCurve(static_cast< ::SISLCurve*>(m_curve)); m_curve = nullptr; }
     m_points = points;
     m_valid = !points.isEmpty();
     if (m_valid && points.size() >= 2)
@@ -119,21 +110,19 @@ void SISLCurve::setControlPoints(const QVector<QPointF>& points)
 QPointF SISLCurve::evaluate(double t) const
 {
     if (!m_curve || m_points.isEmpty()) return {};
+    auto* c = static_cast< ::SISLCurve*>(m_curve);
     double param = qBound(0.0, t, 1.0);
-    int ik = m_curve->ik;
-    int in_val = m_curve->in;
-    double* et = m_curve->et;
+    double* et = c->et;
     if (!et) return {};
-
-    // Map [0,1] to knot interval
+    int ik = c->ik;
+    int in_val = c->in;
     double tmin = et[ik - 1];
     double tmax = et[in_val];
     double u = tmin + param * (tmax - tmin);
-
     int iKnot = 0;
-    double result[3];
+    double result[3] = {};
     int status = 0;
-    s1227(m_curve, 0, u, &iKnot, result, &status);
+    s1227(c, 0, u, &iKnot, result, &status);
     if (status < 0) return {};
     return QPointF(result[0], result[1]);
 }
@@ -152,21 +141,20 @@ QVector<QPointF> SISLCurve::evaluateAll(int numPoints) const
 QPointF SISLCurve::derivative(double t) const
 {
     if (!m_curve || m_points.size() < 2) return {};
+    auto* c = static_cast< ::SISLCurve*>(m_curve);
     double param = qBound(0.0, t, 1.0);
-    int ik = m_curve->ik;
-    int in_val = m_curve->in;
-    double* et = m_curve->et;
+    double* et = c->et;
     if (!et) return {};
+    int ik = c->ik;
+    int in_val = c->in;
     double tmin = et[ik - 1];
     double tmax = et[in_val];
     double u = tmin + param * (tmax - tmin);
-
     int iKnot = 0;
-    double result[6];  // position (3) + derivative (3) = 6 doubles
+    double result[6] = {};
     int status = 0;
-    s1227(m_curve, 1, u, &iKnot, result, &status);
+    s1227(c, 1, u, &iKnot, result, &status);
     if (status < 0) return {};
-    // result[0..2] = point, result[3..5] = derivative
     return QPointF(result[3], result[4]);
 }
 
@@ -190,33 +178,25 @@ QPointF SISLCurve::normalAt(const QPointF& p) const
 QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
 {
     if (!m_curve || m_points.size() < 2) return m_points.isEmpty() ? QPointF() : m_points[0];
-
-    // Dense evaluation on NURBS for closest point search
     auto dense = evaluateAll(200);
     double bestDistSq = std::numeric_limits<double>::max();
     QPointF bestPt;
     double bestT = 0.0;
     int n = dense.size();
-
     for (int i = 0; i < n - 1; ++i) {
-        QPointF a = dense[i];
-        QPointF b = dense[i + 1];
+        QPointF a = dense[i], b = dense[i + 1];
         QPointF ab = b - a;
         double abLenSq = ab.x() * ab.x() + ab.y() * ab.y();
         if (abLenSq < 1e-18) {
             double d2 = (p.x() - a.x()) * (p.x() - a.x()) + (p.y() - a.y()) * (p.y() - a.y());
-            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = static_cast<double>(i) / (n - 1); }
+            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = (double)i / (n - 1); }
             continue;
         }
-        double t = ((p.x() - a.x()) * ab.x() + (p.y() - a.y()) * ab.y()) / abLenSq;
-        t = qBound(0.0, t, 1.0);
-        QPointF proj = a + ab * t;
+        double segT = ((p.x() - a.x()) * ab.x() + (p.y() - a.y()) * ab.y()) / abLenSq;
+        segT = qBound(0.0, segT, 1.0);
+        QPointF proj = a + ab * segT;
         double d2 = (p.x() - proj.x()) * (p.x() - proj.x()) + (p.y() - proj.y()) * (p.y() - proj.y());
-        if (d2 < bestDistSq) {
-            bestDistSq = d2;
-            bestPt = proj;
-            bestT = (i + t) / (n - 1);
-        }
+        if (d2 < bestDistSq) { bestDistSq = d2; bestPt = proj; bestT = (i + segT) / (n - 1); }
     }
     if (outT) *outT = qBound(0.0, bestT, 1.0);
     return bestPt;
@@ -226,7 +206,8 @@ QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
 double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& planeNormal,
                                     QPointF* outHitPt, double* outT) const
 {
-    if (!m_curve) return -1.0;
+    auto* c = static_cast< ::SISLCurve*>(m_curve);
+    if (!c) return -1.0;
 
     double point[3] = { planePoint.x(), planePoint.y(), 0.0 };
     double normal[3] = { planeNormal.x(), planeNormal.y(), 0.0 };
@@ -237,7 +218,7 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     ::SISLIntcurve** intcurve = nullptr;
     int SISLError_val = 0;
 
-    s1850(m_curve, point, normal, 3, epsco, epsge,
+    s1850(c, point, normal, 3, epsco, epsge,
           &numintpt, &ListaParametros,
           &numintcu, &intcurve, &SISLError_val);
 
@@ -247,27 +228,24 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     if (numintpt <= 0 || !ListaParametros)
         return -1.0;
 
-    // Get the first intersection point and evaluate it
     int iKnot = 0;
-    double PontoTangente[6];
-    s1227(m_curve, 1, ListaParametros[0], &iKnot, PontoTangente, &SISLError_val);
+    double PontoTangente[6] = {};
+    s1227(c, 1, ListaParametros[0], &iKnot, PontoTangente, &SISLError_val);
 
     QPointF hitPt(PontoTangente[0], PontoTangente[1]);
-
     delete[] ListaParametros;
 
     if (outHitPt) *outHitPt = hitPt;
-    if (outT) *outT = qBound(0.0, ListaParametros ? ListaParametros[0] : 0.0, 1.0);
+    if (outT) *outT = 0.0;
 
-    // Compute Euclidean distance from planePoint to hitPt
     double dx = hitPt.x() - planePoint.x();
     double dy = hitPt.y() - planePoint.y();
     return qSqrt(dx * dx + dy * dy);
 }
 
 // --- Static factory ---
-SISLCurve SISLCurve::interpolate(const QVector<QPointF>& points, int order) { return SISLCurve(points, order, true); }
-SISLCurve SISLCurve::approximate(const QVector<QPointF>& points, double) { return SISLCurve(points, 3, true); }
+SISLCurve SISLCurve::interpolate(const QVector<QPointF>& points, int order) { return SISLCurve(points, order); }
+SISLCurve SISLCurve::approximate(const QVector<QPointF>& points, double) { return SISLCurve(points, 3); }
 
 // ============================================================================
 // SISLSurface (stub)

@@ -1,6 +1,6 @@
 #pragma once
 #include <QDialog>
-#include <QComboBox>
+#include <QListWidget>
 #include <QLineEdit>
 #include <core/Project.h>
 
@@ -13,18 +13,14 @@ public:
     void setProject(Project* project);
     void setSelectedObject(CustomObject* obj);
 
-    QComboBox* objectCombo() const { return m_objectCombo; }
+    QListWidget* objectList() const { return m_objectList; }
     QLineEdit* deltaXEdit() const { return m_deltaXEdit; }
     QLineEdit* deltaYEdit() const { return m_deltaYEdit; }
 
 private:
-    void populateCombo(Project* project);
-
-    QComboBox* m_objectCombo = nullptr;
+    QListWidget* m_objectList = nullptr;
     QLineEdit* m_deltaXEdit = nullptr;
     QLineEdit* m_deltaYEdit = nullptr;
-    Project* m_project = nullptr;
-    CustomObject* m_selectedObj = nullptr;
 };
 
 } // namespace ExpressDesigner
