@@ -31,8 +31,11 @@ public:
     QPointF normal(double t, bool flipped = false) const;
 
     QPointF closestPoint(const QPointF& p, double* outT = nullptr) const;
+    QPair<QPointF, QPointF> pointAndDerivative(double t) const;
+    QPair<QPointF, QPointF> pointAndNormal(double t, bool flipped = false) const;
     double   planeIntersection(const QPointF& planePoint, const QPointF& planeNormal,
-                               QPointF* outHitPt = nullptr, double* outT = nullptr) const;
+                               QPointF* outHitPt = nullptr, QPointF* outNormal = nullptr,
+                               double* outT = nullptr) const;
     QPointF normalAt(const QPointF& p) const;
 
     QVector<QPointF> controlPoints() const;

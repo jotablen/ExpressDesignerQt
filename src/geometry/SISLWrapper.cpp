@@ -174,6 +174,53 @@ QPointF SISLCurve::normalAt(const QPointF& p) const
     return normal(t);
 }
 
+QPair<QPointF, QPointF> SISLCurve::pointAndDerivative(double t) const
+{
+    if (!m_curve || m_points.size() < 2) return {};
+    auto* c = static_cast< ::SISLCurve*>(m_curve);
+    double param = qBound(0.0, t, 1.0);
+    double* et = c->et;
+    if (!et) return {};
+    int ik = c->ik;
+    int in_val = c->in;
+    double tmin = et[ik - 1];
+    double tmax = et[in_val];
+    double u = tmin + param * (tmax - tmin);
+    int iKnot = 0;
+    double result[6] = {};
+    int status = 0;
+    s1227(c, 1, u, &iKnot, result, &status);
+    if (status < 0) return {};
+    return {QPointF(result[0], result[1]), QPointF(result[3], result[4])};
+}
+
+QPair<QPointF, QPointF> SISLCurve::pointAndNormal(double t, bool flipped) const
+{
+    if (!m_curve || m_points.size() < 2) return {};
+    auto* c = static_cast< ::SISLCurve*>(m_curve);
+    double param = qBound(0.0, t, 1.0);
+    double* et = c->et;
+    if (!et) return {};
+    int ik = c->ik;
+    int in_val = c->in;
+    double tmin = et[ik - 1];
+    double tmax = et[in_val];
+    double u = tmin + param * (tmax - tmin);
+    int iKnot = 0;
+    double result[6] = {};
+    int status = 0;
+    s1227(c, 1, u, &iKnot, result, &status);
+    if (status < 0) return {};
+    double len = qSqrt(result[3] * result[3] + result[4] * result[4]);
+    QPointF n;
+    if (len < 1e-12)
+        n = flipped ? QPointF(0, -1) : QPointF(0, 1);
+    else
+        n = QPointF(-result[4] / len, result[3] / len);
+    if (flipped) n = QPointF(-n.x(), -n.y());
+    return {QPointF(result[0], result[1]), n};
+}
+
 // --- Closest point (discretized search on NURBS) ---
 QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
 {
@@ -202,15 +249,19 @@ QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
     return bestPt;
 }
 
-// --- Plane intersection (ODs SISLDrink: s1850) ---
+// --- Plane intersection (ODs SISLDrink: s1850 + ODs normal computation) ---
+// The ODs algorithm computes the curve normal AT the intersection point,
+// projected onto the plane. This gives us the surface normal directly,
+// eliminating the need for closestPoint + normal() afterwards.
 double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& planeNormal,
-                                    QPointF* outHitPt, double* outT) const
+                                    QPointF* outHitPt, QPointF* outNormal,
+                                    double* outT) const
 {
     auto* c = static_cast< ::SISLCurve*>(m_curve);
     if (!c) return -1.0;
 
     double point[3] = { planePoint.x(), planePoint.y(), 0.0 };
-    double normal[3] = { planeNormal.x(), planeNormal.y(), 0.0 };
+    double normalPlano[3] = { planeNormal.x(), planeNormal.y(), 0.0 };
     double epsco = 1e-8, epsge = 1e-8;
     int numintpt = 0;
     double* ListaParametros = nullptr;
@@ -218,7 +269,7 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     ::SISLIntcurve** intcurve = nullptr;
     int SISLError_val = 0;
 
-    s1850(c, point, normal, 3, epsco, epsge,
+    s1850(c, point, normalPlano, 3, epsco, epsge,
           &numintpt, &ListaParametros,
           &numintcu, &intcurve, &SISLError_val);
 
@@ -228,14 +279,43 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     if (numintpt <= 0 || !ListaParametros)
         return -1.0;
 
+    // s1227(ideriv=1) gives us both point [0..2] and tangent [3..5] in ONE call
     int iKnot = 0;
     double PontoTangente[6] = {};
     s1227(c, 1, ListaParametros[0], &iKnot, PontoTangente, &SISLError_val);
 
     QPointF hitPt(PontoTangente[0], PontoTangente[1]);
+    QPointF tangent(PontoTangente[3], PontoTangente[4]);
+
+    // ODs SISLDrink algorithm: compute the curve normal projected onto the plane.
+    // Given normalPlano (perpendicular to ray, contains src point)
+    // and the curve tangent at the hit point:
+    //   normalCurva = normalPlano - dot(normalPlano, tangent) * tangent
+    //   (normalized)
+    QPointF curveNormal;
+    double normTgt = qSqrt(tangent.x() * tangent.x() + tangent.y() * tangent.y());
+    if (normTgt < 1e-12) {
+        curveNormal = QPointF(0, 1);
+    } else {
+        tangent /= normTgt;
+        double dot = planeNormal.x() * tangent.x() + planeNormal.y() * tangent.y();
+        // If tangent is (nearly) parallel to plane normal, normal is degenerate
+        if (qAbs(dot) > 0.999999) {
+            curveNormal = QPointF(0, 1);
+        } else {
+            curveNormal = QPointF(planeNormal.x() - dot * tangent.x(),
+                                  planeNormal.y() - dot * tangent.y());
+            double nLen = qSqrt(curveNormal.x() * curveNormal.x() +
+                                curveNormal.y() * curveNormal.y());
+            if (nLen > 1e-12) curveNormal /= nLen;
+            else curveNormal = QPointF(0, 1);
+        }
+    }
+
     delete[] ListaParametros;
 
     if (outHitPt) *outHitPt = hitPt;
+    if (outNormal) *outNormal = curveNormal;
     if (outT) *outT = 0.0;
 
     double dx = hitPt.x() - planePoint.x();

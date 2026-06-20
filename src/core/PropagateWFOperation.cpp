@@ -46,10 +46,8 @@ bool PropagateWFOperation::execute(Project* project)
     Geometry::SISLCurve wfCurve(wf->controlPoints(), 3, true);
     Geometry::SISLCurve surfCurve(surface->controlPoints(), 3, true);
 
-    LOG_INFO(QStringLiteral("GEO"), QStringLiteral("PropgWF: wf=%1 pts, surf=%2 pts, offset=%.3f")
-             .arg(wf->controlPoints().size()).arg(surface->controlPoints().size()).arg(fDistance));
-
-    QVector<QPointF> wfPts = wfCurve.evaluateAll(numPoints);
+    LOG_INFO(QStringLiteral("GEO"), QStringLiteral("PropgWF: wf=%1 pts, surf=%2 pts, offset=%3")
+             .arg(wf->controlPoints().size()).arg(surface->controlPoints().size()).arg(fDistance, 0, 'f', 3));
 
     auto* result = new CurveObject(resultName());
     result->setObjectType(withWavefront(withResult(ObjectType::Curve)));
@@ -63,35 +61,30 @@ bool PropagateWFOperation::execute(Project* project)
 
     for (int i = 0; i < numPoints; ++i) {
         double t = numPoints > 1 ? static_cast<double>(i) / (numPoints - 1) : 0.0;
-        QPointF srcPt = wfPts[i];
-        QPointF norm = wfCurve.normal(t, flipWF);
+
+        // Step 0: Get WF point + normal in ONE s1227 call
+        auto [srcPt, norm] = wfCurve.pointAndNormal(t, flipWF);
+        if (srcPt.isNull()) continue;
 
         // Step 1: Curve-plane intersection (ODs SISLDrink algorithm)
         // The plane passes through srcPt and its normal is perpendicular
-        // to the ray direction (cross with Z axis): planeNormal = (ny, -nx).
-        // This makes the plane CONTAIN the ray, and intersecting the surface
-        // curve against this plane gives the exact hit point.
+        // to the ray direction: planeNormal = (ny, -nx).
+        // planeIntersection now also returns the surface curve normal
+        // at the intersection point, computed via ODs SISLDrink algorithm.
         QPointF planeNormal(-norm.y(), norm.x());
-        QPointF surfHit;
-        surfCurve.planeIntersection(srcPt, planeNormal, &surfHit);
-
-        if (surfHit.isNull()) {
+        QPointF surfHit, surfNormal;
+        double hitDist = surfCurve.planeIntersection(srcPt, planeNormal, &surfHit, &surfNormal);
+        if (surfHit.isNull() || hitDist < 0.0)
             continue; // No intersection — discard
-        }
 
         // Step 2: Optical path length from WF to surface
-        // Use Euclidean distance from srcPt to surfHit (plane normal is perpendicular
-        // to ray direction, so planeIntersection distance is not along the ray)
-        double dx = surfHit.x() - srcPt.x();
-        double dy = surfHit.y() - srcPt.y();
-        double hitDist = qSqrt(dx * dx + dy * dy);
-        double OPL = n1 * hitDist;
+        // Use dot product with normal to get signed distance along ray
+        QPointF delta = surfHit - srcPt;
+        double signedDist = delta.x() * norm.x() + delta.y() * norm.y();
+        double OPL = n1 * signedDist;
         double remaining = fDistance - OPL;
 
-        // Surface normal at hit point — continuous curve normal
-        QPointF surfNormal = surfCurve.normalAt(surfHit);
-
-        // Snell's law deflection — vectorial approach with surface normal
+        // Step 3: Snell's law deflection
         bool tir = false;
         QPointF deflectedDir = Optics::getDeflectedVector(norm, surfNormal, n1, n2, tir);
 

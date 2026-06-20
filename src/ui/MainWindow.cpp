@@ -212,7 +212,7 @@ void MainWindow::setupCentralWidget()
 
     // Properties with 8 tabs matching Ovals Designer pctrlObjProperties
     m_propertiesWidget = new PropertiesWidget(m_rightSplitter);
-    m_propertiesWidget->setMinimumHeight(150);
+    m_propertiesWidget->setMinimumHeight(180);
     m_propertiesWidget->setCommandHistory(m_cmdHistory);
 
 #ifdef HAS_QT_CHARTS
