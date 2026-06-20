@@ -22,6 +22,7 @@ public:
 private:
     QListWidget* m_objectList = nullptr;
     QLineEdit* m_degreesEdit = nullptr;
+    QPushButton* m_okBtn = nullptr;
     QButtonGroup* m_pivotGroup = nullptr;
     QRadioButton* m_pivotStart = nullptr;
     QRadioButton* m_pivotMid = nullptr;

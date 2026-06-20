@@ -40,16 +40,20 @@ RotateObjectDialog::RotateObjectDialog(QWidget* parent) : QDialog(parent)
     layout->addWidget(pivotGroup);
 
     auto* btnLayout = new QHBoxLayout();
-    auto* okBtn = new QPushButton(tr("&Rotate"), this);
-    okBtn->setDefault(true);
+    m_okBtn = new QPushButton(tr("&Rotate"), this);
+    m_okBtn->setDefault(true);
+    m_okBtn->setEnabled(false);
     auto* cancelBtn = new QPushButton(tr("Cancel"), this);
     btnLayout->addStretch();
     btnLayout->addWidget(cancelBtn);
-    btnLayout->addWidget(okBtn);
+    btnLayout->addWidget(m_okBtn);
     layout->addLayout(btnLayout);
 
-    connect(okBtn, &QPushButton::clicked, this, &QDialog::accept);
+    connect(m_okBtn, &QPushButton::clicked, this, &QDialog::accept);
     connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
+    connect(m_objectList, &QListWidget::itemSelectionChanged, this, [this]{
+        m_okBtn->setEnabled(!m_objectList->selectedItems().isEmpty());
+    });
 }
 
 void RotateObjectDialog::setProject(Project* project)

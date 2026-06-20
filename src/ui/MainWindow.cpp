@@ -844,6 +844,16 @@ void MainWindow::updateDeleteActionState()
 
 void MainWindow::onObjectSelected(const QModelIndex& index)
 {
+    // Check if this is an operation node
+    auto* op = m_treeModel->operationAt(index);
+    if (op) {
+        m_selectedObject = nullptr;
+        if (m_propertiesWidget) m_propertiesWidget->setOperation(op);
+        updateDeleteActionState();
+        updateStatusBar();
+        return;
+    }
+
     m_selectedObject = m_treeModel->objectAt(index);
     if (m_propertiesWidget) m_propertiesWidget->setObject(m_selectedObject);
     updateDeleteActionState();
@@ -871,9 +881,9 @@ void MainWindow::onRotateObject()
 {
     if (!m_currentProject) return;
     RotateObjectDialog dlg(this);
+    dlg.setProject(m_currentProject);
     if (m_selectedObject)
         dlg.setSelectedObject(m_selectedObject);
-    dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
         double degrees = dlg.degreesEdit()->text().toDouble();
         RotateObjectCommand::PivotMode pivot =
@@ -899,9 +909,9 @@ void MainWindow::onTranslateObject()
 {
     if (!m_currentProject) return;
     TranslateObjectDialog dlg(this);
+    dlg.setProject(m_currentProject);
     if (m_selectedObject)
         dlg.setSelectedObject(m_selectedObject);
-    dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
         double dx = dlg.deltaXEdit()->text().toDouble();
         double dy = dlg.deltaYEdit()->text().toDouble();

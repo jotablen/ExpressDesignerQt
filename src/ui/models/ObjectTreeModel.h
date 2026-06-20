@@ -2,6 +2,7 @@
 #include <QAbstractItemModel>
 #include <core/Project.h>
 #include <core/CustomObject.h>
+#include <core/CustomOperation.h>
 
 namespace ExpressDesigner {
 
@@ -13,6 +14,7 @@ public:
 
     void setProject(Project* project);
     CustomObject* objectAt(const QModelIndex& index) const;
+    CustomOperation* operationAt(const QModelIndex& index) const;
 
     // QAbstractItemModel interface
     QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
@@ -25,15 +27,19 @@ public:
     // Look up a tree model index for a given CustomObject pointer
     QModelIndex createIndexByObject(CustomObject* obj) const;
 
-    // Internal node IDs — data children and result children must be distinct
-    // so that objectAt() and parent() correctly return the right namespace
+    // Internal node IDs — data, result, and operation children must be distinct
     static constexpr quintptr kDataFolderId   = 1;
     static constexpr quintptr kResultFolderId = 2;
-    static constexpr quintptr kDataChildId    = 3;
-    static constexpr quintptr kResultChildId  = 4;
+    static constexpr quintptr kOpsFolderId    = 3;
+    static constexpr quintptr kDataChildId    = 4;
+    static constexpr quintptr kResultChildId  = 5;
+    static constexpr quintptr kOpsChildId     = 6;
 
 private:
     Project* m_project = nullptr;
+    bool isFolderId(quintptr id) const {
+        return id == kDataFolderId || id == kResultFolderId || id == kOpsFolderId;
+    }
 };
 
 } // namespace ExpressDesigner

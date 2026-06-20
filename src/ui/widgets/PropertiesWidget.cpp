@@ -11,6 +11,7 @@
 #include <core/PointObject.h>
 #include <core/LineObject.h>
 #include <core/CurveObject.h>
+#include <core/PropagateWFOperation.h>
 
 namespace ExpressDesigner {
 
@@ -200,6 +201,39 @@ void PropertiesWidget::setupPropagateTab() {
 }
 
 void PropertiesWidget::setObject(CustomObject* obj) { m_currentObject = obj; showObjectTabs(obj); }
+
+void PropertiesWidget::setOperation(CustomOperation* op)
+{
+    m_currentObject = nullptr;
+    if (!op) { m_tabs->setCurrentIndex(0); return; }
+    switch (op->operationType()) {
+    case OperationType::CartesianOval:
+        m_cOvalNameEdit->setText(op->name());
+        m_cOvalQtyPtsEdit->setText(QString::number(op->amountOfPoints()));
+        m_cOvalWF1Edit->setText(op->paramName(0));
+        m_cOvalWF2Edit->setText(op->paramName(1));
+        m_cOvalRefEdit->setText(op->paramName(2));
+        m_cOvalResultEdit->setText(op->resultName());
+        m_tabs->setCurrentIndex(8);
+        break;
+    case OperationType::PropagateWF:
+        m_propgNameEdit->setText(op->name());
+        m_propgQtyPtsEdit->setText(QString::number(op->amountOfPoints()));
+        m_propgWFEdit->setText(op->paramName(0));
+        m_propgSurfEdit->setText(op->paramName(1));
+        m_propgIOREdit->setText(op->paramName(2));
+        {
+            auto* pop = dynamic_cast<PropagateWFOperation*>(op);
+            m_propgOffsetEdit->setText(QString::number(pop ? pop->offset() : 0.0, 'f', 6));
+        }
+        m_propgResultEdit->setText(op->resultName());
+        m_tabs->setCurrentIndex(9);
+        break;
+    default:
+        m_tabs->setCurrentIndex(0);
+        break;
+    }
+}
 
 void PropertiesWidget::setProject(Project* project) {
     m_currentProject = project;

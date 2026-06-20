@@ -21,6 +21,7 @@ private:
     QListWidget* m_objectList = nullptr;
     QLineEdit* m_deltaXEdit = nullptr;
     QLineEdit* m_deltaYEdit = nullptr;
+    QPushButton* m_okBtn = nullptr;
 };
 
 } // namespace ExpressDesigner

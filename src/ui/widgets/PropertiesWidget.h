@@ -19,6 +19,7 @@ class PropertiesWidget : public QWidget {
 public:
     explicit PropertiesWidget(QWidget* parent = nullptr);
     void setObject(CustomObject* obj);
+    void setOperation(CustomOperation* op);
     void setProject(Project* project);
     void setCommandHistory(CommandHistory* ch) { m_cmdHistory = ch; }
     void setOperations(Project* project);
@@ -59,7 +60,9 @@ private:
     void setupObjectsTab();
     void setupCalcOvalTab();
     void setupPropagateTab();
+    void setupOperationTabs();
     void showObjectTabs(CustomObject* obj);
+    void showOperationTabs(CustomOperation* op);
 
     QTabWidget* m_tabs = nullptr;
     CustomObject* m_currentObject = nullptr;
