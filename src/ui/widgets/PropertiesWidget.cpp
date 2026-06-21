@@ -214,7 +214,7 @@ void PropertiesWidget::setOperation(CustomOperation* op)
         m_cOvalWF2Edit->setText(op->paramName(1));
         m_cOvalRefEdit->setText(op->paramName(2));
         m_cOvalResultEdit->setText(op->resultName());
-        m_tabs->setCurrentIndex(8);
+        m_tabs->setCurrentIndex(6);
         break;
     case OperationType::PropagateWF:
         m_propgNameEdit->setText(op->name());
@@ -227,7 +227,7 @@ void PropertiesWidget::setOperation(CustomOperation* op)
             m_propgOffsetEdit->setText(QString::number(pop ? pop->offset() : 0.0, 'f', 6));
         }
         m_propgResultEdit->setText(op->resultName());
-        m_tabs->setCurrentIndex(9);
+        m_tabs->setCurrentIndex(7);
         break;
     default:
         m_tabs->setCurrentIndex(0);
