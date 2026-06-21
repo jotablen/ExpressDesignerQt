@@ -29,6 +29,7 @@ public:
 signals:
     void objectModified(CustomObject* obj);
     void projectModified(Project* project);
+    void operationModified(CustomOperation* op);
     void insertObjectRequested();
     void deleteObjectRequested();
     void selectObjectRequested(const QString& name);

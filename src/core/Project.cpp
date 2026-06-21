@@ -160,10 +160,8 @@ const QVector<CustomOperation*>& Project::operations() const { return m_operatio
 void Project::addOperation(CustomOperation* op)
 {
     if (!op || m_operations.contains(op)) return;
-    // Prevent duplicate operations by result name (operations produce results with their own name)
-    for (const auto* existing : m_operations) {
-        if (existing && existing->name() == op->name()) return;
-    }
+    // Allow operations with the same name as existing ones (auto-rename on result collision
+    // is handled by addResultObject; operations themselves do not require unique names)
     op->setParent(this);
     int idx = m_operations.size();
     m_operations.append(op);

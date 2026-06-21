@@ -209,24 +209,31 @@ void PropertiesWidget::setOperation(CustomOperation* op)
     switch (op->operationType()) {
     case OperationType::CartesianOval:
         m_cOvalNameEdit->setText(op->name());
+        m_cOvalNameEdit->setReadOnly(false); // editable
         m_cOvalQtyPtsEdit->setText(QString::number(op->amountOfPoints()));
+        m_cOvalQtyPtsEdit->setReadOnly(false);
         m_cOvalWF1Edit->setText(op->paramName(0));
         m_cOvalWF2Edit->setText(op->paramName(1));
         m_cOvalRefEdit->setText(op->paramName(2));
         m_cOvalResultEdit->setText(op->resultName());
+        m_cOvalResultEdit->setReadOnly(false);
         m_tabs->setCurrentIndex(6);
         break;
     case OperationType::PropagateWF:
         m_propgNameEdit->setText(op->name());
+        m_propgNameEdit->setReadOnly(false); // editable
         m_propgQtyPtsEdit->setText(QString::number(op->amountOfPoints()));
+        m_propgQtyPtsEdit->setReadOnly(false);
         m_propgWFEdit->setText(op->paramName(0));
         m_propgSurfEdit->setText(op->paramName(1));
         m_propgIOREdit->setText(op->paramName(2));
         {
             auto* pop = dynamic_cast<PropagateWFOperation*>(op);
             m_propgOffsetEdit->setText(QString::number(pop ? pop->offset() : 0.0, 'f', 6));
+            m_propgOffsetEdit->setReadOnly(false);
         }
         m_propgResultEdit->setText(op->resultName());
+        m_propgResultEdit->setReadOnly(false);
         m_tabs->setCurrentIndex(7);
         break;
     default:
@@ -380,9 +387,83 @@ void PropertiesWidget::onSaveCurve() {
 }
 void PropertiesWidget::onRestoreCurve() { if (m_currentObject) showObjectTabs(m_currentObject); }
 
-void PropertiesWidget::onSaveCalcOval() { emit calculateOvalRequested(); }
-void PropertiesWidget::onRestoreCalcOval() {}
-void PropertiesWidget::onSavePropagate() { emit propagateWFRequested(); }
-void PropertiesWidget::onRestorePropagate() {}
+void PropertiesWidget::onSaveCalcOval()
+{
+    // Find the currently displayed operation and update its parameters
+    if (!m_currentProject) return;
+    const auto& ops = m_currentProject->operations();
+    CustomOperation* currentOp = nullptr;
+    for (auto* op : ops) {
+        if (op && op->operationType() == OperationType::CartesianOval) {
+            // Match by what's currently displayed
+            if (op->name() == m_cOvalNameEdit->text() || m_cOvalNameEdit->text().isEmpty() || ops.size() == 1) {
+                currentOp = op;
+                break;
+            }
+        }
+    }
+    if (currentOp) {
+        // Update modifiable (non-object-reference) parameters from UI
+        currentOp->setName(m_cOvalNameEdit->text());
+        currentOp->setAmountOfPoints(m_cOvalQtyPtsEdit->text().toInt());
+        currentOp->setParamName(0, m_cOvalWF1Edit->text());
+        currentOp->setParamName(1, m_cOvalWF2Edit->text());
+        currentOp->setParamName(2, m_cOvalRefEdit->text());
+        emit operationModified(currentOp);
+    } else {
+        emit calculateOvalRequested();
+    }
+}
+void PropertiesWidget::onRestoreCalcOval()
+{
+    // Reload from project
+    if (m_currentProject) {
+        const auto& ops = m_currentProject->operations();
+        for (auto* op : ops) {
+            if (op && op->operationType() == OperationType::CartesianOval) {
+                setOperation(op);
+                return;
+            }
+        }
+    }
+}
+void PropertiesWidget::onSavePropagate()
+{
+    if (!m_currentProject) return;
+    const auto& ops = m_currentProject->operations();
+    CustomOperation* currentOp = nullptr;
+    for (auto* op : ops) {
+        if (op && op->operationType() == OperationType::PropagateWF) {
+            if (op->name() == m_propgNameEdit->text() || m_propgNameEdit->text().isEmpty() || ops.size() == 1) {
+                currentOp = op;
+                break;
+            }
+        }
+    }
+    if (currentOp) {
+        currentOp->setName(m_propgNameEdit->text());
+        currentOp->setAmountOfPoints(m_propgQtyPtsEdit->text().toInt());
+        currentOp->setParamName(0, m_propgWFEdit->text());
+        currentOp->setParamName(1, m_propgSurfEdit->text());
+        currentOp->setParamName(2, m_propgIOREdit->text());
+        if (auto* pop = dynamic_cast<PropagateWFOperation*>(currentOp))
+            pop->setOffset(m_propgOffsetEdit->text().toDouble());
+        emit operationModified(currentOp);
+    } else {
+        emit propagateWFRequested();
+    }
+}
+void PropertiesWidget::onRestorePropagate()
+{
+    if (m_currentProject) {
+        const auto& ops = m_currentProject->operations();
+        for (auto* op : ops) {
+            if (op && op->operationType() == OperationType::PropagateWF) {
+                setOperation(op);
+                return;
+            }
+        }
+    }
+}
 
 } // namespace ExpressDesigner

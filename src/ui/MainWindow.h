@@ -135,6 +135,7 @@ private:
     QChart* m_chart = nullptr;
 #endif
     CustomObject* m_selectedObject = nullptr;
+    CustomOperation* m_selectedOperation = nullptr;
 
     // Core systems
     HistoryManager* m_history = nullptr;

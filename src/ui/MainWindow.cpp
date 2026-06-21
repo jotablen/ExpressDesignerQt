@@ -80,6 +80,7 @@ void MainWindow::setProject(Project* project)
         m_propertiesWidget->setProject(project);
 
     m_selectedObject = nullptr;
+    m_selectedOperation = nullptr;
     updateDeleteActionState();
 
     // Rebuild dependency graph
@@ -254,6 +255,15 @@ void MainWindow::setupConnections()
                 updateStatusBar();
             });
 
+    connect(m_propertiesWidget, &PropertiesWidget::operationModified,
+            this, [this](CustomOperation* op) {
+                Q_UNUSED(op);
+                setModified(true);
+                recalculateAll();
+                refreshChart();
+                updateStatusBar();
+            });
+
     connect(m_cmdHistory, &CommandHistory::stackChanged,
             this, &MainWindow::updateUndoRedoActions);
 
@@ -267,6 +277,7 @@ void MainWindow::setupConnections()
             this, [this](const QPoint& pos) {
         QModelIndex idx = m_objectTree->indexAt(pos);
         CustomObject* obj = (idx.isValid()) ? m_treeModel->objectAt(idx) : nullptr;
+        CustomOperation* op = (idx.isValid()) ? m_treeModel->operationAt(idx) : nullptr;
         QMenu menu(this);
         QAction* insertAct = menu.addAction(tr("&Insert object"));
         QAction* deleteAct = nullptr;
@@ -277,6 +288,9 @@ void MainWindow::setupConnections()
             deleteAct = menu.addAction(tr("&Delete object"));
             hideAct = menu.addAction(tr("&Hide object"));
             copyAct = menu.addAction(tr("&Copy object..."));
+        } else if (op) {
+            menu.addSeparator();
+            deleteAct = menu.addAction(tr("&Delete operation"));
         }
         menu.addSeparator();
         QAction* togglePtsAct = menu.addAction(tr("Toggle Ctrl Pts"));
@@ -367,53 +381,65 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event)
                 m_isPanning = false;
 
                 QPoint vp = me->pos();
-                QPoint cv = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp));
-                QPointF chartPos = m_chartView->mapToScene(cv);
+                // Convert viewport pixel -> chart value coordinates using mapToValue
+                QPointF chartPos = m_chart->mapToValue(vp);
                 onChartClicked(chartPos);
 
+                // Compute snap distance in chart data units (5% of visible range)
                 double snapDist = 10.0;
                 const auto axes = m_chart->axes();
-                if (axes.size() >= 2) {
-                    auto* ax = qobject_cast<QValueAxis*>(axes[0]);
-                    auto* ay = qobject_cast<QValueAxis*>(axes[1]);
-                    if (ax && ay) {
-                        snapDist = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * 0.05;
-                        if (snapDist < 2.0) snapDist = 2.0;
-                    }
+                QValueAxis* ax = nullptr;
+                QValueAxis* ay = nullptr;
+                for (auto* axis : axes) {
+                    if (axis->orientation() == Qt::Horizontal)
+                        ax = qobject_cast<QValueAxis*>(axis);
+                    else if (axis->orientation() == Qt::Vertical)
+                        ay = qobject_cast<QValueAxis*>(axis);
+                }
+                if (ax && ay) {
+                    snapDist = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * 0.05;
+                    if (snapDist < 0.1) snapDist = 0.1;
                 }
 
-                CustomObject* clickedObj = nullptr;
+                // Find the two nearest objects by minimum point distance
+                struct Candidate { CustomObject* obj = nullptr; double dist = 1e18; };
+                Candidate nearest, secondNearest;
                 const auto seriesList = m_chart->series();
-                double bestDist = snapDist;
                 for (auto* ser : seriesList) {
                     if (ser->name().isEmpty()) continue;
                     QVariant prop = ser->property("customObject");
                     if (!prop.isValid()) continue;
+                    CustomObject* obj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+                    if (!obj) continue;
 
                     QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
                     QScatterSeries* ss = qobject_cast<QScatterSeries*>(ser);
+                    auto checkPoint = [&](const QPointF& pt) {
+                        double dx = pt.x() - chartPos.x();
+                        double dy = pt.y() - chartPos.y();
+                        double dist = qSqrt(dx * dx + dy * dy);
+                        if (dist < nearest.dist) {
+                            secondNearest = nearest;
+                            nearest = {obj, dist};
+                        } else if (dist < secondNearest.dist && obj != nearest.obj) {
+                            secondNearest = {obj, dist};
+                        }
+                    };
                     if (ls) {
-                        for (int i = 0; i < ls->count(); ++i) {
-                            QPointF pt = ls->at(i);
-                            double dx = pt.x() - chartPos.x();
-                            double dy = pt.y() - chartPos.y();
-                            double dist = qSqrt(dx * dx + dy * dy);
-                            if (dist < bestDist) {
-                                bestDist = dist;
-                                clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
-                            }
-                        }
+                        for (int i = 0; i < ls->count(); ++i) checkPoint(ls->at(i));
                     } else if (ss) {
-                        for (int i = 0; i < ss->count(); ++i) {
-                            QPointF pt = ss->at(i);
-                            double dx = pt.x() - chartPos.x();
-                            double dy = pt.y() - chartPos.y();
-                            double dist = qSqrt(dx * dx + dy * dy);
-                            if (dist < bestDist) {
-                                bestDist = dist;
-                                clickedObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
-                            }
-                        }
+                        for (int i = 0; i < ss->count(); ++i) checkPoint(ss->at(i));
+                    }
+                }
+
+                // If the nearest is already selected, pick the second nearest (if in range)
+                CustomObject* clickedObj = nullptr;
+                if (nearest.obj) {
+                    if (nearest.obj == m_selectedObject && secondNearest.obj
+                        && secondNearest.dist <= snapDist) {
+                        clickedObj = secondNearest.obj;
+                    } else if (nearest.dist <= snapDist) {
+                        clickedObj = nearest.obj;
                     }
                 }
 
@@ -503,39 +529,112 @@ void MainWindow::onDeleteObject()
 {
     QModelIndex idx = m_objectTree->currentIndex();
     if (!idx.isValid() || !m_currentProject) return;
+
     CustomObject* obj = m_treeModel->objectAt(idx);
-    if (!obj) return;
+    CustomOperation* op = m_treeModel->operationAt(idx);
 
-    // Check for dependent results
-    if (m_depGraph) {
-        m_depGraph->rebuildFromProject(m_currentProject);
-        QSet<CustomObject*> dependents = m_depGraph->transitiveDependents(obj);
-        if (!dependents.isEmpty()) {
-            QStringList depNames;
-            for (auto* dep : dependents)
-                depNames << dep->name();
-            auto answer = QMessageBox::warning(this, tr("Object has dependents"),
-                tr("The object '%1' is used to calculate:\n%2\n\n"
-                   "If you delete it, these results will no longer be recalculated.\n"
-                   "Do you still want to delete it?")
-                   .arg(obj->name(), depNames.join(QStringLiteral(", "))),
-                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-            if (answer != QMessageBox::Yes) return;
+    if (obj) {
+        // --- Deleting an object ---
+        // Check for dependent results
+        if (m_depGraph) {
+            m_depGraph->rebuildFromProject(m_currentProject);
+            QSet<CustomObject*> dependents = m_depGraph->transitiveDependents(obj);
+            if (!dependents.isEmpty()) {
+                QStringList depNames;
+                for (auto* dep : dependents)
+                    depNames << dep->name();
+                auto answer = QMessageBox::warning(this, tr("Object has dependents"),
+                    tr("The object '%1' is used to calculate:\n%2\n\n"
+                       "If you delete it, these results will no longer be recalculated.\n"
+                       "Do you still want to delete it?")
+                       .arg(obj->name(), depNames.join(QStringLiteral(", "))),
+                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+                if (answer != QMessageBox::Yes) return;
+            }
         }
-    }
 
-    bool isResult = m_currentProject->resultObjects().contains(obj);
-    auto cmd = std::make_unique<DeleteObjectCommand>(obj, isResult);
-    m_cmdHistory->push(std::move(cmd), m_currentProject);
-    if (m_depGraph)
-        m_depGraph->removeObject(obj);
-    m_history->recordObjectDeletion(obj->name());
-    m_selectedObject = nullptr;
-    updateDeleteActionState();
-    updateUndoRedoActions();
-    setModified(true);
-    refreshChart();
-    updateStatusBar();
+        bool isResult = m_currentProject->resultObjects().contains(obj);
+        CustomOperation* relatedOp = nullptr;
+
+        // If deleting a result object, find the operation that produced it and remove it too
+        if (isResult) {
+            QString objName = obj->name();
+            const auto& ops = m_currentProject->operations();
+            for (auto* candidate : ops) {
+                if (!candidate) continue;
+                if (candidate->name() == objName || candidate->resultName() == objName) {
+                    relatedOp = candidate;
+                    break;
+                }
+                // If result was auto-renamed (e.g. "X_2"), original operation name could be "X"
+                if (objName.startsWith(candidate->name() + QStringLiteral("_"))) {
+                    relatedOp = candidate;
+                    break;
+                }
+            }
+        }
+
+        auto cmd = std::make_unique<DeleteObjectCommand>(obj, isResult);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
+        if (m_depGraph)
+            m_depGraph->removeObject(obj);
+
+        // Also remove the associated operation if found
+        if (relatedOp) {
+            CustomOperation* takenOp = m_currentProject->takeOperation(relatedOp);
+            delete takenOp; // clean up the orphan operation
+        }
+
+        m_history->recordObjectDeletion(obj->name());
+        m_selectedObject = nullptr;
+        m_selectedOperation = nullptr;
+        updateDeleteActionState();
+        updateUndoRedoActions();
+        setModified(true);
+        refreshChart();
+        updateStatusBar();
+    } else if (op) {
+        // --- Deleting an operation ---
+        // Ask if the user also wants to delete the result object
+        CustomObject* resultObj = m_currentProject->findObject(op->resultName());
+        QString resultName = op->resultName();
+
+        bool deleteResult = false;
+        if (resultObj) {
+            auto answer = QMessageBox::question(this, tr("Delete Operation"),
+                tr("Do you also want to delete the result object '%1'?").arg(resultName),
+                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+                QMessageBox::No);
+            if (answer == QMessageBox::Cancel) return;
+            deleteResult = (answer == QMessageBox::Yes);
+        }
+
+        // Remove operation from project
+        CustomOperation* takenOp = m_currentProject->takeOperation(op);
+        Q_UNUSED(takenOp);
+        delete op; // delete the operation after taking it out of the project
+
+        // Remove result object if requested
+        if (deleteResult && resultObj) {
+            m_currentProject->removeResultObject(resultObj);
+            if (m_depGraph)
+                m_depGraph->removeObject(resultObj);
+            if (m_selectedObject == resultObj)
+                m_selectedObject = nullptr;
+        }
+
+        if (m_selectedOperation == op)
+            m_selectedOperation = nullptr;
+        if (m_propertiesWidget)
+            m_propertiesWidget->setOperation(nullptr);
+
+        m_history->recordObjectDeletion(resultName);
+        updateDeleteActionState();
+        updateUndoRedoActions();
+        setModified(true);
+        refreshChart();
+        updateStatusBar();
+    }
 }
 
 void MainWindow::onEditObject() {}
@@ -833,11 +932,18 @@ void MainWindow::onPreferences() { PreferencesDialog dlg(this); dlg.exec(); }
 void MainWindow::updateDeleteActionState()
 {
     bool canDelete = false;
-    if (m_selectedObject && m_currentProject) {
-        const auto& dataObjs = m_currentProject->dataObjects();
-        const auto& resultObjs = m_currentProject->resultObjects();
-        if (dataObjs.contains(m_selectedObject) || resultObjs.contains(m_selectedObject))
-            canDelete = true;
+    if (m_currentProject) {
+        if (m_selectedObject) {
+            const auto& dataObjs = m_currentProject->dataObjects();
+            const auto& resultObjs = m_currentProject->resultObjects();
+            if (dataObjs.contains(m_selectedObject) || resultObjs.contains(m_selectedObject))
+                canDelete = true;
+        }
+        if (m_selectedOperation) {
+            const auto& ops = m_currentProject->operations();
+            if (ops.contains(m_selectedOperation))
+                canDelete = true;
+        }
     }
     if (m_deleteAction) m_deleteAction->setEnabled(canDelete);
 }
@@ -848,6 +954,7 @@ void MainWindow::onObjectSelected(const QModelIndex& index)
     auto* op = m_treeModel->operationAt(index);
     if (op) {
         m_selectedObject = nullptr;
+        m_selectedOperation = op;
         if (m_propertiesWidget) m_propertiesWidget->setOperation(op);
         updateDeleteActionState();
         updateStatusBar();
@@ -855,6 +962,7 @@ void MainWindow::onObjectSelected(const QModelIndex& index)
     }
 
     m_selectedObject = m_treeModel->objectAt(index);
+    m_selectedOperation = nullptr;
     if (m_propertiesWidget) m_propertiesWidget->setObject(m_selectedObject);
     updateDeleteActionState();
     refreshChart();
@@ -942,6 +1050,7 @@ void MainWindow::onUndo()
     // Undo may have deleted objects (e.g., result objects from operations);
     // clear the selection to avoid dangling pointer in refreshChart()
     m_selectedObject = nullptr;
+    m_selectedOperation = nullptr;
     if (m_propertiesWidget)
         m_propertiesWidget->setObject(nullptr);
 
@@ -960,6 +1069,7 @@ void MainWindow::onRedo()
 
     // If the result object was re-created, the old selection pointer is stale
     m_selectedObject = nullptr;
+    m_selectedOperation = nullptr;
     if (m_propertiesWidget)
         m_propertiesWidget->setObject(nullptr);
 
@@ -1017,6 +1127,8 @@ void MainWindow::refreshChart()
     if (!m_chart || !m_currentProject) return;
     m_chart->removeAllSeries();
     ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals, m_selectedObject);
+    // Ensure 1:1 aspect ratio after chart population (deferred to allow layout)
+    QMetaObject::invokeMethod(this, [this]() { maintainChartAspectRatio(); }, Qt::QueuedConnection);
 #endif
 }
 
