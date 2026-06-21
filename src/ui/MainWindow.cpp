@@ -312,150 +312,258 @@ void MainWindow::setupConnections()
     });
 }
 
-// Event filter
+// ============================================================================
+// Event filter — dispatch to typed handler methods
+// ============================================================================
 bool MainWindow::eventFilter(QObject* watched, QEvent* event)
 {
 #ifdef HAS_QT_CHARTS
+    // Chart view resize → maintain 1:1 aspect ratio
     if (m_chartView && watched == m_chartView) {
         if (event->type() == QEvent::Resize) {
             maintainChartAspectRatio();
-            return false;
+            return false; // let Qt handle further
         }
     }
 
+    // Chart viewport mouse/wheel events
     if (m_chartView && watched == m_chartView->viewport()) {
-        // --- Mouse wheel zoom (1:1) ---
-        if (event->type() == QEvent::Wheel) {
-            QWheelEvent* we = static_cast<QWheelEvent*>(event);
-            if (m_chart) {
-                // viewport-local -> chart-view-local -> scene coordinates
-                QPoint vp = we->position().toPoint();
-                QPointF cursorValue = m_chart->mapToValue(m_chartView->mapToScene(
-                    m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp))));
-                const auto axes = m_chart->axes();
-                QValueAxis* ay = nullptr;
-                for (auto* axis : axes) {
-                    if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
-                }
-                if (ay) {
-                    double factor = (we->angleDelta().y() > 0) ? 0.9 : 1.1111;
-                    double yHalf = (ay->max() - ay->min()) * factor * 0.5;
-                    ay->setRange(cursorValue.y() - yHalf, cursorValue.y() + yHalf);
-                    maintainChartAspectRatio();
-                }
-            }
-            return true;
-        }
-
-        // --- Mouse press -> begin pan ---
-        if (event->type() == QEvent::MouseButtonPress) {
-            QMouseEvent* me = static_cast<QMouseEvent*>(event);
-            if (me->button() == Qt::LeftButton) {
-                m_isPanning = true;
-                m_panLastPos = me->pos();
-                return true;
-            }
-        }
-
-        // --- Mouse move -> pan chart ---
-        if (event->type() == QEvent::MouseMove && m_isPanning) {
-            QMouseEvent* me = static_cast<QMouseEvent*>(event);
-            if (m_chart) {
-                QPoint vpNow = me->pos();
-                QPoint vpPrev = m_panLastPos;
-                QPoint cvNow  = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vpNow));
-                QPoint cvPrev = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vpPrev));
-                QPointF sceneNow  = m_chartView->mapToScene(cvNow);
-                QPointF scenePrev = m_chartView->mapToScene(cvPrev);
-                QPointF delta = sceneNow - scenePrev;
-                m_chart->scroll(-delta.x(), delta.y());
-                m_panLastPos = vpNow;
-            }
-            return true;
-        }
-
-        // --- Mouse release -> end pan + click-select ---
-        if (event->type() == QEvent::MouseButtonRelease) {
-            QMouseEvent* me = static_cast<QMouseEvent*>(event);
-            if (me->button() == Qt::LeftButton) {
-                m_isPanning = false;
-
-                QPoint vp = me->pos();
-                // Convert viewport pixel -> chart value coordinates using mapToValue
-                QPointF chartPos = m_chart->mapToValue(vp);
-                onChartClicked(chartPos);
-
-                // Compute snap distance in chart data units (5% of visible range)
-                double snapDist = 10.0;
-                const auto axes = m_chart->axes();
-                QValueAxis* ax = nullptr;
-                QValueAxis* ay = nullptr;
-                for (auto* axis : axes) {
-                    if (axis->orientation() == Qt::Horizontal)
-                        ax = qobject_cast<QValueAxis*>(axis);
-                    else if (axis->orientation() == Qt::Vertical)
-                        ay = qobject_cast<QValueAxis*>(axis);
-                }
-                if (ax && ay) {
-                    snapDist = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * 0.05;
-                    if (snapDist < 0.1) snapDist = 0.1;
-                }
-
-                // Find the two nearest objects by minimum point distance
-                struct Candidate { CustomObject* obj = nullptr; double dist = 1e18; };
-                Candidate nearest, secondNearest;
-                const auto seriesList = m_chart->series();
-                for (auto* ser : seriesList) {
-                    if (ser->name().isEmpty()) continue;
-                    QVariant prop = ser->property("customObject");
-                    if (!prop.isValid()) continue;
-                    CustomObject* obj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
-                    if (!obj) continue;
-
-                    QLineSeries* ls = qobject_cast<QLineSeries*>(ser);
-                    QScatterSeries* ss = qobject_cast<QScatterSeries*>(ser);
-                    auto checkPoint = [&](const QPointF& pt) {
-                        double dx = pt.x() - chartPos.x();
-                        double dy = pt.y() - chartPos.y();
-                        double dist = qSqrt(dx * dx + dy * dy);
-                        if (dist < nearest.dist) {
-                            secondNearest = nearest;
-                            nearest = {obj, dist};
-                        } else if (dist < secondNearest.dist && obj != nearest.obj) {
-                            secondNearest = {obj, dist};
-                        }
-                    };
-                    if (ls) {
-                        for (int i = 0; i < ls->count(); ++i) checkPoint(ls->at(i));
-                    } else if (ss) {
-                        for (int i = 0; i < ss->count(); ++i) checkPoint(ss->at(i));
-                    }
-                }
-
-                // If the nearest is already selected, pick the second nearest (if in range)
-                CustomObject* clickedObj = nullptr;
-                if (nearest.obj) {
-                    if (nearest.obj == m_selectedObject && secondNearest.obj
-                        && secondNearest.dist <= snapDist) {
-                        clickedObj = secondNearest.obj;
-                    } else if (nearest.dist <= snapDist) {
-                        clickedObj = nearest.obj;
-                    }
-                }
-
-                if (clickedObj && m_treeModel) {
-                    QModelIndex idx = m_treeModel->createIndexByObject(clickedObj);
-                    if (idx.isValid()) {
-                        m_objectTree->selectionModel()->setCurrentIndex(
-                            idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
-                    }
-                }
-            }
-            return true;
+        switch (event->type()) {
+        case QEvent::Wheel:
+            return handleViewportWheel(static_cast<QWheelEvent*>(event));
+        case QEvent::MouseButtonPress:
+            return handleViewportMousePress(static_cast<QMouseEvent*>(event));
+        case QEvent::MouseMove:
+            return handleViewportMouseMove(static_cast<QMouseEvent*>(event));
+        case QEvent::MouseButtonRelease:
+            return handleViewportMouseRelease(static_cast<QMouseEvent*>(event));
+        default:
+            break;
         }
     }
 #endif
     return QMainWindow::eventFilter(watched, event);
+}
+
+// ---------------------------------------------------------------------------
+// handleViewportWheel — mouse-wheel zoom (1:1 centre-on-cursor)
+// ---------------------------------------------------------------------------
+bool MainWindow::handleViewportWheel(QWheelEvent* we)
+{
+#ifdef HAS_QT_CHARTS
+    if (!m_chart) return true;
+    QPoint vp = we->position().toPoint();
+    QPointF cursorValue = m_chart->mapToValue(m_chartView->mapToScene(
+        m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vp))));
+    QValueAxis* ay = nullptr;
+    for (auto* axis : m_chart->axes()) {
+        if (axis->orientation() == Qt::Vertical) ay = qobject_cast<QValueAxis*>(axis);
+    }
+    if (ay) {
+        double factor = (we->angleDelta().y() > 0) ? 0.9 : 1.1111;
+        double yHalf = (ay->max() - ay->min()) * factor * 0.5;
+        ay->setRange(cursorValue.y() - yHalf, cursorValue.y() + yHalf);
+        maintainChartAspectRatio();
+    }
+#endif
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// handleViewportMousePress — Ctrl+click → drag CP  |  click → pan
+// ---------------------------------------------------------------------------
+bool MainWindow::handleViewportMousePress(QMouseEvent* me)
+{
+#ifdef HAS_QT_CHARTS
+    if (me->button() != Qt::LeftButton) return false;
+
+    // --- Ctrl+click: try to pick a control point of the selected data object ---
+    if (me->modifiers() & Qt::ControlModifier) {
+        m_isPanning = false;
+        m_isDraggingCP = false;
+
+        if (m_selectedObject && m_currentProject
+            && m_currentProject->dataObjects().contains(m_selectedObject)) {
+            QPointF chartPos = m_chart->mapToValue(me->pos());
+            const auto& pts = m_selectedObject->controlPoints();
+            int bestIdx = -1;
+            double bestDist = 1e18;
+            for (int i = 0; i < pts.size(); ++i) {
+                double dx = pts[i].x() - chartPos.x();
+                double dy = pts[i].y() - chartPos.y();
+                double dist = qSqrt(dx * dx + dy * dy);
+                if (dist < bestDist) { bestDist = dist; bestIdx = i; }
+            }
+            double snapDist = snapDistance(0.03);
+            if (bestIdx >= 0 && bestDist <= snapDist) {
+                m_isDraggingCP = true;
+                m_dragCPIndex = bestIdx;
+                m_dragCPOldPoints = pts;
+                m_panLastPos = me->pos();
+                return true;
+            }
+        }
+        return true; // Ctrl pressed but nothing to drag → suppress pan/select
+    }
+
+    // --- Regular click: start pan ---
+    m_isPanning = true;
+    m_isDraggingCP = false;
+    m_panLastPos = me->pos();
+#endif
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// handleViewportMouseMove — drag CP (Ctrl) or pan chart
+// ---------------------------------------------------------------------------
+bool MainWindow::handleViewportMouseMove(QMouseEvent* me)
+{
+#ifdef HAS_QT_CHARTS
+    if (m_isDraggingCP) {
+        QPointF newPos = m_chart->mapToValue(me->pos());
+        QVector<QPointF> pts = m_selectedObject->controlPoints();
+        if (m_dragCPIndex >= 0 && m_dragCPIndex < pts.size()) {
+            pts[m_dragCPIndex] = newPos;
+            m_selectedObject->setControlPoints(pts);
+            refreshChart(); // real-time update
+        }
+        return true;
+    }
+
+    if (m_isPanning) {
+        QPoint vpNow = me->pos();
+        QPoint vpPrev = m_panLastPos;
+        QPoint cvNow  = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vpNow));
+        QPoint cvPrev = m_chartView->mapFromGlobal(m_chartView->viewport()->mapToGlobal(vpPrev));
+        QPointF sceneNow  = m_chartView->mapToScene(cvNow);
+        QPointF scenePrev = m_chartView->mapToScene(cvPrev);
+        QPointF delta = sceneNow - scenePrev;
+        m_chart->scroll(-delta.x(), delta.y());
+        m_panLastPos = vpNow;
+        return true;
+    }
+#endif
+    return false;
+}
+
+// ---------------------------------------------------------------------------
+// handleViewportMouseRelease — finish CP drag, or finish pan + select object
+// ---------------------------------------------------------------------------
+bool MainWindow::handleViewportMouseRelease(QMouseEvent* me)
+{
+#ifdef HAS_QT_CHARTS
+    if (me->button() != Qt::LeftButton) return false;
+
+    // --- Finish Ctrl+CP drag ---
+    if (m_isDraggingCP && m_selectedObject) {
+        QVector<QPointF> newPts = m_selectedObject->controlPoints();
+        if (m_cmdHistory) {
+            auto cmd = std::make_unique<ModifyControlPointsCommand>(
+                m_selectedObject, m_dragCPOldPoints, newPts);
+            m_cmdHistory->push(std::move(cmd), m_currentProject);
+        }
+        m_isDraggingCP = false;
+        m_dragCPIndex = -1;
+        setModified(true);
+        recalculateAll();
+        refreshChart();
+        updateStatusBar();
+        return true;
+    }
+
+    // --- Finish pan + click-select ---
+    m_isPanning = false;
+    m_isDraggingCP = false;
+
+    QPointF chartPos = m_chart->mapToValue(me->pos());
+    onChartClicked(chartPos);
+    performChartClickSelect(chartPos);
+#endif
+    return true;
+}
+
+// ---------------------------------------------------------------------------
+// snapDistance — compute a distance in chart data units as a percentage
+// of the smaller visible axis range.  E.g. 0.05 = 5% snap tolerance.
+// ---------------------------------------------------------------------------
+double MainWindow::snapDistance(double percent) const
+{
+#ifdef HAS_QT_CHARTS
+    if (!m_chart) return 10.0;
+    QValueAxis* ax = nullptr;
+    QValueAxis* ay = nullptr;
+    for (auto* axis : m_chart->axes()) {
+        if (axis->orientation() == Qt::Horizontal)
+            ax = qobject_cast<QValueAxis*>(axis);
+        else if (axis->orientation() == Qt::Vertical)
+            ay = qobject_cast<QValueAxis*>(axis);
+    }
+    if (ax && ay) {
+        double d = qMin(ax->max() - ax->min(), ay->max() - ay->min()) * percent;
+        if (d < 0.1) d = 0.1;
+        return d;
+    }
+#endif
+    return 10.0;
+}
+
+// ---------------------------------------------------------------------------
+void MainWindow::performChartClickSelect(const QPointF& chartPos)
+{
+#ifdef HAS_QT_CHARTS
+    if (!m_chart || !m_treeModel) return;
+
+    double snapDist = snapDistance(0.05);
+
+    struct Candidate { CustomObject* obj = nullptr; double dist = 1e18; };
+    Candidate nearest, secondNearest;
+
+    for (auto* ser : m_chart->series()) {
+        if (ser->name().isEmpty()) continue;
+        QVariant prop = ser->property("customObject");
+        if (!prop.isValid()) continue;
+        CustomObject* obj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+        if (!obj) continue;
+
+        auto checkPoint = [&](const QPointF& pt) {
+            double dx = pt.x() - chartPos.x();
+            double dy = pt.y() - chartPos.y();
+            double dist = qSqrt(dx * dx + dy * dy);
+            if (dist < nearest.dist) {
+                secondNearest = nearest;
+                nearest = {obj, dist};
+            } else if (dist < secondNearest.dist && obj != nearest.obj) {
+                secondNearest = {obj, dist};
+            }
+        };
+
+        if (auto* ls = qobject_cast<QLineSeries*>(ser)) {
+            for (int i = 0; i < ls->count(); ++i) checkPoint(ls->at(i));
+        } else if (auto* ss = qobject_cast<QScatterSeries*>(ser)) {
+            for (int i = 0; i < ss->count(); ++i) checkPoint(ss->at(i));
+        }
+    }
+
+    // If nearest is already selected, pick the second nearest (if in range)
+    CustomObject* clickedObj = nullptr;
+    if (nearest.obj) {
+        if (nearest.obj == m_selectedObject && secondNearest.obj
+            && secondNearest.dist <= snapDist) {
+            clickedObj = secondNearest.obj;
+        } else if (nearest.dist <= snapDist) {
+            clickedObj = nearest.obj;
+        }
+    }
+
+    if (clickedObj) {
+        QModelIndex idx = m_treeModel->createIndexByObject(clickedObj);
+        if (idx.isValid()) {
+            m_objectTree->selectionModel()->setCurrentIndex(
+                idx, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        }
+    }
+#endif
 }
 
 void MainWindow::onNewProject()

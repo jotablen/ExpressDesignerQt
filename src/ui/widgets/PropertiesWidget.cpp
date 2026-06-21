@@ -12,6 +12,7 @@
 #include <core/LineObject.h>
 #include <core/CurveObject.h>
 #include <core/PropagateWFOperation.h>
+#include <ui/dialogs/CurvePointsDialog.h>
 
 namespace ExpressDesigner {
 
@@ -163,6 +164,36 @@ void PropertiesWidget::setupCurveTab() {
     m_cvDelBtn = new QPushButton(QStringLiteral("&Delete"), tab); m_cvDelBtn->setVisible(false);
     br->addWidget(m_cvAddBtn); br->addWidget(m_cvDelBtn); br->addStretch(); l->addLayout(br);
     m_cvEditCurveBtn = new QPushButton(QStringLiteral("Edit cur&ve"), tab); l->addWidget(m_cvEditCurveBtn);
+    connect(m_cvEditCurveBtn, &QPushButton::clicked, this, [this]() {
+        if (!m_currentObject) return;
+        CurvePointsDialog dlg(this);
+        dlg.setReadOnly(false);
+        // Load current points into the dialog grid
+        QTableWidget* dlgGrid = dlg.grid();
+        dlgGrid->setRowCount(0);
+        for (const auto& pt : m_currentObject->controlPoints()) {
+            int r = dlgGrid->rowCount();
+            dlgGrid->insertRow(r);
+            dlgGrid->setItem(r, 0, new QTableWidgetItem(QString::number(pt.x(), 'f', 6)));
+            dlgGrid->setItem(r, 1, new QTableWidgetItem(QString::number(pt.y(), 'f', 6)));
+        }
+        if (dlg.exec() == QDialog::Accepted) {
+            // Write back to the curve grid (PropertiesWidget table)
+            m_cvGrid->setRowCount(0);
+            for (int r = 0; r < dlgGrid->rowCount(); ++r) {
+                auto* xi = dlgGrid->item(r, 0);
+                auto* yi = dlgGrid->item(r, 1);
+                if (xi && yi) {
+                    int nr = m_cvGrid->rowCount();
+                    m_cvGrid->insertRow(nr);
+                    m_cvGrid->setItem(nr, 0, new QTableWidgetItem(xi->text()));
+                    m_cvGrid->setItem(nr, 1, new QTableWidgetItem(yi->text()));
+                }
+            }
+            // Apply changes via onSaveCurve (which reads from m_cvGrid)
+            onSaveCurve();
+        }
+    });
     m_cvFlipNCheck = new QCheckBox(QStringLiteral("Flip normals"), tab); l->addWidget(m_cvFlipNCheck);
     auto* br2 = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
     auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br2->addStretch(); br2->addWidget(rb); br2->addWidget(sb); l->addLayout(br2); l->addStretch();

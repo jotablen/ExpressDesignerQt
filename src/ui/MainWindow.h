@@ -153,9 +153,24 @@ private:
     bool m_isPanning = false;
     QPoint m_panLastPos;
 
+    // Control-point drag state (Ctrl + drag)
+    bool m_isDraggingCP = false;
+    int m_dragCPIndex = -1;
+    QVector<QPointF> m_dragCPOldPoints; // snapshot before drag starts
+
 
     // Chart helpers
     void maintainChartAspectRatio();
+
+    // Chart viewport event handlers (extracted from eventFilter)
+    bool handleViewportWheel(QWheelEvent* we);
+    bool handleViewportMousePress(QMouseEvent* me);
+    bool handleViewportMouseMove(QMouseEvent* me);
+    bool handleViewportMouseRelease(QMouseEvent* me);
+    // Click-select: find nearest/second-nearest object and select in tree
+    void performChartClickSelect(const QPointF& chartPos);
+    // Compute snap distance as a percentage of the visible chart range
+    double snapDistance(double percent) const;
 
     QString m_currentFilePath;
 };

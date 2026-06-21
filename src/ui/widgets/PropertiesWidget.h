@@ -69,7 +69,6 @@ private:
     CustomObject* m_currentObject = nullptr;
     CustomOperation* m_currentOperation = nullptr;
     Project* m_currentProject = nullptr;
-    CommandHistory* m_cmdHistory = nullptr;
 
     // Project tab widgets
     QLineEdit* m_prjNameEdit = nullptr;
