@@ -25,6 +25,28 @@ PropertiesWidget::PropertiesWidget(QWidget* parent) : QWidget(parent)
     setupObjectsTab(); setupCalcOvalTab(); setupPropagateTab();
     auto* layout = new QVBoxLayout(this); layout->setContentsMargins(0, 0, 0, 0); layout->addWidget(m_tabs);
     m_tabs->setCurrentIndex(0);
+
+    // Dynamic default button: set active tab's Save as default on tab change
+    connect(m_tabs, &QTabWidget::currentChanged, this, [this](int index) {
+        // Walk all tab pages, find their Save buttons, and update default state
+        for (int i = 0; i < m_tabs->count(); ++i) {
+            QWidget* page = m_tabs->widget(i);
+            if (!page) continue;
+            QList<QPushButton*> buttons = page->findChildren<QPushButton*>();
+            for (auto* btn : buttons) {
+                if (btn->text() == QStringLiteral("Save"))
+                    btn->setDefault(i == index);
+            }
+        }
+    });
+    // Set initial default for the project tab (index 0)
+    QWidget* initPage = m_tabs->widget(0);
+    if (initPage) {
+        QList<QPushButton*> buttons = initPage->findChildren<QPushButton*>();
+        for (auto* btn : buttons) {
+            if (btn->text() == QStringLiteral("Save")) btn->setDefault(true);
+        }
+    }
 }
 
 void PropertiesWidget::setupProjectTab() {
@@ -177,7 +199,7 @@ void PropertiesWidget::setupCalcOvalTab() {
     auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
     auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("CalcOval"));
-    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::calculateOvalRequested);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSaveCalcOval);
     connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestoreCalcOval);
 }
 
@@ -196,7 +218,7 @@ void PropertiesWidget::setupPropagateTab() {
     auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
     auto* rb = new QPushButton(QStringLiteral("Restore"), tab); br->addStretch(); br->addWidget(rb); br->addWidget(sb); l->addLayout(br); l->addStretch();
     m_tabs->addTab(tab, QStringLiteral("Propagate"));
-    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::propagateWFRequested);
+    connect(sb, &QPushButton::clicked, this, &PropertiesWidget::onSavePropagate);
     connect(rb, &QPushButton::clicked, this, &PropertiesWidget::onRestorePropagate);
 }
 
@@ -205,6 +227,7 @@ void PropertiesWidget::setObject(CustomObject* obj) { m_currentObject = obj; sho
 void PropertiesWidget::setOperation(CustomOperation* op)
 {
     m_currentObject = nullptr;
+    m_currentOperation = op;
     if (!op) { m_tabs->setCurrentIndex(0); return; }
     switch (op->operationType()) {
     case OperationType::CartesianOval:
@@ -389,81 +412,36 @@ void PropertiesWidget::onRestoreCurve() { if (m_currentObject) showObjectTabs(m_
 
 void PropertiesWidget::onSaveCalcOval()
 {
-    // Find the currently displayed operation and update its parameters
-    if (!m_currentProject) return;
-    const auto& ops = m_currentProject->operations();
-    CustomOperation* currentOp = nullptr;
-    for (auto* op : ops) {
-        if (op && op->operationType() == OperationType::CartesianOval) {
-            // Match by what's currently displayed
-            if (op->name() == m_cOvalNameEdit->text() || m_cOvalNameEdit->text().isEmpty() || ops.size() == 1) {
-                currentOp = op;
-                break;
-            }
-        }
-    }
-    if (currentOp) {
-        // Update modifiable (non-object-reference) parameters from UI
-        currentOp->setName(m_cOvalNameEdit->text());
-        currentOp->setAmountOfPoints(m_cOvalQtyPtsEdit->text().toInt());
-        currentOp->setParamName(0, m_cOvalWF1Edit->text());
-        currentOp->setParamName(1, m_cOvalWF2Edit->text());
-        currentOp->setParamName(2, m_cOvalRefEdit->text());
-        emit operationModified(currentOp);
-    } else {
-        emit calculateOvalRequested();
-    }
+    if (!m_currentOperation) return;
+    // Update modifiable (non-object-reference) parameters from UI
+    m_currentOperation->setName(m_cOvalNameEdit->text());
+    m_currentOperation->setAmountOfPoints(m_cOvalQtyPtsEdit->text().toInt());
+    m_currentOperation->setParamName(0, m_cOvalWF1Edit->text());
+    m_currentOperation->setParamName(1, m_cOvalWF2Edit->text());
+    m_currentOperation->setParamName(2, m_cOvalRefEdit->text());
+    emit operationModified(m_currentOperation);
 }
 void PropertiesWidget::onRestoreCalcOval()
 {
-    // Reload from project
-    if (m_currentProject) {
-        const auto& ops = m_currentProject->operations();
-        for (auto* op : ops) {
-            if (op && op->operationType() == OperationType::CartesianOval) {
-                setOperation(op);
-                return;
-            }
-        }
-    }
+    if (m_currentOperation && m_currentOperation->operationType() == OperationType::CartesianOval)
+        setOperation(m_currentOperation);
 }
 void PropertiesWidget::onSavePropagate()
 {
-    if (!m_currentProject) return;
-    const auto& ops = m_currentProject->operations();
-    CustomOperation* currentOp = nullptr;
-    for (auto* op : ops) {
-        if (op && op->operationType() == OperationType::PropagateWF) {
-            if (op->name() == m_propgNameEdit->text() || m_propgNameEdit->text().isEmpty() || ops.size() == 1) {
-                currentOp = op;
-                break;
-            }
-        }
-    }
-    if (currentOp) {
-        currentOp->setName(m_propgNameEdit->text());
-        currentOp->setAmountOfPoints(m_propgQtyPtsEdit->text().toInt());
-        currentOp->setParamName(0, m_propgWFEdit->text());
-        currentOp->setParamName(1, m_propgSurfEdit->text());
-        currentOp->setParamName(2, m_propgIOREdit->text());
-        if (auto* pop = dynamic_cast<PropagateWFOperation*>(currentOp))
-            pop->setOffset(m_propgOffsetEdit->text().toDouble());
-        emit operationModified(currentOp);
-    } else {
-        emit propagateWFRequested();
-    }
+    if (!m_currentOperation) return;
+    m_currentOperation->setName(m_propgNameEdit->text());
+    m_currentOperation->setAmountOfPoints(m_propgQtyPtsEdit->text().toInt());
+    m_currentOperation->setParamName(0, m_propgWFEdit->text());
+    m_currentOperation->setParamName(1, m_propgSurfEdit->text());
+    m_currentOperation->setParamName(2, m_propgIOREdit->text());
+    if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_currentOperation))
+        pop->setOffset(m_propgOffsetEdit->text().toDouble());
+    emit operationModified(m_currentOperation);
 }
 void PropertiesWidget::onRestorePropagate()
 {
-    if (m_currentProject) {
-        const auto& ops = m_currentProject->operations();
-        for (auto* op : ops) {
-            if (op && op->operationType() == OperationType::PropagateWF) {
-                setOperation(op);
-                return;
-            }
-        }
-    }
+    if (m_currentOperation && m_currentOperation->operationType() == OperationType::PropagateWF)
+        setOperation(m_currentOperation);
 }
 
 } // namespace ExpressDesigner
