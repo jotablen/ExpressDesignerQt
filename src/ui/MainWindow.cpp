@@ -14,6 +14,7 @@
 #include <ui/widgets/PropertiesWidget.h>
 #include <ui/dialogs/AboutDialog.h>
 #include <ui/dialogs/ExportAllRhinoDialog.h>
+#include <ui/dialogs/ExportCADDialog.h>
 #include <ui/dialogs/ImportObjectDialog.h>
 #include <ui/dialogs/ProjectHistoryDialog.h>
 #include <ui/dialogs/PreferencesDialog.h>
@@ -110,6 +111,7 @@ void MainWindow::setupMenuBar()
     fileMenu->addSeparator();
     fileMenu->addAction(tr("&Import Object..."), this, &MainWindow::onImportObject);
     fileMenu->addAction(tr("&Export Object..."), this, &MainWindow::onExportObject);
+    fileMenu->addAction(tr("Export &CAD (Step/IGES)..."), this, &MainWindow::onExportCAD);
     fileMenu->addAction(tr("Export All to &Rhino..."), this, &MainWindow::onExportAllRhino);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
@@ -792,6 +794,30 @@ void MainWindow::onExportObject()
         obj->name() + QStringLiteral(".txt"), tr("TXT Files (*.txt)"));
     if (filePath.isEmpty()) return;
     TXTExporter::exportToFile(obj, filePath);
+}
+
+void MainWindow::onExportCAD()
+{
+    QModelIndex idx = m_objectTree->currentIndex();
+    if (!idx.isValid() || !m_currentProject) return;
+    CustomObject* obj = m_treeModel->objectAt(idx);
+    if (!obj) return;
+
+    ExportCADDialog dlg(this);
+    dlg.setProject(m_currentProject);
+    if (dlg.exec() == QDialog::Accepted) {
+        QString filePath = dlg.fileName();
+        bool wiresOnly = dlg.wiresOnly();
+        bool rotational = dlg.rotationalEnabled();
+        bool linear = dlg.linearEnabled();
+
+        // TODO: Integrate OpenCascade / CadKit exporter here
+        // For now, log the parameters
+        Q_UNUSED(filePath);
+        Q_UNUSED(wiresOnly);
+        Q_UNUSED(rotational);
+        Q_UNUSED(linear);
+    }
 }
 
 void MainWindow::onExportAllRhino() {}

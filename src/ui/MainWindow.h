@@ -55,6 +55,7 @@ private slots:
     void onEditObject();
     void onImportObject();
     void onExportObject();
+    void onExportCAD();
     void onExportAllRhino();
 
     // Calculation actions

@@ -57,6 +57,7 @@ set(UI_SOURCES
     ui/dialogs/TranslateObjectDialog.cpp
     ui/dialogs/DependencyGraphDialog.cpp
     ui/dialogs/CopyObjectDialog.cpp
+    ui/dialogs/ExportCADDialog.cpp
     ui/widgets/ObjectTreeWidget.cpp
     ui/widgets/PropertiesWidget.cpp
     ui/widgets/ChartWidget.cpp
