@@ -38,6 +38,7 @@
 #include <QWheelEvent>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QSplineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 #endif
@@ -426,7 +427,30 @@ bool MainWindow::handleViewportMouseMove(QMouseEvent* me)
         if (m_dragCPIndex >= 0 && m_dragCPIndex < pts.size()) {
             pts[m_dragCPIndex] = newPos;
             m_selectedObject->setControlPoints(pts);
-            refreshChart(); // real-time update
+
+            // Update the chart series in-place (no full rebuild) to avoid flicker
+            const auto seriesList = m_chart->series();
+            for (auto* ser : seriesList) {
+                QVariant prop = ser->property("customObject");
+                if (!prop.isValid()) continue;
+                CustomObject* serObj = reinterpret_cast<CustomObject*>(prop.value<quintptr>());
+                if (serObj != m_selectedObject) continue;
+
+                if (auto* ls = qobject_cast<QLineSeries*>(ser)) {
+                    if (m_dragCPIndex < ls->count())
+                        ls->replace(m_dragCPIndex, newPos.x(), newPos.y());
+                } else if (auto* spl = qobject_cast<QSplineSeries*>(ser)) {
+                    if (m_dragCPIndex < spl->count())
+                        spl->replace(m_dragCPIndex, newPos.x(), newPos.y());
+                } else if (auto* ss = qobject_cast<QScatterSeries*>(ser)) {
+                    if (m_dragCPIndex < ss->count())
+                        ss->replace(m_dragCPIndex, newPos.x(), newPos.y());
+                }
+            }
+
+            // Update PropertiesWidget grid if Curve tab is visible
+            if (m_propertiesWidget)
+                m_propertiesWidget->refreshGridFromObject(m_selectedObject);
         }
         return true;
     }
@@ -540,6 +564,8 @@ void MainWindow::performChartClickSelect(const QPointF& chartPos)
 
         if (auto* ls = qobject_cast<QLineSeries*>(ser)) {
             for (int i = 0; i < ls->count(); ++i) checkPoint(ls->at(i));
+        } else if (auto* spl = qobject_cast<QSplineSeries*>(ser)) {
+            for (int i = 0; i < spl->count(); ++i) checkPoint(spl->at(i));
         } else if (auto* ss = qobject_cast<QScatterSeries*>(ser)) {
             for (int i = 0; i < ss->count(); ++i) checkPoint(ss->at(i));
         }

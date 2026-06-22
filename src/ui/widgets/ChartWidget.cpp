@@ -1,6 +1,7 @@
 #include "ChartWidget.h"
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
+#include <QtCharts/QSplineSeries>
 #include <QtCharts/QScatterSeries>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QLegendMarker>
@@ -23,7 +24,6 @@ QColor ChartWidget::objectColor(CustomObject* obj)
 {
     if (!obj) return QColor(128, 128, 128);
 
-    // Key: pair<baseType, isWavefront>
     static const std::map<std::pair<uint16_t, bool>, QColor> colorMap = {
         {{0x001, true},  QColor(220, 50, 50)},   // Point WF - Red
         {{0x001, false}, QColor(50, 50, 220)},    // Point - Blue
@@ -45,147 +45,169 @@ QColor ChartWidget::objectColor(CustomObject* obj)
     return QColor(100, 100, 100);
 }
 
+// ============================================================================
+// populateChart — main entry point
+// ============================================================================
 void ChartWidget::populateChart(QChart* chart, Project* project,
                                  bool showControlPoints, bool showNormals,
                                  CustomObject* selectedObject, bool alignLegendRight)
 {
     if (!chart || !project) return;
-    chart->removeAllSeries();
 
+    // Suspend signal emissions while rebuilding (avoids redundant chart updates)
+    chart->blockSignals(true);
+
+    chart->removeAllSeries();
     // Remove all axes too (removeAllSeries keeps existing axes)
     const auto axes = chart->axes();
     for (auto* axis : axes)
         chart->removeAxis(axis);
 
-    if (alignLegendRight) {
+    if (alignLegendRight)
         chart->legend()->setAlignment(Qt::AlignRight);
+
+    Bounds bounds;
+    bool addedAny = false;
+
+    // --- Step 1: Add object curves (data + result) ---
+    for (auto* obj : project->dataObjects())
+        if (addObjectSeries(chart, obj, selectedObject, showControlPoints, bounds))
+            addedAny = true;
+    for (auto* obj : project->resultObjects())
+        if (addObjectSeries(chart, obj, selectedObject, showControlPoints, bounds))
+            addedAny = true;
+
+    // --- Step 2: Draw normal arrows ---
+    if (showNormals)
+        addNormalArrows(chart, project, selectedObject, bounds);
+
+    // --- Step 3: Create axes and attach all series ---
+    if (addedAny)
+        setupAxes(chart, bounds);
+
+    // Re-enable signal emissions
+    chart->blockSignals(false);
+}
+
+// ============================================================================
+// addObjectSeries — add spline/scatter for a single object, returns true if
+// any points were added
+// ============================================================================
+bool ChartWidget::addObjectSeries(QChart* chart, CustomObject* obj,
+                                   CustomObject* selectedObject,
+                                   bool showControlPoints, Bounds& bnd)
+{
+    if (!obj || !obj->isVisible()) return false;
+    const auto& pts = obj->controlPoints();
+    if (pts.isEmpty()) return false;
+
+    bool pointObj = (toBaseType(obj->objectType()) == 0x001);
+    bool isSelected = (obj == selectedObject);
+    QColor color = isSelected ? QColor(255, 215, 0) : objectColor(obj);
+    QString name = obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name();
+
+    if (pointObj) {
+        // --- Single-point object: scatter marker ---
+        auto* scatter = new QScatterSeries();
+        scatter->setName(name);
+        scatter->setColor(color);
+        scatter->setBorderColor(color.darker(130));
+        scatter->setMarkerSize(isSelected ? 14 : 10);
+        scatter->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+        for (const auto& p : pts) {
+            scatter->append(p.x(), p.y());
+            bnd.minX = qMin(bnd.minX, p.x()); bnd.maxX = qMax(bnd.maxX, p.x());
+            bnd.minY = qMin(bnd.minY, p.y()); bnd.maxY = qMax(bnd.maxY, p.y());
+        }
+        chart->addSeries(scatter);
+        return true;
     }
 
-    bool addedAny = false;
-    double minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+    // --- Multi-point object: spline series ---
+    auto* series = new QSplineSeries();
+    series->setName(name);
+    series->setPen(QPen(color, isSelected ? 3 : 2));
+    series->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+    for (const auto& p : pts) {
+        series->append(p.x(), p.y());
+        bnd.minX = qMin(bnd.minX, p.x()); bnd.maxX = qMax(bnd.maxX, p.x());
+        bnd.minY = qMin(bnd.minY, p.y()); bnd.maxY = qMax(bnd.maxY, p.y());
+    }
+    chart->addSeries(series);
 
-    // Helper: get the effective pen color for an object
+    // --- Control-point scatter (hidden from legend) ---
+    if (showControlPoints && pts.size() > 1) {
+        auto* scatter = new QScatterSeries();
+        scatter->setColor(color);
+        scatter->setBorderColor(color.darker(130));
+        scatter->setMarkerSize(isSelected ? 8 : 6);
+        for (const auto& p : pts)
+            scatter->append(p.x(), p.y());
+        chart->addSeries(scatter);
+        // Hide from legend
+        auto markers = chart->legend()->markers(scatter);
+        for (auto* marker : markers)
+            marker->setVisible(false);
+    }
+    return true;
+}
+
+// ============================================================================
+// addNormalArrows — draw normal vectors for all objects
+// ============================================================================
+void ChartWidget::addNormalArrows(QChart* chart, Project* project,
+                                   CustomObject* selectedObject, Bounds& bnd)
+{
     auto effectivePen = [selectedObject](CustomObject* obj) -> QColor {
-        if (obj == selectedObject) return QColor(255, 215, 0);  // Gold/Yellow
+        if (obj == selectedObject) return QColor(255, 215, 0);
         return objectColor(obj);
     };
 
-    // Check if object is a PointObject (single-point object)
-    auto isPointObj = [](CustomObject* obj) -> bool {
-        return toBaseType(obj->objectType()) == 0x001;
-    };
-
-    auto addCurve = [&](CustomObject* obj) {
-        if (!obj || !obj->isVisible()) return;
-        const auto& pts = obj->controlPoints();
-        if (pts.isEmpty()) return;
-
+    for (auto* obj : project->allObjects()) {
+        if (!obj || !obj->isVisible()) continue;
+        auto normals = obj->computeNormals();
         QColor color = effectivePen(obj);
-        bool isSelected = (obj == selectedObject);
-        int penWidth = isSelected ? 3 : 2;
-
-        bool pointObj = isPointObj(obj);
-
-        if (pointObj) {
-            // Single-point object: render as a large scatter marker
-            auto* scatter = new QScatterSeries();
-            scatter->setName(obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name());
-            scatter->setColor(color);
-            scatter->setBorderColor(color.darker(130));
-            scatter->setMarkerSize(isSelected ? 14 : 10);
-            // Store pointer to CustomObject for hit-testing on click
-            scatter->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
-            for (const auto& p : pts) {
-                scatter->append(p.x(), p.y());
-                minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
-                minY = qMin(minY, p.y()); maxY = qMax(maxY, p.y());
-            }
-            chart->addSeries(scatter);
-            addedAny = true;
-        } else {
-            // Multi-point object: line series + optional scatter for control points
-            // Main curve series (shown in legend)
-            auto* series = new QLineSeries();
-            series->setName(obj->name().isEmpty() ? QStringLiteral("Unnamed") : obj->name());
-            series->setPen(QPen(color, penWidth));
-            // Store pointer to CustomObject for hit-testing on click
-            series->setProperty("customObject", QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
-            for (const auto& p : pts) {
-                series->append(p.x(), p.y());
-                minX = qMin(minX, p.x()); maxX = qMax(maxX, p.x());
-                minY = qMin(minY, p.y()); maxY = qMax(maxY, p.y());
-            }
-            chart->addSeries(series);
-            addedAny = true;
-
-            // Control points as scatter (hidden from legend)
-            if (showControlPoints && pts.size() > 1) {
-                auto* scatter = new QScatterSeries();
-                scatter->setColor(color);
-                scatter->setBorderColor(color.darker(130));
-                scatter->setMarkerSize(isSelected ? 8 : 6);
-                for (const auto& p : pts)
-                    scatter->append(p.x(), p.y());
-                chart->addSeries(scatter);
-                // Hide from legend via marker
-                auto markers = chart->legend()->markers(scatter);
-                for (auto* marker : markers)
-                    marker->setVisible(false);
-            }
-        }
-    };
-
-    for (auto* obj : project->dataObjects())
-        addCurve(obj);
-    for (auto* obj : project->resultObjects())
-        addCurve(obj);
-
-    // --- Draw normals if enabled ---
-    if (showNormals) {
-        for (auto* obj : project->allObjects()) {
-            if (!obj || !obj->isVisible()) continue;
-            auto normals = obj->computeNormals();
-            QColor color = effectivePen(obj);
-            for (const auto& pair : normals) {
-                auto* arrow = new QLineSeries();
-                arrow->setPen(QPen(color, 1));
-                arrow->append(pair.first.x(), pair.first.y());
-                arrow->append(pair.second.x(), pair.second.y());
-                chart->addSeries(arrow);
-                // Hide from legend via marker
-                auto markers = chart->legend()->markers(arrow);
-                for (auto* marker : markers)
-                    marker->setVisible(false);
-                addedAny = true;
-                minX = qMin(minX, qMin(pair.first.x(), pair.second.x()));
-                maxX = qMax(maxX, qMax(pair.first.x(), pair.second.x()));
-                minY = qMin(minY, qMin(pair.first.y(), pair.second.y()));
-                maxY = qMax(maxY, qMax(pair.first.y(), pair.second.y()));
-            }
+        for (const auto& pair : normals) {
+            auto* arrow = new QLineSeries();
+            arrow->setPen(QPen(color, 1));
+            arrow->append(pair.first.x(), pair.first.y());
+            arrow->append(pair.second.x(), pair.second.y());
+            chart->addSeries(arrow);
+            // Hide from legend
+            auto markers = chart->legend()->markers(arrow);
+            for (auto* marker : markers)
+                marker->setVisible(false);
+            bnd.minX = qMin(bnd.minX, qMin(pair.first.x(), pair.second.x()));
+            bnd.maxX = qMax(bnd.maxX, qMax(pair.first.x(), pair.second.x()));
+            bnd.minY = qMin(bnd.minY, qMin(pair.first.y(), pair.second.y()));
+            bnd.maxY = qMax(bnd.maxY, qMax(pair.first.y(), pair.second.y()));
         }
     }
+}
 
-    if (addedAny) {
-        // Add slight padding
-        double dx = (maxX - minX) * 0.1;
-        double dy = (maxY - minY) * 0.1;
-        if (qFuzzyCompare(dx, 0.0)) dx = 1.0;
-        if (qFuzzyCompare(dy, 0.0)) dy = 1.0;
+// ============================================================================
+// setupAxes — create value axes with padding and attach all series
+// ============================================================================
+void ChartWidget::setupAxes(QChart* chart, const Bounds& bnd)
+{
+    double dx = (bnd.maxX - bnd.minX) * 0.1;
+    double dy = (bnd.maxY - bnd.minY) * 0.1;
+    if (qFuzzyCompare(dx, 0.0)) dx = 1.0;
+    if (qFuzzyCompare(dy, 0.0)) dy = 1.0;
 
-        auto* axisX = new QValueAxis();
-        axisX->setRange(minX - dx, maxX + dx);
-        axisX->setLabelFormat(QStringLiteral("%.1f"));
-        chart->addAxis(axisX, Qt::AlignBottom);
+    auto* axisX = new QValueAxis();
+    axisX->setRange(bnd.minX - dx, bnd.maxX + dx);
+    axisX->setLabelFormat(QStringLiteral("%.1f"));
+    chart->addAxis(axisX, Qt::AlignBottom);
 
-        auto* axisY = new QValueAxis();
-        axisY->setRange(minY - dy, maxY + dy);
-        axisY->setLabelFormat(QStringLiteral("%.1f"));
-        chart->addAxis(axisY, Qt::AlignLeft);
+    auto* axisY = new QValueAxis();
+    axisY->setRange(bnd.minY - dy, bnd.maxY + dy);
+    axisY->setLabelFormat(QStringLiteral("%.1f"));
+    chart->addAxis(axisY, Qt::AlignLeft);
 
-        for (auto* series : chart->series()) {
-            series->attachAxis(axisX);
-            series->attachAxis(axisY);
-        }
+    for (auto* series : chart->series()) {
+        series->attachAxis(axisX);
+        series->attachAxis(axisY);
     }
 }
 

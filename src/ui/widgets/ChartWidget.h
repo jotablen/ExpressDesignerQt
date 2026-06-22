@@ -17,6 +17,16 @@ public:
     static void populateChart(QChart* chart, Project* project,
                               bool showControlPoints, bool showNormals,
                               CustomObject* selectedObject = nullptr, bool alignLegendRight = true);
+
+private:
+    // Internal helpers — each adds series/axes to chart, updates bounding rect
+    struct Bounds { double minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9; };
+    static bool addObjectSeries(QChart* chart, CustomObject* obj,
+                                 CustomObject* selectedObject,
+                                 bool showControlPoints, Bounds& bounds);
+    static void addNormalArrows(QChart* chart, Project* project,
+                                 CustomObject* selectedObject, Bounds& bounds);
+    static void setupAxes(QChart* chart, const Bounds& bounds);
 #else
     static void populateChart(void* chart, Project* project,
                               bool showControlPoints, bool showNormals) {}

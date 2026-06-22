@@ -20,6 +20,7 @@ public:
     explicit PropertiesWidget(QWidget* parent = nullptr);
     void setObject(CustomObject* obj);
     void setOperation(CustomOperation* op);
+    void refreshGridFromObject(CustomObject* obj);
     void setProject(Project* project);
     void setCommandHistory(CommandHistory* ch) { m_cmdHistory = ch; }
     void setOperations(Project* project);

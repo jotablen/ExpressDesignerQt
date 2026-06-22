@@ -255,6 +255,20 @@ void PropertiesWidget::setupPropagateTab() {
 
 void PropertiesWidget::setObject(CustomObject* obj) { m_currentObject = obj; showObjectTabs(obj); }
 
+void PropertiesWidget::refreshGridFromObject(CustomObject* obj)
+{
+    if (!obj || !m_cvGrid) return;
+    // Only update if Curve tab is visible and this is the current object
+    if (m_currentObject != obj) return;
+    m_cvGrid->setRowCount(0);
+    for (const auto& pt : obj->controlPoints()) {
+        int r = m_cvGrid->rowCount();
+        m_cvGrid->insertRow(r);
+        m_cvGrid->setItem(r, 0, new QTableWidgetItem(QString::number(pt.x(), 'f', 6)));
+        m_cvGrid->setItem(r, 1, new QTableWidgetItem(QString::number(pt.y(), 'f', 6)));
+    }
+}
+
 void PropertiesWidget::setOperation(CustomOperation* op)
 {
     m_currentObject = nullptr;
