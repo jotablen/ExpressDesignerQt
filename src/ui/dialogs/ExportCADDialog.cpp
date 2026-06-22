@@ -1,7 +1,9 @@
 #include "ExportCADDialog.h"
+#include <core/ObjectTypes.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
+#include <QSplitter>
 #include <QGroupBox>
 #include <QDialogButtonBox>
 #include <QLabel>
@@ -15,39 +17,53 @@ namespace ExpressDesigner {
 ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
 {
     setWindowTitle(QStringLiteral("Export CAD (Step/IGES)"));
-    auto* mainLayout = new QVBoxLayout(this);
+    resize(780, 520);
 
-    // ── Object selection ──
-    auto* objForm = new QFormLayout();
-    m_objectCombo = new QComboBox(this);
-    objForm->addRow(QStringLiteral("Object:"), m_objectCombo);
-    mainLayout->addLayout(objForm);
+    auto* mainLayout = new QHBoxLayout(this);
 
-    // ── Wires-only option ──
+    // ═══════════════════ Left panel — object list ═══════════════════
+    auto* leftPanel = new QVBoxLayout();
+
+    auto* leftLabel = new QLabel(QStringLiteral("Select objects to export:"), this);
+    leftLabel->setStyleSheet(QStringLiteral("font-weight: bold;"));
+    leftPanel->addWidget(leftLabel);
+
+    m_objectList = new QListWidget(this);
+    m_objectList->setSelectionMode(QAbstractItemView::MultiSelection);
+    leftPanel->addWidget(m_objectList, 1);
+
+    m_includeWFsCheck = new QCheckBox(QStringLiteral("Include WFs (wavefronts)"), this);
+    m_includeWFsCheck->setChecked(false);
+    leftPanel->addWidget(m_includeWFsCheck);
+
+    mainLayout->addLayout(leftPanel, 1);
+
+    // ═══════════════════ Right panel — options ═══════════════════
+    auto* rightPanel = new QVBoxLayout();
+
+    // ── Wires only / File ──
     m_wiresOnlyCheck = new QCheckBox(QStringLiteral("Export only wires (no faces / no solids)"), this);
-    mainLayout->addWidget(m_wiresOnlyCheck);
+    rightPanel->addWidget(m_wiresOnlyCheck);
 
-    // ── Separator ──
-    auto* sep1 = new QFrame(this);
-    sep1->setFrameShape(QFrame::HLine);
-    sep1->setFrameShadow(QFrame::Sunken);
-    mainLayout->addWidget(sep1);
+    auto* sep0 = new QFrame(this);
+    sep0->setFrameShape(QFrame::HLine);
+    sep0->setFrameShadow(QFrame::Sunken);
+    rightPanel->addWidget(sep0);
 
-    // ── Rotational extrusion group ──
-    auto* rotGroup = new QGroupBox(QStringLiteral("Rotational extrusion"), this);
+    // ── Rotational extrusion ──
+    auto* rotGroup = new QGroupBox(QStringLiteral("Rotational extrusion"));
     auto* rotLayout = new QVBoxLayout(rotGroup);
-    m_rotationalCheck = new QCheckBox(QStringLiteral("Enable rotational extrusion"), this);
+    m_rotationalCheck = new QCheckBox(QStringLiteral("Enable"));
     rotLayout->addWidget(m_rotationalCheck);
 
     auto* rotForm = new QFormLayout();
-
-    m_rotAxisCombo = new QComboBox(this);
+    m_rotAxisCombo = new QComboBox();
     m_rotAxisCombo->addItems({QStringLiteral("X"), QStringLiteral("Y"), QStringLiteral("Z")});
-    m_rotAxisCombo->setCurrentIndex(1); // Y axis by default
+    m_rotAxisCombo->setCurrentIndex(1);
     m_rotAxisCombo->setEnabled(false);
     rotForm->addRow(QStringLiteral("Axis:"), m_rotAxisCombo);
 
-    m_rotAngleStartSpin = new QDoubleSpinBox(this);
+    m_rotAngleStartSpin = new QDoubleSpinBox();
     m_rotAngleStartSpin->setRange(-360.0, 360.0);
     m_rotAngleStartSpin->setDecimals(2);
     m_rotAngleStartSpin->setValue(0.0);
@@ -55,7 +71,7 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
     m_rotAngleStartSpin->setEnabled(false);
     rotForm->addRow(QStringLiteral("Angle start:"), m_rotAngleStartSpin);
 
-    m_rotAngleEndSpin = new QDoubleSpinBox(this);
+    m_rotAngleEndSpin = new QDoubleSpinBox();
     m_rotAngleEndSpin->setRange(-360.0, 360.0);
     m_rotAngleEndSpin->setDecimals(2);
     m_rotAngleEndSpin->setValue(360.0);
@@ -63,7 +79,7 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
     m_rotAngleEndSpin->setEnabled(false);
     rotForm->addRow(QStringLiteral("Angle end:"), m_rotAngleEndSpin);
 
-    m_rotAngularStepsSpin = new QDoubleSpinBox(this);
+    m_rotAngularStepsSpin = new QDoubleSpinBox();
     m_rotAngularStepsSpin->setRange(1, 3600);
     m_rotAngularStepsSpin->setDecimals(0);
     m_rotAngularStepsSpin->setValue(36);
@@ -71,23 +87,22 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
     rotForm->addRow(QStringLiteral("Angular steps:"), m_rotAngularStepsSpin);
 
     rotLayout->addLayout(rotForm);
-    mainLayout->addWidget(rotGroup);
+    rightPanel->addWidget(rotGroup);
 
-    // ── Linear extrusion group ──
-    auto* linGroup = new QGroupBox(QStringLiteral("Linear extrusion"), this);
+    // ── Linear extrusion ──
+    auto* linGroup = new QGroupBox(QStringLiteral("Linear extrusion"));
     auto* linLayout = new QVBoxLayout(linGroup);
-    m_linearCheck = new QCheckBox(QStringLiteral("Enable linear extrusion"), this);
+    m_linearCheck = new QCheckBox(QStringLiteral("Enable"));
     linLayout->addWidget(m_linearCheck);
 
     auto* linForm = new QFormLayout();
-
-    m_linearDirCombo = new QComboBox(this);
+    m_linearDirCombo = new QComboBox();
     m_linearDirCombo->addItems({QStringLiteral("X"), QStringLiteral("Y"), QStringLiteral("Z")});
-    m_linearDirCombo->setCurrentIndex(2); // Z direction by default
+    m_linearDirCombo->setCurrentIndex(2);
     m_linearDirCombo->setEnabled(false);
     linForm->addRow(QStringLiteral("Direction:"), m_linearDirCombo);
 
-    m_linearWidenessSpin = new QDoubleSpinBox(this);
+    m_linearWidenessSpin = new QDoubleSpinBox();
     m_linearWidenessSpin->setRange(0.0, 10000.0);
     m_linearWidenessSpin->setDecimals(3);
     m_linearWidenessSpin->setValue(1.0);
@@ -96,56 +111,127 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
     linForm->addRow(QStringLiteral("Wideness:"), m_linearWidenessSpin);
 
     linLayout->addLayout(linForm);
-    mainLayout->addWidget(linGroup);
+    rightPanel->addWidget(linGroup);
 
     // ── File path ──
-    auto* sep2 = new QFrame(this);
-    sep2->setFrameShape(QFrame::HLine);
-    sep2->setFrameShadow(QFrame::Sunken);
-    mainLayout->addWidget(sep2);
+    auto* sep1 = new QFrame(this);
+    sep1->setFrameShape(QFrame::HLine);
+    sep1->setFrameShadow(QFrame::Sunken);
+    rightPanel->addWidget(sep1);
 
     auto* fileRow = new QHBoxLayout();
     m_fileNameEdit = new QLineEdit(this);
     m_fileNameEdit->setPlaceholderText(QStringLiteral("Select output file..."));
     fileRow->addWidget(new QLabel(QStringLiteral("File:"), this));
     fileRow->addWidget(m_fileNameEdit);
-    auto* browseBtn = new QPushButton(QStringLiteral("Browse..."), this);
+    auto* browseBtn = new QPushButton(QStringLiteral("Browse..."));
     browseBtn->setFixedWidth(80);
     fileRow->addWidget(browseBtn);
-    mainLayout->addLayout(fileRow);
+    rightPanel->addLayout(fileRow);
 
-    // ── OK / Cancel ──
-    auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
-    mainLayout->addWidget(buttons);
+    rightPanel->addStretch();
+
+    // ── Export button ──
+    m_exportButton = new QPushButton(QStringLiteral("Export"), this);
+    m_exportButton->setEnabled(false);
+    m_exportButton->setStyleSheet(QStringLiteral("QPushButton { font-weight: bold; padding: 8px 24px; }"));
+    rightPanel->addWidget(m_exportButton);
+
+    mainLayout->addLayout(rightPanel, 1);
 
     // ── Connections ──
-    connect(browseBtn, &QPushButton::clicked, this, &ExportCADDialog::onBrowse);
+    connect(m_objectList, &QListWidget::itemSelectionChanged, this, &ExportCADDialog::onSelectionChanged);
+    connect(m_includeWFsCheck, &QCheckBox::toggled, this, &ExportCADDialog::onIncludeWFsToggled);
     connect(m_rotationalCheck, &QCheckBox::toggled, this, &ExportCADDialog::onRotationalToggled);
     connect(m_linearCheck, &QCheckBox::toggled, this, &ExportCADDialog::onLinearToggled);
-    connect(buttons, &QDialogButtonBox::accepted, this, [this]() {
+    connect(browseBtn, &QPushButton::clicked, this, &ExportCADDialog::onBrowse);
+    connect(m_exportButton, &QPushButton::clicked, this, [this]() {
         if (m_fileNameEdit->text().trimmed().isEmpty()) {
             QMessageBox::warning(this, tr("No file"), tr("Please choose an output file."));
             return;
         }
+        if (selectedObjectNames().isEmpty()) {
+            QMessageBox::warning(this, tr("No objects"), tr("Please select at least one object."));
+            return;
+        }
         accept();
     });
-    connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-void ExportCADDialog::setProject(Project* project) { populateObjects(project); }
+void ExportCADDialog::setProject(Project* project)
+{
+    m_project = project;
+    populateObjects(project);
+}
 
 void ExportCADDialog::populateObjects(Project* project)
 {
-    m_objectCombo->clear();
+    m_objectList->clear();
     if (!project) return;
+
+    // Always show non-WF data objects and result objects
     for (auto* obj : project->dataObjects()) {
-        if (obj) m_objectCombo->addItem(obj->name());
+        if (!obj) continue;
+        if (!isWavefront(obj->objectType()))
+            m_objectList->addItem(obj->name());
     }
     for (auto* obj : project->resultObjects()) {
-        if (obj) m_objectCombo->addItem(obj->name());
+        if (!obj) continue;
+        if (!isWavefront(obj->objectType()))
+            m_objectList->addItem(obj->name());
     }
-    if (m_objectCombo->count() > 0)
-        m_objectCombo->setCurrentIndex(0);
+    updateExportButton();
+}
+
+QStringList ExportCADDialog::selectedObjectNames() const
+{
+    QStringList names;
+    const auto items = m_objectList->selectedItems();
+    for (auto* item : items)
+        names << item->text();
+    return names;
+}
+
+void ExportCADDialog::refilterObjects()
+{
+    if (!m_project) return;
+    const bool includeWFs = m_includeWFsCheck->isChecked();
+    // Remember current selection names
+    QStringList oldSelected = selectedObjectNames();
+
+    m_objectList->clear();
+
+    for (auto* obj : m_project->dataObjects()) {
+        if (!obj) continue;
+        if (isWavefront(obj->objectType()) && !includeWFs) continue;
+        m_objectList->addItem(obj->name());
+    }
+    for (auto* obj : m_project->resultObjects()) {
+        if (!obj) continue;
+        if (isWavefront(obj->objectType()) && !includeWFs) continue;
+        m_objectList->addItem(obj->name());
+    }
+
+    // Restore selection where possible
+    for (int i = 0; i < m_objectList->count(); ++i) {
+        if (oldSelected.contains(m_objectList->item(i)->text()))
+            m_objectList->item(i)->setSelected(true);
+    }
+}
+
+void ExportCADDialog::updateExportButton()
+{
+    m_exportButton->setEnabled(!selectedObjectNames().isEmpty());
+}
+
+void ExportCADDialog::onSelectionChanged()
+{
+    updateExportButton();
+}
+
+void ExportCADDialog::onIncludeWFsToggled(bool)
+{
+    refilterObjects();
 }
 
 void ExportCADDialog::onBrowse()

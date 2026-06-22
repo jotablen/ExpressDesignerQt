@@ -1,9 +1,11 @@
 #pragma once
 #include <QDialog>
-#include <QComboBox>
+#include <QListWidget>
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
+#include <QComboBox>
+#include <QPushButton>
 #include <core/Project.h>
 
 namespace ExpressDesigner {
@@ -13,6 +15,9 @@ class ExportCADDialog : public QDialog {
 public:
     explicit ExportCADDialog(QWidget* parent = nullptr);
     void setProject(Project* project);
+
+    // Selected objects
+    QStringList selectedObjectNames() const;
 
     // Common
     QString fileName() const { return m_fileNameEdit->text(); }
@@ -32,15 +37,25 @@ public:
 
 private slots:
     void onBrowse();
+    void onSelectionChanged();
+    void onIncludeWFsToggled(bool checked);
     void onRotationalToggled(bool checked);
     void onLinearToggled(bool checked);
 
 private:
     void populateObjects(Project* project);
+    void refilterObjects();
+    void updateExportButton();
 
-    QComboBox* m_objectCombo = nullptr;
-    QLineEdit* m_fileNameEdit = nullptr;
+    Project* m_project = nullptr;
+
+    // Left panel — object list
+    QListWidget* m_objectList = nullptr;
+    QCheckBox* m_includeWFsCheck = nullptr;
+
+    // Right panel — options
     QCheckBox* m_wiresOnlyCheck = nullptr;
+    QLineEdit* m_fileNameEdit = nullptr;
 
     // Rotational extrusion group
     QCheckBox* m_rotationalCheck = nullptr;
@@ -53,6 +68,9 @@ private:
     QCheckBox* m_linearCheck = nullptr;
     QComboBox* m_linearDirCombo = nullptr;
     QDoubleSpinBox* m_linearWidenessSpin = nullptr;
+
+    // Buttons
+    QPushButton* m_exportButton = nullptr;
 };
 
 } // namespace ExpressDesigner

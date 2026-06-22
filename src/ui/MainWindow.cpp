@@ -799,32 +799,60 @@ void MainWindow::onExportObject()
 
 void MainWindow::onExportCAD()
 {
-    QModelIndex idx = m_objectTree->currentIndex();
-    if (!idx.isValid() || !m_currentProject) return;
-    CustomObject* obj = m_treeModel->objectAt(idx);
-    if (!obj) return;
+    if (!m_currentProject) return;
 
     ExportCADDialog dlg(this);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
-        CADExportParams params;
-        params.filePath     = dlg.fileName();
-        params.controlPoints = obj->controlPoints();
-        params.wiresOnly    = dlg.wiresOnly();
-        params.rotational   = dlg.rotationalEnabled();
-        params.rotationalAxis = dlg.rotationalAxis();
-        params.angleStart   = dlg.rotationalAngleStart();
-        params.angleEnd     = dlg.rotationalAngleEnd();
-        params.angularSteps = dlg.rotationalAngularSteps();
-        params.linear       = dlg.linearEnabled();
-        params.linearDirection = dlg.linearDirection();
-        params.wideness     = dlg.linearWideness();
+        const QStringList names = dlg.selectedObjectNames();
+        if (names.isEmpty()) return;
 
-        if (CADExporter::exportToCAD(params)) {
-            statusBar()->showMessage(tr("CAD file exported: %1").arg(params.filePath), 5000);
+        int succeeded = 0;
+        int failed = 0;
+        QStringList failures;
+
+        for (const QString& name : names) {
+            CustomObject* obj = m_currentProject->findObject(name);
+            if (!obj) {
+                failures << tr("%1: not found").arg(name);
+                ++failed;
+                continue;
+            }
+
+            CADExportParams params;
+            // One file per object: append object name before extension
+            QString basePath = dlg.fileName();
+            int dotIdx = basePath.lastIndexOf(QLatin1Char('.'));
+            if (dotIdx > 0)
+                params.filePath = basePath.left(dotIdx) + QStringLiteral("_") + name + basePath.mid(dotIdx);
+            else
+                params.filePath = basePath + QStringLiteral("_") + name;
+
+            params.controlPoints = obj->controlPoints();
+            params.wiresOnly    = dlg.wiresOnly();
+            params.rotational   = dlg.rotationalEnabled();
+            params.rotationalAxis = dlg.rotationalAxis();
+            params.angleStart   = dlg.rotationalAngleStart();
+            params.angleEnd     = dlg.rotationalAngleEnd();
+            params.angularSteps = dlg.rotationalAngularSteps();
+            params.linear       = dlg.linearEnabled();
+            params.linearDirection = dlg.linearDirection();
+            params.wideness     = dlg.linearWideness();
+
+            if (CADExporter::exportToCAD(params)) {
+                ++succeeded;
+            } else {
+                failures << tr("%1: %2").arg(name, CADExporter::errorMessage());
+                ++failed;
+            }
+        }
+
+        if (failed == 0) {
+            statusBar()->showMessage(tr("Exported %1 object(s) to CAD.").arg(succeeded), 5000);
         } else {
-            QMessageBox::warning(this, tr("CAD Export Failed"),
-                tr("Could not export CAD file:\n%1").arg(CADExporter::errorMessage()));
+            QMessageBox::warning(this, tr("CAD Export"),
+                tr("Exported %1 object(s), %2 failed.\n\n%3")
+                    .arg(succeeded).arg(failed).arg(failures.join(QStringLiteral("\n"))));
         }
     }
 }
