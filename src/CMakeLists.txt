@@ -33,6 +33,7 @@ set(IO_SOURCES
     io/TXTExporter.cpp
     io/TXTImporter.cpp
     io/RhinoExporter.cpp
+    io/CADExporter.cpp
     io/HistoryManager.cpp
 )
 
@@ -112,4 +113,31 @@ endif()
 if(USE_SISL AND TARGET sisl)
     target_include_directories(ExpressDesigner PRIVATE ${PROJECT_SOURCE_DIR}/third_party/sisl/include)
     target_link_libraries(ExpressDesigner PRIVATE sisl)
+endif()
+
+# OpenCASCADE (CAD export) — manually link against MSYS2 OCCT DLLs
+set(OCCT_ROOT "C:/msys64/mingw64")
+if(EXISTS "${OCCT_ROOT}/include/opencascade/Standard_Version.hxx")
+    set(OCCT_INCLUDE_DIR "${OCCT_ROOT}/include/opencascade")
+    set(OCCT_LIB_DIR "${OCCT_ROOT}/lib")
+    set(OCCT_CORE_MODULES
+        TKernel TKMath TKG2d TKG3d TKGeomBase TKGeomAlgo TKBRep
+        TKTopAlgo TKPrim TKBO TKBool
+        TKDESTEP TKDEIGES TKDE TKXSBase TKShHealing TKMesh
+        TKCAF TKBinXCAF TKDCAF TKLCAF TKVCAF TKXCAF TKXmlXCAF
+        tbb12
+    )
+    foreach(mod ${OCCT_CORE_MODULES})
+        if(EXISTS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
+            list(APPEND OCCT_LIBS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
+        endif()
+    endforeach()
+    if(OCCT_LIBS)
+        target_include_directories(ExpressDesigner PRIVATE ${OCCT_INCLUDE_DIR})
+        target_link_libraries(ExpressDesigner PRIVATE ${OCCT_LIBS})
+        target_compile_definitions(ExpressDesigner PRIVATE HAS_OPENCASCADE)
+        message(STATUS "OpenCASCADE found — CAD export enabled (${OCCT_LIBS})")
+    endif()
+else()
+    message(STATUS "OpenCASCADE not found — CAD export disabled")
 endif()

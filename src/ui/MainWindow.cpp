@@ -24,6 +24,7 @@
 #include <io/TXTExporter.h>
 #include <io/TXTImporter.h>
 #include <io/RhinoExporter.h>
+#include <io/CADExporter.h>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -806,17 +807,25 @@ void MainWindow::onExportCAD()
     ExportCADDialog dlg(this);
     dlg.setProject(m_currentProject);
     if (dlg.exec() == QDialog::Accepted) {
-        QString filePath = dlg.fileName();
-        bool wiresOnly = dlg.wiresOnly();
-        bool rotational = dlg.rotationalEnabled();
-        bool linear = dlg.linearEnabled();
+        CADExportParams params;
+        params.filePath     = dlg.fileName();
+        params.controlPoints = obj->controlPoints();
+        params.wiresOnly    = dlg.wiresOnly();
+        params.rotational   = dlg.rotationalEnabled();
+        params.rotationalAxis = dlg.rotationalAxis();
+        params.angleStart   = dlg.rotationalAngleStart();
+        params.angleEnd     = dlg.rotationalAngleEnd();
+        params.angularSteps = dlg.rotationalAngularSteps();
+        params.linear       = dlg.linearEnabled();
+        params.linearDirection = dlg.linearDirection();
+        params.wideness     = dlg.linearWideness();
 
-        // TODO: Integrate OpenCascade / CadKit exporter here
-        // For now, log the parameters
-        Q_UNUSED(filePath);
-        Q_UNUSED(wiresOnly);
-        Q_UNUSED(rotational);
-        Q_UNUSED(linear);
+        if (CADExporter::exportToCAD(params)) {
+            statusBar()->showMessage(tr("CAD file exported: %1").arg(params.filePath), 5000);
+        } else {
+            QMessageBox::warning(this, tr("CAD Export Failed"),
+                tr("Could not export CAD file:\n%1").arg(CADExporter::errorMessage()));
+        }
     }
 }
 
