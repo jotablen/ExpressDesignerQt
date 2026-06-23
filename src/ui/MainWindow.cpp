@@ -890,7 +890,8 @@ void MainWindow::onCalculateOval()
         op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
         op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
-        op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
+        op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointDescriptor().displayName());
+        op->setRefPointDescriptor(dlg.refPointDescriptor());
         // push() internally calls execute() — operation runs and result is added
         auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
         if (!m_cmdHistory->push(std::move(execCmd), m_currentProject)) {
@@ -1154,6 +1155,7 @@ void MainWindow::onObjectSelected(const QModelIndex& index)
         m_selectedOperation = op;
         if (m_propertiesWidget) m_propertiesWidget->setOperation(op);
         updateDeleteActionState();
+        refreshChart();
         updateStatusBar();
         return;
     }

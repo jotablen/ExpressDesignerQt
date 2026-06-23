@@ -1,4 +1,5 @@
 set(CORE_SOURCES
+    core/RefPointDescriptor.cpp
     core/BaseObject.cpp
     core/CustomObject.cpp
     core/PointObject.cpp
@@ -15,10 +16,12 @@ set(CORE_SOURCES
 )
 
 set(GEOMETRY_SOURCES
-    geometry/SISLWrapper.cpp
     geometry/PointList.cpp
     geometry/VectorAlgebra.cpp
 )
+if(USE_SISL AND TARGET sisl)
+    list(APPEND GEOMETRY_SOURCES geometry/SISLWrapper.cpp)
+endif()
 
 set(OPTICS_SOURCES
     optics/CartesianOval.cpp

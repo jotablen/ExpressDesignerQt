@@ -159,16 +159,50 @@ void CalcOvalDialog::populateCombos(Project* project)
     }
 
     // Populate reference points (only Point objects that are NOT wavefronts)
-    for (CustomObject* obj : dataObjects) {
-        if (!obj) continue;
-        if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType()))
-            m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+    auto addPoint = [this](CustomObject* obj) {
+        if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType())) {
+            RefPointDescriptor desc;
+            desc.kind = RefPointDescriptor::PointObject;
+            desc.sourceObj = obj;
+            m_refPointCombo->addItem(desc.displayName(), QVariant::fromValue(desc));
+        }
+    };
+    for (auto* obj : dataObjects) addPoint(obj);
+    for (auto* obj : resultObjects) addPoint(obj);
+
+    // Populate Begin/End of non-WF Curves, Lines, and Arcs
+    auto addCurveEndpoints = [this](CustomObject* obj) {
+        if (!obj) return;
+        auto base = toBaseType(obj->objectType());
+        if ((base == static_cast<uint16_t>(ObjectType::Curve) ||
+             base == static_cast<uint16_t>(ObjectType::Line) ||
+             base == static_cast<uint16_t>(ObjectType::Arc)) &&
+            !isWavefront(obj->objectType()) &&
+            obj->controlPointCount() >= 2)
+        {
+            RefPointDescriptor descBegin;
+            descBegin.kind = RefPointDescriptor::CurveBegin;
+            descBegin.sourceObj = obj;
+            m_refPointCombo->addItem(descBegin.displayName(), QVariant::fromValue(descBegin));
+
+            RefPointDescriptor descEnd;
+            descEnd.kind = RefPointDescriptor::CurveEnd;
+            descEnd.sourceObj = obj;
+            m_refPointCombo->addItem(descEnd.displayName(), QVariant::fromValue(descEnd));
+        }
+    };
+    for (auto* obj : dataObjects) addCurveEndpoints(obj);
+    for (auto* obj : resultObjects) addCurveEndpoints(obj);
+}
+
+RefPointDescriptor CalcOvalDialog::refPointDescriptor() const
+{
+    if (m_refPointCombo->currentIndex() >= 0) {
+        QVariant data = m_refPointCombo->currentData();
+        if (data.canConvert<RefPointDescriptor>())
+            return data.value<RefPointDescriptor>();
     }
-    for (CustomObject* obj : resultObjects) {
-        if (!obj) continue;
-        if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType()))
-            m_refPointCombo->addItem(obj->name(), QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
-    }
+    return RefPointDescriptor();
 }
 
 void CalcOvalDialog::onWfOrgChanged()

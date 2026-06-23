@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CustomOperation.h"
+#include "RefPointDescriptor.h"
 
 namespace ExpressDesigner {
 
@@ -17,6 +18,9 @@ public:
     QString resultName() const override;
     QString paramPrefixOnTree(int index) const override;
 
+    void setRefPointDescriptor(const RefPointDescriptor& desc) { m_refPointDesc = desc; }
+    RefPointDescriptor refPointDescriptor() const { return m_refPointDesc; }
+
     void saveToJson(QJsonObject& json) const override;
     void loadFromJson(const QJsonObject& json) override;
 
@@ -24,6 +28,9 @@ public:
     static constexpr int PARAM_WF2 = 1;
     static constexpr int PARAM_REF_POINT = 2;
     static constexpr int PARAM_RESULT = 3;
+
+private:
+    RefPointDescriptor m_refPointDesc;
 };
 
 } // namespace ExpressDesigner

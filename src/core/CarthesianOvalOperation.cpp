@@ -129,10 +129,16 @@ bool CarthesianOvalOperation::execute(Project* project)
         return false;
     }
 
-    CustomObject* refObj = project->findObject(m_paramNames.value(PARAM_REF_POINT));
     QPointF refPoint(0.0, 0.0);
-    if (refObj && !refObj->controlPoints().isEmpty())
-        refPoint = refObj->controlPoints().first();
+    // Use RefPointDescriptor if available (Curve Begin/End, Point)
+    if (m_refPointDesc.isValid()) {
+        refPoint = m_refPointDesc.resolve();
+    } else {
+        // Legacy fallback: name-based lookup for older project files
+        CustomObject* refObj = project->findObject(m_paramNames.value(PARAM_REF_POINT));
+        if (refObj && !refObj->controlPoints().isEmpty())
+            refPoint = refObj->controlPoints().first();
+    }
 
     double n1 = wf1->refractiveIndex();
     double n2 = wf2->refractiveIndex();
