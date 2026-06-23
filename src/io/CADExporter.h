@@ -26,6 +26,9 @@ public:
     /// On failure, errorMessage() provides details.
     static bool exportToCAD(const CADExportParams& params);
 
+    /// Exports multiple objects into a single CAD file.
+    static bool exportMultipleToCAD(const QVector<CADExportParams>& allParams);
+
     /// Returns the last error message (empty if no error).
     static QString errorMessage();
 

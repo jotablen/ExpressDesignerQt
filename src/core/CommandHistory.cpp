@@ -2,6 +2,7 @@
 #include "CustomObject.h"
 #include "CustomOperation.h"
 #include "Project.h"
+#include "ArcObject.h"
 #include <QtMath>
 #include <QVariant>
 #include <utils/Logger.h>
@@ -245,6 +246,10 @@ bool TranslateObjectCommand::execute(Project* project) {
     QVector<QPointF> newPts; newPts.reserve(pts.size());
     for (const QPointF& p : pts) newPts.append(p + m_delta);
     m_obj->setControlPoints(newPts);
+    // Also translate Arc center point if applicable
+    if (auto* arc = qobject_cast<ArcObject*>(m_obj)) {
+        arc->setCenter(arc->center() + m_delta);
+    }
     return true;
 }
 
@@ -255,6 +260,9 @@ bool TranslateObjectCommand::undo(Project* project) {
     QVector<QPointF> newPts; newPts.reserve(pts.size());
     for (const QPointF& p : pts) newPts.append(p - m_delta);
     m_obj->setControlPoints(newPts);
+    if (auto* arc = qobject_cast<ArcObject*>(m_obj)) {
+        arc->setCenter(arc->center() - m_delta);
+    }
     return true;
 }
 

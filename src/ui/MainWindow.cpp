@@ -807,27 +807,11 @@ void MainWindow::onExportCAD()
         const QStringList names = dlg.selectedObjectNames();
         if (names.isEmpty()) return;
 
-        int succeeded = 0;
-        int failed = 0;
-        QStringList failures;
-
+        QVector<CADExportParams> allParams;
         for (const QString& name : names) {
             CustomObject* obj = m_currentProject->findObject(name);
-            if (!obj) {
-                failures << tr("%1: not found").arg(name);
-                ++failed;
-                continue;
-            }
-
+            if (!obj) continue;
             CADExportParams params;
-            // One file per object: append object name before extension
-            QString basePath = dlg.fileName();
-            int dotIdx = basePath.lastIndexOf(QLatin1Char('.'));
-            if (dotIdx > 0)
-                params.filePath = basePath.left(dotIdx) + QStringLiteral("_") + name + basePath.mid(dotIdx);
-            else
-                params.filePath = basePath + QStringLiteral("_") + name;
-
             params.controlPoints = obj->controlPoints();
             params.wiresOnly    = dlg.wiresOnly();
             params.rotational   = dlg.rotationalEnabled();
@@ -838,21 +822,21 @@ void MainWindow::onExportCAD()
             params.linear       = dlg.linearEnabled();
             params.linearDirection = dlg.linearDirection();
             params.wideness     = dlg.linearWideness();
-
-            if (CADExporter::exportToCAD(params)) {
-                ++succeeded;
-            } else {
-                failures << tr("%1: %2").arg(name, CADExporter::errorMessage());
-                ++failed;
-            }
+            allParams.append(params);
         }
 
-        if (failed == 0) {
-            statusBar()->showMessage(tr("Exported %1 object(s) to CAD.").arg(succeeded), 5000);
+        if (allParams.isEmpty()) return;
+
+        // All objects share the same output file
+        const QString filePath = dlg.fileName();
+        for (auto& p : allParams)
+            p.filePath = filePath;
+
+        if (CADExporter::exportMultipleToCAD(allParams)) {
+            statusBar()->showMessage(tr("Exported %1 object(s) to CAD: %2").arg(names.size()).arg(filePath), 5000);
         } else {
-            QMessageBox::warning(this, tr("CAD Export"),
-                tr("Exported %1 object(s), %2 failed.\n\n%3")
-                    .arg(succeeded).arg(failed).arg(failures.join(QStringLiteral("\n"))));
+            QMessageBox::warning(this, tr("CAD Export Failed"),
+                tr("Could not export CAD file:\n%1").arg(CADExporter::errorMessage()));
         }
     }
 }

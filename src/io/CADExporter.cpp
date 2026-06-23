@@ -205,4 +205,186 @@ QString CADExporter::errorMessage()
     return s_lastError;
 }
 
+bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
+{
+    s_lastError.clear();
+    if (allParams.isEmpty()) {
+        s_lastError = QStringLiteral("No objects to export.");
+        return false;
+    }
+    const QString& filePath = allParams.first().filePath;
+    if (filePath.isEmpty()) {
+        s_lastError = QStringLiteral("No output file path specified.");
+        return false;
+    }
+
+    try {
+        const bool isStep = isStepFile(filePath);
+
+        if (isStep) {
+            STEPControl_Writer stepWriter;
+            Interface_Static::SetIVal("write.step.schema", 4); // AP214
+
+            for (const auto& params : allParams) {
+                // Build a compound shape from each set of control points
+                // (same logic as single export, but we accumulate)
+                CADExportParams single = params;
+                single.filePath.clear(); // don't write per-object, we're combining
+                if (!exportToCAD(params)) {
+                    // if one fails, continue to next
+                    continue;
+                }
+                // Re-execute build logic to get shape (ugly but works)
+                // We'll inline the shape building here for efficiency
+                const auto& pts = params.controlPoints;
+                if (pts.size() < 2) continue;
+
+                TopoDS_Wire wire;
+                {
+                    BRepBuilderAPI_MakeWire wireBuilder;
+                    for (int i = 0; i < pts.size() - 1; ++i) {
+                        gp_Pnt p1(pts[i].x(), pts[i].y(), 0.0);
+                        gp_Pnt p2(pts[i + 1].x(), pts[i + 1].y(), 0.0);
+                        wireBuilder.Add(BRepBuilderAPI_MakeEdge(p1, p2));
+                    }
+                    if (pts.size() > 1) {
+                        gp_Pnt first(pts.first().x(), pts.first().y(), 0.0);
+                        gp_Pnt last(pts.last().x(), pts.last().y(), 0.0);
+                        if (first.Distance(last) > 1e-9)
+                            wireBuilder.Add(BRepBuilderAPI_MakeEdge(last, first));
+                    }
+                    wireBuilder.Build();
+                    if (!wireBuilder.IsDone()) continue;
+                    wire = wireBuilder.Wire();
+                }
+
+                TopoDS_Shape shape;
+                if (params.wiresOnly || (!params.rotational && !params.linear)) {
+                    shape = wire;
+                } else if (params.rotational) {
+                    BRepBuilderAPI_MakeFace faceMaker(wire);
+                    faceMaker.Build();
+                    if (!faceMaker.IsDone()) { shape = wire; }
+                    else {
+                        gp_Ax1 rotAxis;
+                        if (params.rotationalAxis == QStringLiteral("X"))
+                            rotAxis = gp_Ax1(gp_Pnt(0,0,0), gp_Dir(1,0,0));
+                        else if (params.rotationalAxis == QStringLiteral("Z"))
+                            rotAxis = gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,0,1));
+                        else
+                            rotAxis = gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,1,0));
+                        double angleRad = toRadians(params.angleEnd - params.angleStart);
+                        BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
+                        revol.Build();
+                        shape = revol.IsDone() ? revol.Shape() : wire;
+                    }
+                } else if (params.linear) {
+                    BRepBuilderAPI_MakeFace faceMaker(wire);
+                    faceMaker.Build();
+                    if (!faceMaker.IsDone()) { shape = wire; }
+                    else {
+                        double len = params.wideness;
+                        gp_Vec vec;
+                        if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len,0,0);
+                        else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0,len,0);
+                        else vec = gp_Vec(0,0,len);
+                        BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
+                        prism.Build();
+                        shape = prism.IsDone() ? prism.Shape() : wire;
+                    }
+                }
+
+                stepWriter.Transfer(shape, STEPControl_AsIs);
+            }
+
+            if (!stepWriter.Write(filePath.toUtf8().constData())) {
+                s_lastError = QStringLiteral("Failed to write STEP file: ") + filePath;
+                return false;
+            }
+        } else {
+            IGESControl_Controller::Init();
+            IGESControl_Writer igesWriter("MM", 0);
+
+            for (const auto& params : allParams) {
+                const auto& pts = params.controlPoints;
+                if (pts.size() < 2) continue;
+
+                TopoDS_Wire wire;
+                {
+                    BRepBuilderAPI_MakeWire wireBuilder;
+                    for (int i = 0; i < pts.size() - 1; ++i) {
+                        gp_Pnt p1(pts[i].x(), pts[i].y(), 0.0);
+                        gp_Pnt p2(pts[i + 1].x(), pts[i + 1].y(), 0.0);
+                        wireBuilder.Add(BRepBuilderAPI_MakeEdge(p1, p2));
+                    }
+                    if (pts.size() > 1) {
+                        gp_Pnt first(pts.first().x(), pts.first().y(), 0.0);
+                        gp_Pnt last(pts.last().x(), pts.last().y(), 0.0);
+                        if (first.Distance(last) > 1e-9)
+                            wireBuilder.Add(BRepBuilderAPI_MakeEdge(last, first));
+                    }
+                    wireBuilder.Build();
+                    if (!wireBuilder.IsDone()) continue;
+                    wire = wireBuilder.Wire();
+                }
+
+                TopoDS_Shape shape;
+                if (params.wiresOnly || (!params.rotational && !params.linear)) {
+                    shape = wire;
+                } else if (params.rotational) {
+                    BRepBuilderAPI_MakeFace faceMaker(wire);
+                    faceMaker.Build();
+                    if (!faceMaker.IsDone()) { shape = wire; }
+                    else {
+                        gp_Ax1 rotAxis;
+                        if (params.rotationalAxis == QStringLiteral("X"))
+                            rotAxis = gp_Ax1(gp_Pnt(0,0,0), gp_Dir(1,0,0));
+                        else if (params.rotationalAxis == QStringLiteral("Z"))
+                            rotAxis = gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,0,1));
+                        else
+                            rotAxis = gp_Ax1(gp_Pnt(0,0,0), gp_Dir(0,1,0));
+                        double angleRad = toRadians(params.angleEnd - params.angleStart);
+                        BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
+                        revol.Build();
+                        shape = revol.IsDone() ? revol.Shape() : wire;
+                    }
+                } else if (params.linear) {
+                    BRepBuilderAPI_MakeFace faceMaker(wire);
+                    faceMaker.Build();
+                    if (!faceMaker.IsDone()) { shape = wire; }
+                    else {
+                        double len = params.wideness;
+                        gp_Vec vec;
+                        if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len,0,0);
+                        else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0,len,0);
+                        else vec = gp_Vec(0,0,len);
+                        BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
+                        prism.Build();
+                        shape = prism.IsDone() ? prism.Shape() : wire;
+                    }
+                }
+
+                igesWriter.AddShape(shape);
+            }
+
+            igesWriter.ComputeModel();
+            if (!igesWriter.Write(filePath.toUtf8().constData())) {
+                s_lastError = QStringLiteral("Failed to write IGES file: ") + filePath;
+                return false;
+            }
+        }
+        return true;
+
+    } catch (const Standard_Failure& e) {
+        s_lastError = QString::fromUtf8(e.GetMessageString());
+        return false;
+    } catch (const std::exception& e) {
+        s_lastError = QString::fromUtf8(e.what());
+        return false;
+    } catch (...) {
+        s_lastError = QStringLiteral("Unknown error during CAD export.");
+        return false;
+    }
+}
+
 } // namespace ExpressDesigner
