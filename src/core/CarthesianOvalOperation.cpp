@@ -158,12 +158,19 @@ bool CarthesianOvalOperation::execute(Project* project)
     Geometry::SISLCurve curve1(wf1->controlPoints(), 3, true);
     Geometry::SISLCurve curve2(wf2->controlPoints(), 3, true);
 
-    // Compute OPL constant C at reference point (continuous closest point)
-    double t1r, t2r;
-    QPointF cp1 = curve1.closestPoint(refPoint, &t1r);
-    QPointF cp2 = curve2.closestPoint(refPoint, &t2r);
-    double d1ref = qSqrt(distSq(cp1, refPoint));
-    double d2ref = qSqrt(distSq(cp2, refPoint));
+    // Compute OPL constant C at reference point
+    // Use Find_CP_Repaired: the closest point whose normal passes through refPoint
+    auto repairedPoint = [](Geometry::SISLCurve& curve, const QPointF& ref) -> QPointF {
+        double t;
+        QPointF cp = curve.closestPoint(ref, &t);
+        QPointF n = curve.normalAt(cp);              // normal at seed
+        double proj = n.x() * (cp.x() - ref.x()) + n.y() * (cp.y() - ref.y());
+        return QPointF(ref.x() + n.x() * proj, ref.y() + n.y() * proj);
+    };
+    QPointF rp1 = repairedPoint(curve1, refPoint);
+    QPointF rp2 = repairedPoint(curve2, refPoint);
+    double d1ref = qSqrt(distSq(rp1, refPoint));
+    double d2ref = qSqrt(distSq(rp2, refPoint));
     double C = n1 * d1ref + n2 * d2ref;
 
     auto* result = new CurveObject(resultName());
