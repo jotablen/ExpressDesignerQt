@@ -1,4 +1,5 @@
 #include "CalcOvalDialog.h"
+#include <core/RefPointDescriptor.h>
 #include <QVBoxLayout>
 #include <QFormLayout>
 #include <QDialogButtonBox>
@@ -161,10 +162,14 @@ void CalcOvalDialog::populateCombos(Project* project)
     // Populate reference points (only Point objects that are NOT wavefronts)
     auto addPoint = [this](CustomObject* obj) {
         if (toBaseType(obj->objectType()) == 0x001 && !isWavefront(obj->objectType())) {
-            RefPointDescriptor desc;
-            desc.kind = RefPointDescriptor::PointObject;
-            desc.sourceObj = obj;
-            m_refPointCombo->addItem(desc.displayName(), QVariant::fromValue(desc));
+            const auto& pts = obj->controlPoints();
+            QPointF pt = pts.isEmpty() ? QPointF() : pts.first();
+            QString label = obj->name() + QStringLiteral(" (%1, %2)")
+                .arg(pt.x(), 0, 'f', 3).arg(pt.y(), 0, 'f', 3);
+            QVariantMap map;
+            map[QStringLiteral("kind")] = RefPointDescriptor::PointObject;
+            map[QStringLiteral("name")] = obj->name();
+            m_refPointCombo->addItem(label, map);
         }
     };
     for (auto* obj : dataObjects) addPoint(obj);
@@ -180,29 +185,44 @@ void CalcOvalDialog::populateCombos(Project* project)
             !isWavefront(obj->objectType()) &&
             obj->controlPointCount() >= 2)
         {
-            RefPointDescriptor descBegin;
-            descBegin.kind = RefPointDescriptor::CurveBegin;
-            descBegin.sourceObj = obj;
-            m_refPointCombo->addItem(descBegin.displayName(), QVariant::fromValue(descBegin));
+            const auto& pts = obj->controlPoints();
+            QPointF ptBegin = pts.first();
+            QPointF ptEnd = pts.last();
 
-            RefPointDescriptor descEnd;
-            descEnd.kind = RefPointDescriptor::CurveEnd;
-            descEnd.sourceObj = obj;
-            m_refPointCombo->addItem(descEnd.displayName(), QVariant::fromValue(descEnd));
+            QString labelBegin = obj->name() + QStringLiteral(" (Begin) (%1, %2)")
+                .arg(ptBegin.x(), 0, 'f', 3).arg(ptBegin.y(), 0, 'f', 3);
+            QVariantMap mapBegin;
+            mapBegin[QStringLiteral("kind")] = RefPointDescriptor::CurveBegin;
+            mapBegin[QStringLiteral("name")] = obj->name();
+            m_refPointCombo->addItem(labelBegin, mapBegin);
+
+            QString labelEnd = obj->name() + QStringLiteral(" (End) (%1, %2)")
+                .arg(ptEnd.x(), 0, 'f', 3).arg(ptEnd.y(), 0, 'f', 3);
+            QVariantMap mapEnd;
+            mapEnd[QStringLiteral("kind")] = RefPointDescriptor::CurveEnd;
+            mapEnd[QStringLiteral("name")] = obj->name();
+            m_refPointCombo->addItem(labelEnd, mapEnd);
         }
     };
     for (auto* obj : dataObjects) addCurveEndpoints(obj);
     for (auto* obj : resultObjects) addCurveEndpoints(obj);
 }
 
-RefPointDescriptor CalcOvalDialog::refPointDescriptor() const
+int CalcOvalDialog::refPointKind() const
 {
-    if (m_refPointCombo->currentIndex() >= 0) {
-        QVariant data = m_refPointCombo->currentData();
-        if (data.canConvert<RefPointDescriptor>())
-            return data.value<RefPointDescriptor>();
-    }
-    return RefPointDescriptor();
+    if (m_refPointCombo->currentIndex() < 0) return 0;
+    QVariant data = m_refPointCombo->currentData();
+    if (!data.isValid()) return 0;
+    // Store kind + sourceName as userData (int, QString)
+    return data.toMap().value(QStringLiteral("kind")).toInt();
+}
+
+QString CalcOvalDialog::refPointSourceName() const
+{
+    if (m_refPointCombo->currentIndex() < 0) return QString();
+    QVariant data = m_refPointCombo->currentData();
+    if (!data.isValid()) return QString();
+    return data.toMap().value(QStringLiteral("name")).toString();
 }
 
 void CalcOvalDialog::onWfOrgChanged()

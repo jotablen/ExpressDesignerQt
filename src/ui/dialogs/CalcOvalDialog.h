@@ -4,7 +4,6 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <core/Project.h>
-#include <core/RefPointDescriptor.h>
 
 namespace ExpressDesigner {
 
@@ -20,7 +19,8 @@ public:
     QLineEdit* amountEdit() const { return m_amountEdit; }
     QLineEdit* resultNameEdit() const { return m_resultNameEdit; }
     bool excludeRTI() const { return m_excludeRtiCheck->isChecked(); }
-    RefPointDescriptor refPointDescriptor() const;
+    int refPointKind() const;
+    QString refPointSourceName() const;
 
 private slots:
     void onWfOrgChanged();

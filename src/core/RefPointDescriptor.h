@@ -1,8 +1,6 @@
 #pragma once
 #include <QString>
 #include <QPointF>
-#include <QVariant>
-#include <QMetaType>
 
 namespace ExpressDesigner {
 
@@ -13,13 +11,12 @@ struct RefPointDescriptor {
 
     Kind kind = PointObject;
     CustomObject* sourceObj = nullptr;
+    QString sourceName; // stored for re-resolution when pointer is stale
 
     QPointF resolve() const;
     QString displayName() const;
 
-    bool isValid() const { return sourceObj != nullptr; }
+    bool isValid() const { return sourceObj != nullptr || !sourceName.isEmpty(); }
 };
 
 } // namespace ExpressDesigner
-
-Q_DECLARE_METATYPE(ExpressDesigner::RefPointDescriptor)

@@ -1,4 +1,5 @@
 #include "CarthesianOvalOperation.h"
+#include "RefPointDescriptor.h"
 #include "Project.h"
 #include "CurveObject.h"
 #include <geometry/SISLWrapper.h>
@@ -130,11 +131,18 @@ bool CarthesianOvalOperation::execute(Project* project)
     }
 
     QPointF refPoint(0.0, 0.0);
-    // Use RefPointDescriptor if available (Curve Begin/End, Point)
-    if (m_refPointDesc.isValid()) {
-        refPoint = m_refPointDesc.resolve();
+    // Use ref point kind + sourceName to resolve coordinates
+    if (!m_refPointSourceName.isEmpty() && project) {
+        CustomObject* refObj = project->findObject(m_refPointSourceName);
+        if (refObj && refObj->controlPointCount() > 0) {
+            const auto& pts = refObj->controlPoints();
+            if (m_refPointKind == static_cast<int>(RefPointDescriptor::CurveEnd) && pts.size() > 1)
+                refPoint = pts.last();
+            else
+                refPoint = pts.first(); // PointObject or CurveBegin
+        }
     } else {
-        // Legacy fallback: name-based lookup for older project files
+        // Legacy fallback
         CustomObject* refObj = project->findObject(m_paramNames.value(PARAM_REF_POINT));
         if (refObj && !refObj->controlPoints().isEmpty())
             refPoint = refObj->controlPoints().first();

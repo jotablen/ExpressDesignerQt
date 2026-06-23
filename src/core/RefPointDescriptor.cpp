@@ -20,11 +20,15 @@ QPointF RefPointDescriptor::resolve() const
 QString RefPointDescriptor::displayName() const
 {
     if (!sourceObj) return QStringLiteral("(none)");
+    QPointF pt = resolve();
+    QString coordStr = QStringLiteral(" (%1, %2)")
+        .arg(pt.x(), 0, 'f', 3)
+        .arg(pt.y(), 0, 'f', 3);
     switch (kind) {
-    case CurveBegin: return sourceObj->name() + QStringLiteral(" (Begin)");
-    case CurveEnd:   return sourceObj->name() + QStringLiteral(" (End)");
+    case CurveBegin: return sourceObj->name() + QStringLiteral(" (Begin)") + coordStr;
+    case CurveEnd:   return sourceObj->name() + QStringLiteral(" (End)") + coordStr;
     case PointObject:
-    default:         return sourceObj->name();
+    default:         return sourceObj->name() + coordStr;
     }
 }
 
