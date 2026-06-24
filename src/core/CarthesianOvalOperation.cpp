@@ -37,7 +37,11 @@ static bool calcCarthesianPoint2D(
         X = p1 + n1 * t;
         if (!curve2.closestPointN(X, cp, n2, flip2))
             return 1e9; // normal doesn't pass through X → skip
-        return n1_idx * dot(X - p1, n1) + n2_idx * dot(X - cp, n2) - OpticalPathLen;
+        return n1_idx * dot(p1 - X, n1) 
+            + n2_idx * dot(cp - X, n2) - OpticalPathLen;
+    // double C = n1 * dot(rp1 - refPoint, n1v)
+    //          + n2 * dot(rp2 - refPoint, n2v);
+
     };
 
     double delta_t = OpticalPathLen / 40.0;
