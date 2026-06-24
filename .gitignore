@@ -3,4 +3,5 @@ third_party/build/
 _deps/
 bin/project_1.json
 bin/ExpressDesigner.exe
-bin/project_1b.json
+bin/project*.json
+bin/cad/

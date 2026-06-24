@@ -2,6 +2,7 @@
 #include "Project.h"
 #include "CurveObject.h"
 #include <geometry/SISLWrapper.h>
+#include <geometry/VectorUtils.h>
 #include <optics/SnellLaw.h>
 #include <QtMath>
 #include <utils/Logger.h>
@@ -78,10 +79,8 @@ bool PropagateWFOperation::execute(Project* project)
             continue; // No intersection — discard
 
         // Step 2: Optical path length from WF to surface
-        // Use dot product with normal to get signed distance along ray
-        QPointF delta = surfHit - srcPt;
-        double signedDist = delta.x() * norm.x() + delta.y() * norm.y();
-        double OPL = n1 * signedDist;
+        // Physical distance (always positive), consistent with ODs
+        double OPL = n1 * qAbs(Geometry::dot(surfHit - srcPt, norm));
         double remaining = fDistance - OPL;
 
         // Step 3: Snell's law deflection

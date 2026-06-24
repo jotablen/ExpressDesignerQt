@@ -1,4 +1,5 @@
 #include "SISLWrapper.h"
+#include "VectorUtils.h"
 #include <QtMath>
 #include <algorithm>
 #include <limits>
@@ -164,7 +165,7 @@ QPointF SISLCurve::normal(double t, bool flipped) const
     double len = qSqrt(d.x() * d.x() + d.y() * d.y());
     if (len < 1e-12) return flipped ? QPointF(0, -1) : QPointF(0, 1);
     QPointF n(-d.y() / len, d.x() / len);
-    return flipped ? QPointF(-n.x(), -n.y()) : n;
+    return flipped ? -n : n;
 }
 
 QPointF SISLCurve::normalAt(const QPointF& p) const
@@ -217,8 +218,28 @@ QPair<QPointF, QPointF> SISLCurve::pointAndNormal(double t, bool flipped) const
         n = flipped ? QPointF(0, -1) : QPointF(0, 1);
     else
         n = QPointF(-result[4] / len, result[3] / len);
-    if (flipped) n = QPointF(-n.x(), -n.y());
+    if (flipped) n = -n;
     return {QPointF(result[0], result[1]), n};
+}
+
+// --- Closest point N (ODs Find_CP_Repaired) ---
+bool SISLCurve::closestPointN(const QPointF& ref, QPointF& outPt, QPointF& outNormal, bool flipped) const
+{
+    double t;
+    QPointF cp = closestPoint(ref, &t);          // seed (geometric closest)
+    QPointF n = normal(t, flipped);              // WF-oriented normal at seed (single evaluation)
+    double cr = cross(n, cp - ref);
+    if (qAbs(cr) > 1e-10) {
+        // Normal crosses ref line — project onto normal line through ref
+        double proj = dot(n, cp - ref);
+        outPt = ref + n * proj;
+        outNormal = n;
+        return true;
+    }
+    // Cross product ~ 0 → normal passes through ref (or parallel)
+    outPt = cp;
+    outNormal = n;
+    return true;
 }
 
 // --- Closest point (discretized search on NURBS) ---
@@ -287,29 +308,15 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     QPointF hitPt(PontoTangente[0], PontoTangente[1]);
     QPointF tangent(PontoTangente[3], PontoTangente[4]);
 
-    // ODs SISLDrink algorithm: compute the curve normal projected onto the plane.
-    // Given normalPlano (perpendicular to ray, contains src point)
-    // and the curve tangent at the hit point:
-    //   normalCurva = normalPlano - dot(normalPlano, tangent) * tangent
-    //   (normalized)
+    // Geometric curve normal: rotate tangent 90° CCW
+    // For a 2D curve C(t), the normal is (-C'(t).y, C'(t).x)
+    // This is needed for correct Snell's law refraction
     QPointF curveNormal;
     double normTgt = qSqrt(tangent.x() * tangent.x() + tangent.y() * tangent.y());
     if (normTgt < 1e-12) {
         curveNormal = QPointF(0, 1);
     } else {
-        tangent /= normTgt;
-        double dot = planeNormal.x() * tangent.x() + planeNormal.y() * tangent.y();
-        // If tangent is (nearly) parallel to plane normal, normal is degenerate
-        if (qAbs(dot) > 0.999999) {
-            curveNormal = QPointF(0, 1);
-        } else {
-            curveNormal = QPointF(planeNormal.x() - dot * tangent.x(),
-                                  planeNormal.y() - dot * tangent.y());
-            double nLen = qSqrt(curveNormal.x() * curveNormal.x() +
-                                curveNormal.y() * curveNormal.y());
-            if (nLen > 1e-12) curveNormal /= nLen;
-            else curveNormal = QPointF(0, 1);
-        }
+        curveNormal = QPointF(-tangent.y(), tangent.x()) / normTgt;
     }
 
     delete[] ListaParametros;

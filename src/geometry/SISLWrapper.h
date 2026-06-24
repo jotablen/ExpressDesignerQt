@@ -31,6 +31,13 @@ public:
     QPointF normal(double t, bool flipped = false) const;
 
     QPointF closestPoint(const QPointF& p, double* outT = nullptr) const;
+
+    /// Find the closest point on the curve whose normal (optional flip) passes through ref.
+    /// Returns the repaired point and its normal in one call.
+    /// Returns false if no such point exists (cross product tolerance).
+    bool closestPointN(const QPointF& ref, QPointF& outPt, QPointF& outNormal,
+                       bool flipped = false) const;
+
     QPair<QPointF, QPointF> pointAndDerivative(double t) const;
     QPair<QPointF, QPointF> pointAndNormal(double t, bool flipped = false) const;
     double   planeIntersection(const QPointF& planePoint, const QPointF& planeNormal,
