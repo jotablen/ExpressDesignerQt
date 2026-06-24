@@ -79,8 +79,7 @@ bool PropagateWFOperation::execute(Project* project)
             continue; // No intersection — discard
 
         // Step 2: Optical path length from WF to surface
-        // Physical distance (always positive), consistent with ODs
-        double OPL = n1 * qAbs(Geometry::dot(surfHit - srcPt, norm));
+        double OPL = n1 * Geometry::dot(surfHit - srcPt, norm);
         double remaining = fDistance - OPL;
 
         // Step 3: Snell's law deflection
