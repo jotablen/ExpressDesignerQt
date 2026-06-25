@@ -13,6 +13,8 @@
 #include <TopoDS_Shape.hxx>
 #include <TopoDS_Wire.hxx>
 #include <TopoDS_Face.hxx>
+#include <TopoDS_Compound.hxx>
+#include <BRep_Builder.hxx>
 #include <STEPControl_Writer.hxx>
 #include <STEPControl_StepModelType.hxx>
 #include <IGESControl_Writer.hxx>
@@ -211,6 +213,11 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
             STEPControl_Writer stepWriter;
             Interface_Static::SetIVal("write.step.schema", 4);
 
+            // Use compound to ensure all shapes are written
+            TopoDS_Compound compound;
+            BRep_Builder compoundBuilder;
+            compoundBuilder.MakeCompound(compound);
+
             for (const auto& params : allParams) {
                 if (params.controlPoints.size() < 2) continue;
 
@@ -220,9 +227,10 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
 
                 TopoDS_Shape shape;
                 buildShape(params, wire, shape, err);
-                stepWriter.Transfer(shape, STEPControl_AsIs);
+                compoundBuilder.Add(compound, shape);
             }
 
+            stepWriter.Transfer(compound, STEPControl_AsIs);
             if (!stepWriter.Write(filePath.toUtf8().constData())) {
                 s_lastError = QStringLiteral("Failed to write STEP file: ") + filePath;
                 return false;
@@ -231,6 +239,11 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
             IGESControl_Controller::Init();
             IGESControl_Writer igesWriter("MM", 0);
 
+            // Use compound to ensure all shapes are written
+            TopoDS_Compound compound;
+            BRep_Builder compoundBuilder;
+            compoundBuilder.MakeCompound(compound);
+
             for (const auto& params : allParams) {
                 if (params.controlPoints.size() < 2) continue;
 
@@ -240,9 +253,10 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
 
                 TopoDS_Shape shape;
                 buildShape(params, wire, shape, err);
-                igesWriter.AddShape(shape);
+                compoundBuilder.Add(compound, shape);
             }
 
+            igesWriter.AddShape(compound);
             igesWriter.ComputeModel();
             if (!igesWriter.Write(filePath.toUtf8().constData())) {
                 s_lastError = QStringLiteral("Failed to write IGES file: ") + filePath;
