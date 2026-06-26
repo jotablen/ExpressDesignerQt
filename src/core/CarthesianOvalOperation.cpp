@@ -26,23 +26,24 @@ static bool calcCarthesianPoint2D(
     double OpticalPathLen, QPointF& result)
 {
     using namespace Geometry;
-    constexpr int maxIter = 90;
-    constexpr double tolerance = 1e-5;
+
+    // ODs-derived constants: match Funciones_SMS.cpp CalculaPtoAnal
+    constexpr int    maxIter    = 90;      // secant + fallback iterations
+    constexpr double convTol    = 1e-6;    // OPL convergence tolerance (ODs: 1e-6)
+    constexpr double denomEps   = 1e-12;   // secant denominator floor
+    constexpr double sentinel   = 1e9;     // oplError sentinel when normal is missing
 
     /// ODs CalculaPtoAnal: t is PHYSICAL distance along n1 from p1
-    /// X = p1 + n1 * t
-    /// OPL(X) = n1 * (X-p1)·n1 + n2 * (X-cp)·n2   (signed, like C)
-    /// f(t) = OPL(X) - target = 0
-    auto oplError = [&](double t, QPointF& X, QPointF& cp, QPointF& n2) -> double {
-        X = p1 + n1 * t;
-        if (!curve2.closestPointN(X, cp, n2, flip2))
-            return 1e9; // normal doesn't pass through X → skip
-        // Match C convention: C = n1 * dot(rp1 - refPoint, n1v) + n2 * dot(rp2 - refPoint, n2v)
-        return n1_idx * dot(p1 - X, n1) + n2_idx * dot(cp - X, n2) - OpticalPathLen;
-
+    /// OPL(X) = n1 * (X-p1)·n1 + n2 * (X-cp)·n2   (signed, same convention as C)
+    /// f(t) = OPL(X) - target → iterate to 0
+    auto oplError = [&](double t, QPointF& XOut, QPointF& cpOut, QPointF& n2Out) -> double {
+        XOut = p1 + n1 * t;
+        if (!curve2.closestPointN(XOut, cpOut, n2Out, flip2))
+            return sentinel; // normal doesn't pass through XOut → skip
+        return n1_idx * dot(p1 - XOut, n1) + n2_idx * dot(cpOut - XOut, n2Out) - OpticalPathLen;
     };
 
-    double delta_t = OpticalPathLen / 40.0;
+    const double delta_t = OpticalPathLen / 40.0;
     double ta = OpticalPathLen / 2.0;
     double tb = ta + delta_t;
     QPointF Xa, Xb, p2a, p2b, n2a, n2b;
@@ -51,8 +52,8 @@ static bool calcCarthesianPoint2D(
     double fa = oplError(ta, Xa, p2a, n2a);
     double fb = oplError(tb, Xb, p2b, n2b);
     int count = 0;
-    while (qAbs(fb) > tolerance && count < maxIter) {
-        if (qAbs(fa - fb) > 1e-12) {
+    while (qAbs(fb) > convTol && count < maxIter) {
+        if (qAbs(fa - fb) > denomEps) {
             double tc = ta - fa * (tb - ta) / (fb - fa);
             ta = tb; fa = fb; tb = tc;
         } else {
@@ -63,7 +64,7 @@ static bool calcCarthesianPoint2D(
     }
 
     // ── Fallback 1: adaptive stepping forward ──
-    if (qAbs(fb) > tolerance) {
+    if (qAbs(fb) > convTol) {
         double factor = 1.0, sent = 1, exini = 0;
         int flag = 0;
         tb = OpticalPathLen / 40.0;
@@ -76,11 +77,11 @@ static bool calcCarthesianPoint2D(
             tb += factor * sent * delta_t;
             flag = 1;
             ++count;
-        } while (qAbs(fb) > tolerance && count < maxIter);
+        } while (qAbs(fb) > convTol && count < maxIter);
     }
 
     // ── Fallback 2: adaptive stepping reverse ──
-    if (qAbs(fb) > tolerance) {
+    if (qAbs(fb) > convTol) {
         double factor = 1.0, sent = -1;
         tb = OpticalPathLen / 40.0;
         count = 0;
@@ -90,11 +91,11 @@ static bool calcCarthesianPoint2D(
             else { factor = qMin(factor * 1.2, 5.0); }
             tb += factor * sent * delta_t;
             ++count;
-        } while (qAbs(fb) > tolerance && count < maxIter);
+        } while (qAbs(fb) > convTol && count < maxIter);
     }
 
     result = Xb;
-    return qAbs(fb) <= tolerance;
+    return qAbs(fb) <= convTol;
 }
 
 // ============================================================================
@@ -165,8 +166,10 @@ bool CarthesianOvalOperation::execute(Project* project)
         QPointF ovalPt;
         if (calcCarthesianPoint2D(p1, n1v, n1, curve2, n2, flip2, C, ovalPt)) {
             // Post-convergence check: does WF2 normal pass through ovalPt?
-            QPointF checkPt, checkNormal;
-            if (curve2.closestPointN(ovalPt, checkPt, checkNormal, flip2))
+            double checkT;
+            QPointF cp = curve2.closestPoint(ovalPt, &checkT);
+            QPointF n  = curve2.normal(checkT, flip2);
+            if (qAbs(cross(n, cp - ovalPt)) <= 1e-10)
                 ovalPts.append(ovalPt);
             // else: skip — normal validation failed
         }

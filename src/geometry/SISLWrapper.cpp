@@ -242,32 +242,64 @@ bool SISLCurve::closestPointN(const QPointF& ref, QPointF& outPt, QPointF& outNo
     return true;
 }
 
-// --- Closest point (discretized search on NURBS) ---
+// --- Closest point (ODs SISLDrink: s1953 — native SISL, no discretization) ---
 QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
 {
-    if (!m_curve || m_points.size() < 2) return m_points.isEmpty() ? QPointF() : m_points[0];
-    auto dense = evaluateAll(200);
-    double bestDistSq = std::numeric_limits<double>::max();
-    QPointF bestPt;
-    double bestT = 0.0;
-    int n = dense.size();
-    for (int i = 0; i < n - 1; ++i) {
-        QPointF a = dense[i], b = dense[i + 1];
-        QPointF ab = b - a;
-        double abLenSq = ab.x() * ab.x() + ab.y() * ab.y();
-        if (abLenSq < 1e-18) {
-            double d2 = (p.x() - a.x()) * (p.x() - a.x()) + (p.y() - a.y()) * (p.y() - a.y());
-            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = (double)i / (n - 1); }
-            continue;
+    auto* c = static_cast< ::SISLCurve*>(m_curve);
+    if (!c || m_points.size() < 2) return m_points.isEmpty() ? QPointF() : m_points[0];
+
+    double point[3] = { p.x(), p.y(), 0.0 };
+    constexpr double epsco = 1e-12;  // computational resolution
+    constexpr double epsge = 1e-12;  // geometric resolution
+    int numintpt = 0;
+    double* intpar = nullptr;
+    int numintcu = 0;
+    ::SISLIntcurve** intcurve = nullptr;
+    int error = 0;
+
+    s1953(c, point, 3, epsco, epsge, &numintpt, &intpar,
+          &numintcu, &intcurve, &error);
+
+    if (numintcu)
+        freeIntcrvlist(intcurve, numintcu);
+
+    if (numintpt <= 0 || !intpar) {
+        // Fallback: discretized search
+        auto dense = evaluateAll(200);
+        double bestDistSq = std::numeric_limits<double>::max();
+        QPointF bestPt = dense.isEmpty() ? QPointF() : dense[0];
+        double bestT = 0.0;
+        for (int i = 0; i < dense.size() - 1; ++i) {
+            QPointF a = dense[i], b = dense[i + 1];
+            QPointF ab = b - a;
+            double abLenSq = lengthSq(ab);
+            if (abLenSq < 1e-18) {
+                double d2 = distSq(a, p);
+                if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = (double)i / (dense.size() - 1); }
+                continue;
+            }
+            double segT = dot(p - a, ab) / abLenSq;
+            segT = qBound(0.0, segT, 1.0);
+            QPointF proj = a + ab * segT;
+            double d2 = distSq(proj, p);
+            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = proj; bestT = (i + segT) / (dense.size() - 1); }
         }
-        double segT = ((p.x() - a.x()) * ab.x() + (p.y() - a.y()) * ab.y()) / abLenSq;
-        segT = qBound(0.0, segT, 1.0);
-        QPointF proj = a + ab * segT;
-        double d2 = (p.x() - proj.x()) * (p.x() - proj.x()) + (p.y() - proj.y()) * (p.y() - proj.y());
-        if (d2 < bestDistSq) { bestDistSq = d2; bestPt = proj; bestT = (i + segT) / (n - 1); }
+        if (outT) *outT = qBound(0.0, bestT, 1.0);
+        if (intpar) delete[] intpar;
+        return bestPt;
     }
-    if (outT) *outT = qBound(0.0, bestT, 1.0);
-    return bestPt;
+
+    double tVal = intpar[0]; // first intersection (there should be exactly one)
+    delete[] intpar;
+
+    // Evaluate curve at parameter to get exact point
+    int iKnot = 0;
+    double result[6] = {};
+    int status = 0;
+    s1227(c, 0, tVal, &iKnot, result, &status);
+    if (status < 0) return {};
+    if (outT) *outT = qBound(0.0, tVal, 1.0);
+    return QPointF(result[0], result[1]);
 }
 
 // --- Plane intersection (ODs SISLDrink: s1850 + ODs normal computation) ---
