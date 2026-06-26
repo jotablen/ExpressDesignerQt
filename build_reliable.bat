@@ -23,13 +23,15 @@ if defined NOCLEAN (
         echo [WARN] build/CMakeCache.txt not found - full configure needed
         set "NOCLEAN="
     )
-) else (
+)
+
+if not defined NOCLEAN (
     echo [Mode] Full rebuild ^(clean build directory^)
     echo [1/3] Preparing build directory...
     rmdir /s /q "%BUILD_DIR%" 2>nul
-    mkdir "%BUILD_DIR%"
 )
 
+if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 cd /d "%BUILD_DIR%"
 
 if not defined NOCLEAN (

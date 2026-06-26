@@ -82,7 +82,8 @@ int main(int argc, char* argv[])
     parser.addPositionalArgument(QStringLiteral("project"), QStringLiteral("Project file (.json) to open"));
     parser.process(app);
 
-    ExpressDesigner::Logger::instance().setFile(QStringLiteral("ExpressDesigner.log"));
+    ExpressDesigner::Logger::instance().setFile(
+        QCoreApplication::applicationDirPath() + QStringLiteral("/ExpressDesigner.log"));
 
     ExpressDesigner::ExpressDesignerApp designerApp;
     designerApp.initialize();

@@ -15,12 +15,16 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Compound.hxx>
 #include <BRep_Builder.hxx>
+#include <TColgp_Array1OfPnt.hxx>
+#include <GeomAPI_PointsToBSpline.hxx>
+#include <Geom_BSplineCurve.hxx>
 #include <STEPControl_Writer.hxx>
 #include <STEPControl_StepModelType.hxx>
 #include <IGESControl_Writer.hxx>
 #include <IGESControl_Controller.hxx>
 #include <Interface_Static.hxx>
 #include <Message_ProgressRange.hxx>
+#include <utils/Logger.h>
 #include <QtMath>
 
 namespace ExpressDesigner {
@@ -33,30 +37,55 @@ bool CADExporter::isStepFile(const QString& path)
     return lower.endsWith(QStringLiteral(".step")) || lower.endsWith(QStringLiteral(".stp"));
 }
 
-double CADExporter::toRadians(double degrees)
+double CADExporter::toRadians(double degrees) { return degrees * M_PI / 180.0; }
+
+/// Build one B-spline edge from control points
+static TopoDS_Edge buildEdge(const QVector<QPointF>& pts, QString& err)
 {
-    return degrees * M_PI / 180.0;
+    if (pts.size() < 2) { err = QStringLiteral("Need at least 2 points."); return TopoDS_Edge(); }
+    TColgp_Array1OfPnt array(1, pts.size());
+    for (int i = 0; i < pts.size(); ++i)
+        array.SetValue(i + 1, gp_Pnt(pts[i].x(), pts[i].y(), 0.0));
+    GeomAPI_PointsToBSpline splineMaker(array, 3, 8, GeomAbs_C2, 1.0e-9);
+    if (!splineMaker.IsDone()) { err = QStringLiteral("B-spline build failed."); return TopoDS_Edge(); }
+    return BRepBuilderAPI_MakeEdge(splineMaker.Curve());
 }
 
-/// Build a wire from control points. Wire is NOT closed — preserves open curves.
+/// Build open wire (no closing edge) — for wires-only export
 static bool buildWire(const QVector<QPointF>& pts, TopoDS_Wire& outWire, QString& err)
 {
-    BRepBuilderAPI_MakeWire wireBuilder;
-    for (int i = 0; i < pts.size() - 1; ++i) {
-        gp_Pnt p1(pts[i].x(), pts[i].y(), 0.0);
-        gp_Pnt p2(pts[i + 1].x(), pts[i + 1].y(), 0.0);
-        wireBuilder.Add(BRepBuilderAPI_MakeEdge(p1, p2));
-    }
+    if (pts.size() < 2) { err = QStringLiteral("Need at least 2 control points."); return false; }
+    TopoDS_Edge edge = buildEdge(pts, err);
+    if (edge.IsNull()) return false;
+    BRepBuilderAPI_MakeWire wireBuilder(edge);
     wireBuilder.Build();
-    if (!wireBuilder.IsDone()) {
-        err = QStringLiteral("Failed to build wire from control points.");
-        return false;
-    }
+    if (!wireBuilder.IsDone()) { err = QStringLiteral("Wire build failed."); return false; }
     outWire = wireBuilder.Wire();
     return true;
 }
 
-/// Build a shape from a wire + extrusion params
+/// Build closed wire for extrusion (closes if endpoints differ)
+static bool buildClosedWire(const QVector<QPointF>& pts, TopoDS_Wire& outWire, QString& err)
+{
+    if (pts.size() < 2) { err = QStringLiteral("Need at least 2 control points."); return false; }
+    TopoDS_Edge edge = buildEdge(pts, err);
+    if (edge.IsNull()) return false;
+    BRepBuilderAPI_MakeWire wireBuilder(edge);
+
+    // Check if first and last points coincide — if not, add closing straight edge
+    gp_Pnt first(pts.first().x(), pts.first().y(), 0.0);
+    gp_Pnt last(pts.last().x(), pts.last().y(), 0.0);
+    if (first.Distance(last) > 1e-9) {
+        TopoDS_Edge closingEdge = BRepBuilderAPI_MakeEdge(last, first);
+        wireBuilder.Add(closingEdge);
+    }
+
+    wireBuilder.Build();
+    if (!wireBuilder.IsDone()) { err = QStringLiteral("Closed wire build failed."); return false; }
+    outWire = wireBuilder.Wire();
+    return true;
+}
+
 static bool buildShape(const CADExportParams& params,
                        TopoDS_Wire& wire,
                        TopoDS_Shape& outShape,
@@ -71,11 +100,10 @@ static bool buildShape(const CADExportParams& params,
         BRepBuilderAPI_MakeFace faceMaker(wire);
         faceMaker.Build();
         if (!faceMaker.IsDone()) {
-            err = QStringLiteral("Cannot build face from wire; exporting wire only.");
+            err = QStringLiteral("Cannot build face: open wire cannot be extruded.");
             outShape = wire;
-            return true; // degraded but OK
+            return false;
         }
-
         gp_Ax1 rotAxis;
         if (params.rotationalAxis == QStringLiteral("X"))
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
@@ -83,14 +111,13 @@ static bool buildShape(const CADExportParams& params,
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1));
         else
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
-
         double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
         BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
         revol.Build();
         if (!revol.IsDone()) {
-            err = QStringLiteral("Rotational extrusion failed; exporting wire only.");
+            err = QStringLiteral("Rotational extrusion failed.");
             outShape = wire;
-            return true;
+            return false;
         }
         outShape = revol.Shape();
         return true;
@@ -100,31 +127,25 @@ static bool buildShape(const CADExportParams& params,
         BRepBuilderAPI_MakeFace faceMaker(wire);
         faceMaker.Build();
         if (!faceMaker.IsDone()) {
-            err = QStringLiteral("Cannot build face from wire; exporting wire only.");
+            err = QStringLiteral("Cannot build face: open wire cannot be extruded.");
             outShape = wire;
-            return true;
+            return false;
         }
-
         gp_Vec vec;
         double len = params.wideness;
-        if (params.linearDirection == QStringLiteral("X"))
-            vec = gp_Vec(len, 0, 0);
-        else if (params.linearDirection == QStringLiteral("Y"))
-            vec = gp_Vec(0, len, 0);
-        else
-            vec = gp_Vec(0, 0, len);
-
+        if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len, 0, 0);
+        else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0, len, 0);
+        else vec = gp_Vec(0, 0, len);
         BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
         prism.Build();
         if (!prism.IsDone()) {
-            err = QStringLiteral("Linear extrusion failed; exporting wire only.");
+            err = QStringLiteral("Linear extrusion failed.");
             outShape = wire;
-            return true;
+            return false;
         }
         outShape = prism.Shape();
         return true;
     }
-
     outShape = wire;
     return true;
 }
@@ -132,21 +153,11 @@ static bool buildShape(const CADExportParams& params,
 bool CADExporter::exportToCAD(const CADExportParams& params)
 {
     s_lastError.clear();
-
-    if (params.controlPoints.isEmpty()) {
-        s_lastError = QStringLiteral("No control points to export.");
-        return false;
-    }
-    if (params.filePath.isEmpty()) {
-        s_lastError = QStringLiteral("No output file path specified.");
-        return false;
-    }
-
+    if (params.controlPoints.isEmpty()) { s_lastError = QStringLiteral("No control points to export."); return false; }
+    if (params.filePath.isEmpty()) { s_lastError = QStringLiteral("No output file path specified."); return false; }
     try {
         TopoDS_Wire wire;
-        if (!buildWire(params.controlPoints, wire, s_lastError))
-            return false;
-
+        if (!buildWire(params.controlPoints, wire, s_lastError)) return false;
         TopoDS_Shape finalShape;
         buildShape(params, wire, finalShape, s_lastError);
 
@@ -175,106 +186,102 @@ bool CADExporter::exportToCAD(const CADExportParams& params)
             }
         }
         return true;
-
-    } catch (const Standard_Failure& e) {
-        s_lastError = QString::fromUtf8(e.GetMessageString());
-        return false;
-    } catch (const std::exception& e) {
-        s_lastError = QString::fromUtf8(e.what());
-        return false;
-    } catch (...) {
-        s_lastError = QStringLiteral("Unknown error during CAD export.");
-        return false;
-    }
+    } catch (const Standard_Failure& e) { s_lastError = QString::fromUtf8(e.GetMessageString()); return false; }
+    catch (const std::exception& e) { s_lastError = QString::fromUtf8(e.what()); return false; }
+    catch (...) { s_lastError = QStringLiteral("Unknown error during CAD export."); return false; }
 }
 
-QString CADExporter::errorMessage()
-{
-    return s_lastError;
-}
+QString CADExporter::errorMessage() { return s_lastError; }
 
 bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
 {
     s_lastError.clear();
-    if (allParams.isEmpty()) {
-        s_lastError = QStringLiteral("No objects to export.");
-        return false;
-    }
+    if (allParams.isEmpty()) { s_lastError = QStringLiteral("No objects to export."); return false; }
     const QString& filePath = allParams.first().filePath;
-    if (filePath.isEmpty()) {
-        s_lastError = QStringLiteral("No output file path specified.");
-        return false;
-    }
+    if (filePath.isEmpty()) { s_lastError = QStringLiteral("No output file path specified."); return false; }
 
+    LOG_INFO(QStringLiteral("CAD"), QStringLiteral("exportMultipleToCAD: %1 objects → %2").arg(allParams.size()).arg(filePath));
     try {
         const bool isStep = isStepFile(filePath);
+        LOG_INFO(QStringLiteral("CAD"), isStep ? QStringLiteral("Format: STEP (AP214)") : QStringLiteral("Format: IGES"));
 
         if (isStep) {
             STEPControl_Writer stepWriter;
             Interface_Static::SetIVal("write.step.schema", 4);
-
-            // Use compound to ensure all shapes are written
             TopoDS_Compound compound;
             BRep_Builder compoundBuilder;
             compoundBuilder.MakeCompound(compound);
+            int shapeCount = 0;
 
-            for (const auto& params : allParams) {
+            for (int i = 0; i < allParams.size(); ++i) {
+                const auto& params = allParams[i];
+                LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] %3 pts, rot=%4 lin=%5").arg(i+1).arg(allParams.size())
+                         .arg(params.controlPoints.size()).arg(params.rotational?1:0).arg(params.linear?1:0));
                 if (params.controlPoints.size() < 2) continue;
 
                 TopoDS_Wire wire;
                 QString err;
-                if (!buildWire(params.controlPoints, wire, err)) continue;
+                bool ok = buildWire(params.controlPoints, wire, err);
+                if (!ok) { LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire FAILED: %3").arg(i+1).arg(allParams.size()).arg(err)); continue; }
+                LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire OK").arg(i+1).arg(allParams.size()));
 
                 TopoDS_Shape shape;
-                buildShape(params, wire, shape, err);
-                compoundBuilder.Add(compound, shape);
+                if (buildShape(params, wire, shape, err) || !err.isEmpty()) {
+                    if (!err.isEmpty()) LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Extrusion degraded: %3").arg(i+1).arg(allParams.size()).arg(err));
+                    compoundBuilder.Add(compound, shape);
+                    ++shapeCount;
+                }
             }
 
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Writing STEP with %1 shapes...").arg(shapeCount));
             stepWriter.Transfer(compound, STEPControl_AsIs);
             if (!stepWriter.Write(filePath.toUtf8().constData())) {
                 s_lastError = QStringLiteral("Failed to write STEP file: ") + filePath;
+                LOG_ERROR(QStringLiteral("CAD"), s_lastError);
                 return false;
             }
         } else {
             IGESControl_Controller::Init();
             IGESControl_Writer igesWriter("MM", 0);
-
-            // Use compound to ensure all shapes are written
             TopoDS_Compound compound;
             BRep_Builder compoundBuilder;
             compoundBuilder.MakeCompound(compound);
+            int shapeCount = 0;
 
-            for (const auto& params : allParams) {
+            for (int i = 0; i < allParams.size(); ++i) {
+                const auto& params = allParams[i];
+                LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] %3 pts, rot=%4 lin=%5").arg(i+1).arg(allParams.size())
+                         .arg(params.controlPoints.size()).arg(params.rotational?1:0).arg(params.linear?1:0));
                 if (params.controlPoints.size() < 2) continue;
 
                 TopoDS_Wire wire;
                 QString err;
-                if (!buildWire(params.controlPoints, wire, err)) continue;
+                bool ok = buildWire(params.controlPoints, wire, err);
+                if (!ok) { LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire FAILED: %3").arg(i+1).arg(allParams.size()).arg(err)); continue; }
+                LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire OK").arg(i+1).arg(allParams.size()));
 
                 TopoDS_Shape shape;
-                buildShape(params, wire, shape, err);
-                compoundBuilder.Add(compound, shape);
+                if (buildShape(params, wire, shape, err) || !err.isEmpty()) {
+                    if (!err.isEmpty()) LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Extrusion degraded: %3").arg(i+1).arg(allParams.size()).arg(err));
+                    compoundBuilder.Add(compound, shape);
+                    ++shapeCount;
+                }
             }
 
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Writing IGES with %1 shapes...").arg(shapeCount));
             igesWriter.AddShape(compound);
             igesWriter.ComputeModel();
             if (!igesWriter.Write(filePath.toUtf8().constData())) {
                 s_lastError = QStringLiteral("Failed to write IGES file: ") + filePath;
+                LOG_ERROR(QStringLiteral("CAD"), s_lastError);
                 return false;
             }
         }
+        LOG_INFO(QStringLiteral("CAD"), QStringLiteral("exportMultipleToCAD: SUCCESS → %1").arg(filePath));
         return true;
-
-    } catch (const Standard_Failure& e) {
-        s_lastError = QString::fromUtf8(e.GetMessageString());
-        return false;
-    } catch (const std::exception& e) {
-        s_lastError = QString::fromUtf8(e.what());
-        return false;
-    } catch (...) {
-        s_lastError = QStringLiteral("Unknown error during CAD export.");
-        return false;
-    }
+    } catch (const Standard_Failure& e) { s_lastError = QString::fromUtf8(e.GetMessageString()); LOG_ERROR(QStringLiteral("CAD"), s_lastError); return false; }
+    catch (const std::exception& e) { s_lastError = QString::fromUtf8(e.what()); LOG_ERROR(QStringLiteral("CAD"), s_lastError); return false; }
+    catch (...) { s_lastError = QStringLiteral("Unknown error."); LOG_ERROR(QStringLiteral("CAD"), s_lastError); return false; }
 }
 
 } // namespace ExpressDesigner

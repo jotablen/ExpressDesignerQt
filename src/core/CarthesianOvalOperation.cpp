@@ -37,10 +37,8 @@ static bool calcCarthesianPoint2D(
         X = p1 + n1 * t;
         if (!curve2.closestPointN(X, cp, n2, flip2))
             return 1e9; // normal doesn't pass through X → skip
-        return n1_idx * dot(p1 - X, n1) 
-            + n2_idx * dot(cp - X, n2) - OpticalPathLen;
-    // double C = n1 * dot(rp1 - refPoint, n1v)
-    //          + n2 * dot(rp2 - refPoint, n2v);
+        // Match C convention: C = n1 * dot(rp1 - refPoint, n1v) + n2 * dot(rp2 - refPoint, n2v)
+        return n1_idx * dot(p1 - X, n1) + n2_idx * dot(cp - X, n2) - OpticalPathLen;
 
     };
 
@@ -165,9 +163,14 @@ bool CarthesianOvalOperation::execute(Project* project)
         QPointF p1 = curve1.evaluate(t1);
         QPointF n1v = curve1.normal(t1, flip1);
         QPointF ovalPt;
-        if (calcCarthesianPoint2D(p1, n1v, n1, curve2, n2, flip2, C, ovalPt))
-            ovalPts.append(ovalPt);
-        // else: skip — normal doesn't align
+        if (calcCarthesianPoint2D(p1, n1v, n1, curve2, n2, flip2, C, ovalPt)) {
+            // Post-convergence check: does WF2 normal pass through ovalPt?
+            QPointF checkPt, checkNormal;
+            if (curve2.closestPointN(ovalPt, checkPt, checkNormal, flip2))
+                ovalPts.append(ovalPt);
+            // else: skip — normal validation failed
+        }
+        // else: skip — OPL didn't converge
     }
 
     if (ovalPts.size() < 3) {

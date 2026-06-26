@@ -66,7 +66,6 @@ MainWindow::MainWindow(QWidget* parent)
 
     QSettings settings;
     restoreGeometry(settings.value(QStringLiteral("MainWindow/geometry")).toByteArray());
-    restoreState(settings.value(QStringLiteral("MainWindow/state")).toByteArray());
 }
 
 MainWindow::~MainWindow() = default;
@@ -159,6 +158,7 @@ void MainWindow::setupMenuBar()
 void MainWindow::setupToolBar()
 {
     QToolBar* toolbar = addToolBar(tr("Main"));
+    toolbar->setObjectName(QStringLiteral("MainToolBar"));
     toolbar->setMovable(false);
 
     toolbar->addAction(tr("Insert"), this, &MainWindow::onInsertObject);
@@ -171,6 +171,7 @@ void MainWindow::setupToolBar()
     toolbar->addSeparator();
 
     m_deleteAction = new QAction(tr("Delete"), this);
+    m_deleteAction->setObjectName(QStringLiteral("actionDelete"));
     connect(m_deleteAction, &QAction::triggered, this, &MainWindow::onDeleteObject);
     toolbar->addAction(m_deleteAction);
     updateDeleteActionState();
@@ -606,6 +607,8 @@ void MainWindow::onNewProject()
 
 void MainWindow::onOpenProject()
 {
+    if (!maybeSaveBeforeAction(tr("opening another project"))) return;
+
     QString filePath = QFileDialog::getOpenFileName(this, tr("Open Project"),
         QString(), tr("JSON Project (*.json);;All Files (*)"));
     if (filePath.isEmpty()) return;
@@ -635,15 +638,21 @@ void MainWindow::onSaveProjectAs()
     onSaveProject();
 }
 
+/// Returns true if the caller should proceed, false if cancelled
+bool MainWindow::maybeSaveBeforeAction(const QString& action)
+{
+    if (!m_isModified) return true;
+    auto answer = QMessageBox::question(this, tr("Unsaved Changes"),
+        tr("Save changes before %1?").arg(action),
+        QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    if (answer == QMessageBox::Cancel) return false;
+    if (answer == QMessageBox::Save) onSaveProject();
+    return true;
+}
+
 void MainWindow::onCloseProject()
 {
-    if (m_isModified) {
-        auto answer = QMessageBox::question(this, tr("Unsaved Changes"),
-            tr("Save changes before closing?"),
-            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        if (answer == QMessageBox::Cancel) return;
-        if (answer == QMessageBox::Save) onSaveProject();
-    }
+    if (!maybeSaveBeforeAction(tr("closing"))) return;
     onNewProject();
 }
 
@@ -1331,16 +1340,9 @@ void MainWindow::setModified(bool modified)
 
 void MainWindow::closeEvent(QCloseEvent* event)
 {
-    if (m_isModified) {
-        auto answer = QMessageBox::question(this, tr("Unsaved Changes"),
-            tr("Save changes before exiting?"),
-            QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
-        if (answer == QMessageBox::Cancel) { event->ignore(); return; }
-        if (answer == QMessageBox::Save) onSaveProject();
-    }
+    if (!maybeSaveBeforeAction(tr("exiting"))) { event->ignore(); return; }
     QSettings settings;
     settings.setValue(QStringLiteral("MainWindow/geometry"), saveGeometry());
-    settings.setValue(QStringLiteral("MainWindow/state"), saveState());
     event->accept();
 }
 

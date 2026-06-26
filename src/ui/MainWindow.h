@@ -149,6 +149,7 @@ private:
     bool m_showLabels = true;
     bool m_showNormals = false;
     bool m_isModified = false;
+    bool maybeSaveBeforeAction(const QString& action);
 
     // Pan state
     bool m_isPanning = false;
