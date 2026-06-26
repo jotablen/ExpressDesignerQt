@@ -68,7 +68,20 @@ MainWindow::MainWindow(QWidget* parent)
     restoreGeometry(settings.value(QStringLiteral("MainWindow/geometry")).toByteArray());
 }
 
-MainWindow::~MainWindow() = default;
+MainWindow::~MainWindow()
+{
+    // Disconnect all signals to prevent QObject cast assertion during destruction
+    // Children emit signals as Qt destroys them bottom-up — if MainWindow is partially
+    // destroyed, slot calls fail with "Called object is not of the correct type"
+    QObject::disconnect(m_cmdHistory,        nullptr, this, nullptr);
+    QObject::disconnect(m_propertiesWidget,  nullptr, this, nullptr);
+    QObject::disconnect(m_objectTree->selectionModel(), nullptr, this, nullptr);
+    QObject::disconnect(m_rightSplitter,     nullptr, this, nullptr);
+    QObject::disconnect(m_mainSplitter,      nullptr, this, nullptr);
+#ifdef HAS_QT_CHARTS
+    QObject::disconnect(m_chartView,         nullptr, this, nullptr);
+#endif
+}
 
 void MainWindow::setProject(Project* project)
 {

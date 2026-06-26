@@ -97,13 +97,6 @@ static bool buildShape(const CADExportParams& params,
     }
 
     if (params.rotational) {
-        BRepBuilderAPI_MakeFace faceMaker(wire);
-        faceMaker.Build();
-        if (!faceMaker.IsDone()) {
-            err = QStringLiteral("Cannot build face: open wire cannot be extruded.");
-            outShape = wire;
-            return false;
-        }
         gp_Ax1 rotAxis;
         if (params.rotationalAxis == QStringLiteral("X"))
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
@@ -112,39 +105,48 @@ static bool buildShape(const CADExportParams& params,
         else
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
         double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
-        BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
-        revol.Build();
-        if (!revol.IsDone()) {
-            err = QStringLiteral("Rotational extrusion failed.");
-            outShape = wire;
-            return false;
+
+        // Try face first, then wire directly
+        BRepBuilderAPI_MakeFace faceMaker(wire);
+        faceMaker.Build();
+        if (faceMaker.IsDone()) {
+            BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
+            revol.Build();
+            if (revol.IsDone()) { outShape = revol.Shape(); return true; }
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Revol with face failed, trying wire..."));
         }
-        outShape = revol.Shape();
-        return true;
+        // Fallback: extrude wire directly → produces shell
+        BRepPrimAPI_MakeRevol revolFromWire(wire, rotAxis, angleRad);
+        revolFromWire.Build();
+        if (revolFromWire.IsDone()) { outShape = revolFromWire.Shape(); return true; }
+        err = QStringLiteral("Rotational extrusion failed.");
+        outShape = wire;
+        return false;
     }
 
     if (params.linear) {
-        BRepBuilderAPI_MakeFace faceMaker(wire);
-        faceMaker.Build();
-        if (!faceMaker.IsDone()) {
-            err = QStringLiteral("Cannot build face: open wire cannot be extruded.");
-            outShape = wire;
-            return false;
-        }
         gp_Vec vec;
         double len = params.wideness;
         if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len, 0, 0);
         else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0, len, 0);
         else vec = gp_Vec(0, 0, len);
-        BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
-        prism.Build();
-        if (!prism.IsDone()) {
-            err = QStringLiteral("Linear extrusion failed.");
-            outShape = wire;
-            return false;
+
+        // Try face first, then wire directly
+        BRepBuilderAPI_MakeFace faceMaker(wire);
+        faceMaker.Build();
+        if (faceMaker.IsDone()) {
+            BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
+            prism.Build();
+            if (prism.IsDone()) { outShape = prism.Shape(); return true; }
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Prism with face failed, trying wire..."));
         }
-        outShape = prism.Shape();
-        return true;
+        // Fallback: extrude wire directly → produces shell
+        BRepPrimAPI_MakePrism prismFromWire(wire, vec);
+        prismFromWire.Build();
+        if (prismFromWire.IsDone()) { outShape = prismFromWire.Shape(); return true; }
+        err = QStringLiteral("Linear extrusion failed.");
+        outShape = wire;
+        return false;
     }
     outShape = wire;
     return true;
