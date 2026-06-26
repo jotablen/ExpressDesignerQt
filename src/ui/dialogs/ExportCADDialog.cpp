@@ -172,12 +172,14 @@ void ExportCADDialog::populateObjects(Project* project)
     // Always show non-WF data objects and result objects
     for (auto* obj : project->dataObjects()) {
         if (!obj) continue;
-        if (!isWavefront(obj->objectType()))
+        if (!isWavefront(obj->objectType())
+            && (obj->objectType() != ObjectType::Point))
             m_objectList->addItem(obj->name());
     }
     for (auto* obj : project->resultObjects()) {
         if (!obj) continue;
-        if (!isWavefront(obj->objectType()))
+        if (!isWavefront(obj->objectType())
+            && (obj->objectType() != ObjectType::Point))
             m_objectList->addItem(obj->name());
     }
     updateExportButton();
@@ -204,11 +206,13 @@ void ExportCADDialog::refilterObjects()
     for (auto* obj : m_project->dataObjects()) {
         if (!obj) continue;
         if (isWavefront(obj->objectType()) && !includeWFs) continue;
+        if (obj->objectType() == ObjectType::Point) continue;
         m_objectList->addItem(obj->name());
     }
     for (auto* obj : m_project->resultObjects()) {
         if (!obj) continue;
         if (isWavefront(obj->objectType()) && !includeWFs) continue;
+        if (obj->objectType() == ObjectType::Point) continue;
         m_objectList->addItem(obj->name());
     }
 

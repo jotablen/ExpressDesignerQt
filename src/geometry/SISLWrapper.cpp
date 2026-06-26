@@ -292,14 +292,9 @@ QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
     double tVal = intpar[0]; // first intersection (there should be exactly one)
     delete[] intpar;
 
-    // Evaluate curve at parameter to get exact point
-    int iKnot = 0;
-    double result[6] = {};
-    int status = 0;
-    s1227(c, 0, tVal, &iKnot, result, &status);
-    if (status < 0) return {};
+    auto [pt, _] = pointAndDerivative(tVal);
     if (outT) *outT = qBound(0.0, tVal, 1.0);
-    return QPointF(result[0], result[1]);
+    return pt;
 }
 
 // --- Plane intersection (ODs SISLDrink: s1850 + ODs normal computation) ---
@@ -332,24 +327,12 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     if (numintpt <= 0 || !ListaParametros)
         return -1.0;
 
-    // s1227(ideriv=1) gives us both point [0..2] and tangent [3..5] in ONE call
-    int iKnot = 0;
-    double PontoTangente[6] = {};
-    s1227(c, 1, ListaParametros[0], &iKnot, PontoTangente, &SISLError_val);
-
-    QPointF hitPt(PontoTangente[0], PontoTangente[1]);
-    QPointF tangent(PontoTangente[3], PontoTangente[4]);
+    // Use pointAndDerivative to get both point and tangent in one call
+    auto [hitPt, tangent] = pointAndDerivative(ListaParametros[0]);
 
     // Geometric curve normal: rotate tangent 90° CCW
     // For a 2D curve C(t), the normal is (-C'(t).y, C'(t).x)
-    // This is needed for correct Snell's law refraction
-    QPointF curveNormal;
-    double normTgt = qSqrt(tangent.x() * tangent.x() + tangent.y() * tangent.y());
-    if (normTgt < 1e-12) {
-        curveNormal = QPointF(0, 1);
-    } else {
-        curveNormal = QPointF(-tangent.y(), tangent.x()) / normTgt;
-    }
+    QPointF curveNormal = curveNormal2D(tangent);
 
     delete[] ListaParametros;
 
