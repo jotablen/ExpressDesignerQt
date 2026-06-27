@@ -22,6 +22,9 @@ public:
     int refPointKind() const { return m_refPointKind; }
     QString refPointSourceName() const { return m_refPointSourceName; }
 
+    void setForceRefPoint(bool force) { m_forceRefPoint = force; }
+    bool forceRefPoint() const { return m_forceRefPoint; }
+
     void saveToJson(QJsonObject& json) const override;
     void loadFromJson(const QJsonObject& json) override;
 
@@ -33,6 +36,7 @@ public:
 private:
     int m_refPointKind = 0;
     QString m_refPointSourceName;
+    bool m_forceRefPoint = true;   // include the reference point in the result
 };
 
 } // namespace ExpressDesigner

@@ -18,9 +18,9 @@ public:
     QComboBox* refPointCombo() const { return m_refPointCombo; }
     QLineEdit* amountEdit() const { return m_amountEdit; }
     QLineEdit* resultNameEdit() const { return m_resultNameEdit; }
-    bool excludeRTI() const { return m_excludeRtiCheck->isChecked(); }
     int refPointKind() const;
     QString refPointSourceName() const;
+    bool includeRefPoint() const { return m_includeRefCheck->isChecked(); }
 
 private slots:
     void onWfOrgChanged();
@@ -35,7 +35,8 @@ private:
     QComboBox* m_refPointCombo = nullptr;
     QLineEdit* m_amountEdit = nullptr;
     QLineEdit* m_resultNameEdit = nullptr;
-    QCheckBox* m_excludeRtiCheck = nullptr;
+
+    QCheckBox* m_includeRefCheck = nullptr;
     Project* m_project = nullptr;
 };
 

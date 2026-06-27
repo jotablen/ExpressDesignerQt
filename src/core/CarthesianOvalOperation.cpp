@@ -184,14 +184,16 @@ bool CarthesianOvalOperation::execute(Project* project)
         return false;
     }
 
-    // Force reference point onto curve
-    int closestIdx = 0;
-    double closestDist = 1e18;
-    for (int i = 0; i < ovalPts.size(); ++i) {
-        double d = distSq(ovalPts[i], refPoint);
-        if (d < closestDist) { closestDist = d; closestIdx = i; }
+    // Optional: force reference point onto curve
+    if (m_forceRefPoint) {
+        int closestIdx = 0;
+        double closestDist = 1e18;
+        for (int i = 0; i < ovalPts.size(); ++i) {
+            double d = distSq(ovalPts[i], refPoint);
+            if (d < closestDist) { closestDist = d; closestIdx = i; }
+        }
+        ovalPts[closestIdx] = refPoint;
     }
-    ovalPts[closestIdx] = refPoint;
 
     result->setControlPoints(ovalPts);
     project->addResultObject(result);

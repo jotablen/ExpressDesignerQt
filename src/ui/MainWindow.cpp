@@ -899,6 +899,7 @@ void MainWindow::onCalculateOval()
         op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
         op->setRefPointKind(dlg.refPointKind());
         op->setRefPointSourceName(dlg.refPointSourceName());
+        op->setForceRefPoint(dlg.includeRefPoint());
         // push() internally calls execute() — operation runs and result is added
         auto execCmd = std::make_unique<ExecuteOperationCommand>(op);
         if (!m_cmdHistory->push(std::move(execCmd), m_currentProject)) {

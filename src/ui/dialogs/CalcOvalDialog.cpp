@@ -59,11 +59,10 @@ CalcOvalDialog::CalcOvalDialog(QWidget* parent) : QDialog(parent)
     sep3->setFrameShadow(QFrame::Sunken);
     layout->addWidget(sep3);
 
-    // --- Exclude RTI checkbox (hidden by default, matching original) ---
-    m_excludeRtiCheck = new QCheckBox(QStringLiteral("Exclude TI&R points from result"), this);
-    m_excludeRtiCheck->setChecked(true);
-    m_excludeRtiCheck->setVisible(false);
-    layout->addWidget(m_excludeRtiCheck);
+    // --- Reference point inclusion (optional) ---
+    m_includeRefCheck = new QCheckBox(QStringLiteral("Include reference point in result"), this);
+    m_includeRefCheck->setChecked(true);
+    layout->addWidget(m_includeRefCheck);
 
     // --- Buttons ---
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
@@ -95,7 +94,6 @@ CalcOvalDialog::CalcOvalDialog(QWidget* parent) : QDialog(parent)
             m_amountEdit->setFocus();
             return;
         }
-        m_excludeRtiCheck->setChecked(true);
         accept();
     });
 
@@ -129,7 +127,6 @@ void CalcOvalDialog::setProject(Project* project)
     if (m_refPointCombo->count() > 0)
         m_refPointCombo->setCurrentIndex(0);
 
-    m_excludeRtiCheck->setChecked(true);
     updateResultName();
 }
 

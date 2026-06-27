@@ -107,33 +107,33 @@ static bool buildShape(const CADExportParams& params,
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
         double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
 
-        // ═══ Axis-crossing & endpoint-near-axis detection ═══
-        // OpenCASCADE requires: endpoints on axis must have tangent ⊥ axis.
-        // Curves crossing the axis create self-intersecting shells.
-        // If an endpoint is within 1% of the curve extent of the axis,
-        // force tangent at that endpoint to be perpendicular.
-        bool crossesAxis = false;
-        double minCoord = 1e9, maxCoord = -1e9;
+        // ═══ Re-sample for X-positive curves (rotational) ═══
+        // If curve crosses or touches the axis, re-sample to X≥0 portion
+        QVector<QPointF> filteredPts;
         for (const auto& pt : params.controlPoints) {
             double checkVal = (params.rotationalAxis == QStringLiteral("Z")) ? pt.y() : pt.x();
-            if (checkVal < minCoord) minCoord = checkVal;
-            if (checkVal > maxCoord) maxCoord = checkVal;
-            if (checkVal < -1e-6) { crossesAxis = true; break; }
+            if (checkVal >= -1e-6) filteredPts.append(pt);
         }
-        if (crossesAxis) {
-            LOG_WARN(QStringLiteral("CAD"), QStringLiteral("Curve crosses axis — cannot revolve; exporting wire only."));
-            err = QStringLiteral("Curve crosses rotational axis.");
+        if (filteredPts.size() != params.controlPoints.size()) {
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Curve clipped for rotation (%1 pts → %2 pts)")
+                     .arg(params.controlPoints.size()).arg(filteredPts.size()));
+        }
+        if (filteredPts.size() < 2) {
+            LOG_WARN(QStringLiteral("CAD"), QStringLiteral("Not enough points after axis clipping; exporting wire only."));
+            err = QStringLiteral("Not enough points after axis clipping.");
             outShape = wire;
             return false;
         }
-        // Check if curve endpoints are near the axis → tangent must be ⊥
-        double axisNear = qMax(qAbs(maxCoord), qAbs(minCoord)) * 0.01;
-        if (qAbs(minCoord) < axisNear || qAbs(maxCoord) < axisNear) {
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Curve near axis — applying ShapeFix_Wire healing."));
+        // Always rebuild wire from (possibly filtered) points
+        TopoDS_Wire clippedWire;
+        if (!buildWire(filteredPts, clippedWire, err)) {
+            outShape = wire;
+            return false;
         }
+        TopoDS_Wire& workWire = clippedWire;
 
         // Heal wire tolerance before building face/revol
-        ShapeFix_Wire wireFix(wire, TopoDS_Face(), 1e-6);
+        ShapeFix_Wire wireFix(workWire, TopoDS_Face(), 1e-6);
         wireFix.Perform();
         TopoDS_Wire healedWire = wireFix.Wire();
 
