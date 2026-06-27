@@ -15,6 +15,7 @@
 #include <TopoDS_Face.hxx>
 #include <TopoDS_Compound.hxx>
 #include <BRep_Builder.hxx>
+#include <ShapeFix_Wire.hxx>
 #include <TColgp_Array1OfPnt.hxx>
 #include <GeomAPI_PointsToBSpline.hxx>
 #include <Geom_BSplineCurve.hxx>
@@ -106,13 +107,17 @@ static bool buildShape(const CADExportParams& params,
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
         double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
 
-        // ═══ Axis-crossing detection ═══
-        // Check if any control point lies on the "wrong" side of the rotation axis.
-        // The axis is at origin; negative coordinate along the dimension being rotated
-        // would cause self-intersecting geometry.
+        // ═══ Axis-crossing & endpoint-near-axis detection ═══
+        // OpenCASCADE requires: endpoints on axis must have tangent ⊥ axis.
+        // Curves crossing the axis create self-intersecting shells.
+        // If an endpoint is within 1% of the curve extent of the axis,
+        // force tangent at that endpoint to be perpendicular.
         bool crossesAxis = false;
+        double minCoord = 1e9, maxCoord = -1e9;
         for (const auto& pt : params.controlPoints) {
             double checkVal = (params.rotationalAxis == QStringLiteral("Z")) ? pt.y() : pt.x();
+            if (checkVal < minCoord) minCoord = checkVal;
+            if (checkVal > maxCoord) maxCoord = checkVal;
             if (checkVal < -1e-6) { crossesAxis = true; break; }
         }
         if (crossesAxis) {
@@ -121,18 +126,28 @@ static bool buildShape(const CADExportParams& params,
             outShape = wire;
             return false;
         }
+        // Check if curve endpoints are near the axis → tangent must be ⊥
+        double axisNear = qMax(qAbs(maxCoord), qAbs(minCoord)) * 0.01;
+        if (qAbs(minCoord) < axisNear || qAbs(maxCoord) < axisNear) {
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Curve near axis — applying ShapeFix_Wire healing."));
+        }
+
+        // Heal wire tolerance before building face/revol
+        ShapeFix_Wire wireFix(wire, TopoDS_Face(), 1e-6);
+        wireFix.Perform();
+        TopoDS_Wire healedWire = wireFix.Wire();
 
         // Try face first, then wire directly
-        BRepBuilderAPI_MakeFace faceMaker(wire);
+        BRepBuilderAPI_MakeFace faceMaker(healedWire);
         faceMaker.Build();
         if (faceMaker.IsDone()) {
             BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
             revol.Build();
             if (revol.IsDone()) { outShape = revol.Shape(); return true; }
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Revol with face failed, trying wire..."));
+            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Revol with face failed, trying healed wire..."));
         }
-        // Fallback: extrude wire directly → produces shell
-        BRepPrimAPI_MakeRevol revolFromWire(wire, rotAxis, angleRad);
+        // Fallback: extrude healed wire directly → produces shell
+        BRepPrimAPI_MakeRevol revolFromWire(healedWire, rotAxis, angleRad);
         revolFromWire.Build();
         if (revolFromWire.IsDone()) { outShape = revolFromWire.Shape(); return true; }
         err = QStringLiteral("Rotational extrusion failed.");

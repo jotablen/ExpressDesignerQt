@@ -9,6 +9,9 @@ set "MINGW_BIN=C:\msys64\mingw64\bin"
 set "MINGW_SHARE=C:\msys64\mingw64\share"
 set "MINGW_LIB=C:\msys64\mingw64\lib"
 
+set "QUICK="
+if /i "%~1"=="quick" set "QUICK=1"
+
 echo ============================================================
 echo   ExpressDesigner - Post-Build Deployment
 echo ============================================================
@@ -68,7 +71,11 @@ if exist "%MINGW_SHARE%\qt6\plugins\platforms\qwindows.dll" (
 :: Step 6: Recursive DLL resolution via PowerShell
 echo.
 echo [---] Resolving transitive dependencies...
-powershell -NoProfile -ExecutionPolicy Bypass -File "%PROJECT_DIR%\tools\resolve_deps.ps1" -ExePath "%BUILD_EXE%" -MingwBin "%MINGW_BIN%" -BinDir "%BIN_DIR%"
+if not defined QUICK (
+    powershell -NoProfile -ExecutionPolicy Bypass -File "%PROJECT_DIR%\tools\resolve_deps.ps1" -ExePath "%BUILD_EXE%" -MingwBin "%MINGW_BIN%" -BinDir "%BIN_DIR%"
+) else (
+    echo [---] Skipping transitive deps ^(quick mode^)
+)
 
 :: Step 7: Styles
 if exist "%MINGW_SHARE%\qt6\plugins\styles\qwindowsvistastyle.dll" (
