@@ -106,6 +106,22 @@ static bool buildShape(const CADExportParams& params,
             rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
         double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
 
+        // ═══ Axis-crossing detection ═══
+        // Check if any control point lies on the "wrong" side of the rotation axis.
+        // The axis is at origin; negative coordinate along the dimension being rotated
+        // would cause self-intersecting geometry.
+        bool crossesAxis = false;
+        for (const auto& pt : params.controlPoints) {
+            double checkVal = (params.rotationalAxis == QStringLiteral("Z")) ? pt.y() : pt.x();
+            if (checkVal < -1e-6) { crossesAxis = true; break; }
+        }
+        if (crossesAxis) {
+            LOG_WARN(QStringLiteral("CAD"), QStringLiteral("Curve crosses axis — cannot revolve; exporting wire only."));
+            err = QStringLiteral("Curve crosses rotational axis.");
+            outShape = wire;
+            return false;
+        }
+
         // Try face first, then wire directly
         BRepBuilderAPI_MakeFace faceMaker(wire);
         faceMaker.Build();

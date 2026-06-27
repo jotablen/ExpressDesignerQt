@@ -226,20 +226,44 @@ QPair<QPointF, QPointF> SISLCurve::pointAndNormal(double t, bool flipped) const
 bool SISLCurve::closestPointN(const QPointF& ref, QPointF& outPt, QPointF& outNormal, bool flipped) const
 {
     double t;
-    QPointF cp = closestPoint(ref, &t);          // seed (geometric closest)
-    QPointF n = normal(t, flipped);              // WF-oriented normal at seed (single evaluation)
+    QPointF cp = closestPoint(ref, &t);
+    QPointF n = normal(t, flipped);
     double cr = cross(n, cp - ref);
     if (qAbs(cr) > 1e-10) {
-        // Normal crosses ref line — project onto normal line through ref
         double proj = dot(n, cp - ref);
         outPt = ref + n * proj;
         outNormal = n;
         return true;
     }
-    // Cross product ~ 0 → normal passes through ref (or parallel)
     outPt = cp;
     outNormal = n;
     return true;
+}
+
+// --- Discretized closest-point fallback (fast polyline search) ---
+QPointF SISLCurve::closestPointDiscretized(const QPointF& p, double* outT) const
+{
+    auto dense = evaluateAll(200);
+    double bestDistSq = std::numeric_limits<double>::max();
+    QPointF bestPt = dense.isEmpty() ? QPointF() : dense[0];
+    double bestT = 0.0;
+    for (int i = 0; i < dense.size() - 1; ++i) {
+        QPointF a = dense[i], b = dense[i + 1];
+        QPointF ab = b - a;
+        double abLenSq = lengthSq(ab);
+        if (abLenSq < 1e-18) {
+            double d2 = distSq(a, p);
+            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = (double)i / (dense.size() - 1); }
+            continue;
+        }
+        double segT = dot(p - a, ab) / abLenSq;
+        segT = qBound(0.0, segT, 1.0);
+        QPointF proj = a + ab * segT;
+        double d2 = distSq(proj, p);
+        if (d2 < bestDistSq) { bestDistSq = d2; bestPt = proj; bestT = (i + segT) / (dense.size() - 1); }
+    }
+    if (outT) *outT = qBound(0.0, bestT, 1.0);
+    return bestPt;
 }
 
 // --- Closest point (ODs SISLDrink: s1953 — native SISL, no discretization) ---
@@ -249,8 +273,8 @@ QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
     if (!c || m_points.size() < 2) return m_points.isEmpty() ? QPointF() : m_points[0];
 
     double point[3] = { p.x(), p.y(), 0.0 };
-    constexpr double epsco = 1e-12;  // computational resolution
-    constexpr double epsge = 1e-12;  // geometric resolution
+    constexpr double epsco = 1e-12;
+    constexpr double epsge = 1e-12;
     int numintpt = 0;
     double* intpar = nullptr;
     int numintcu = 0;
@@ -264,32 +288,11 @@ QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
         freeIntcrvlist(intcurve, numintcu);
 
     if (numintpt <= 0 || !intpar) {
-        // Fallback: discretized search
-        auto dense = evaluateAll(200);
-        double bestDistSq = std::numeric_limits<double>::max();
-        QPointF bestPt = dense.isEmpty() ? QPointF() : dense[0];
-        double bestT = 0.0;
-        for (int i = 0; i < dense.size() - 1; ++i) {
-            QPointF a = dense[i], b = dense[i + 1];
-            QPointF ab = b - a;
-            double abLenSq = lengthSq(ab);
-            if (abLenSq < 1e-18) {
-                double d2 = distSq(a, p);
-                if (d2 < bestDistSq) { bestDistSq = d2; bestPt = a; bestT = (double)i / (dense.size() - 1); }
-                continue;
-            }
-            double segT = dot(p - a, ab) / abLenSq;
-            segT = qBound(0.0, segT, 1.0);
-            QPointF proj = a + ab * segT;
-            double d2 = distSq(proj, p);
-            if (d2 < bestDistSq) { bestDistSq = d2; bestPt = proj; bestT = (i + segT) / (dense.size() - 1); }
-        }
-        if (outT) *outT = qBound(0.0, bestT, 1.0);
         if (intpar) delete[] intpar;
-        return bestPt;
+        return closestPointDiscretized(p, outT);
     }
 
-    double tVal = intpar[0]; // first intersection (there should be exactly one)
+    double tVal = intpar[0];
     delete[] intpar;
 
     auto [pt, _] = pointAndDerivative(tVal);
@@ -298,9 +301,6 @@ QPointF SISLCurve::closestPoint(const QPointF& p, double* outT) const
 }
 
 // --- Plane intersection (ODs SISLDrink: s1850 + ODs normal computation) ---
-// The ODs algorithm computes the curve normal AT the intersection point,
-// projected onto the plane. This gives us the surface normal directly,
-// eliminating the need for closestPoint + normal() afterwards.
 double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& planeNormal,
                                     QPointF* outHitPt, QPointF* outNormal,
                                     double* outT) const
@@ -327,11 +327,7 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     if (numintpt <= 0 || !ListaParametros)
         return -1.0;
 
-    // Use pointAndDerivative to get both point and tangent in one call
     auto [hitPt, tangent] = pointAndDerivative(ListaParametros[0]);
-
-    // Geometric curve normal: rotate tangent 90° CCW
-    // For a 2D curve C(t), the normal is (-C'(t).y, C'(t).x)
     QPointF curveNormal = curveNormal2D(tangent);
 
     delete[] ListaParametros;
@@ -340,9 +336,7 @@ double SISLCurve::planeIntersection(const QPointF& planePoint, const QPointF& pl
     if (outNormal) *outNormal = curveNormal;
     if (outT) *outT = 0.0;
 
-    double dx = hitPt.x() - planePoint.x();
-    double dy = hitPt.y() - planePoint.y();
-    return qSqrt(dx * dx + dy * dy);
+    return dist(hitPt, planePoint);
 }
 
 // --- Static factory ---
