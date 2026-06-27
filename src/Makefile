@@ -64,6 +64,26 @@ CMAKE_BINARY_DIR = E:\Projects\newVibes\ExpressDesignerQt
 #=============================================================================
 # Targets provided globally by CMake.
 
+# Special rule for the target package
+package: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool..."
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && C:\PROGRA~1\CMake\bin\cpack.exe --config ./CPackConfig.cmake
+.PHONY : package
+
+# Special rule for the target package
+package/fast: package
+.PHONY : package/fast
+
+# Special rule for the target package_source
+package_source:
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Run CPack packaging tool for source..."
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && C:\PROGRA~1\CMake\bin\cpack.exe --config ./CPackSourceConfig.cmake
+.PHONY : package_source
+
+# Special rule for the target package_source
+package_source/fast: package_source
+.PHONY : package_source/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running CMake cache editor..."
@@ -86,7 +106,7 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target list_install_components
 list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"gmock\" \"gtest\""
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Available install components are: \"Unspecified\" \"gmock\" \"gtest\""
 .PHONY : list_install_components
 
 # Special rule for the target list_install_components
@@ -322,6 +342,30 @@ core/CarthesianOvalOperation.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.s
 .PHONY : core/CarthesianOvalOperation.cpp.s
 
+core/CommandHistory.obj: core/CommandHistory.cpp.obj
+.PHONY : core/CommandHistory.obj
+
+# target to build an object file
+core/CommandHistory.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj
+.PHONY : core/CommandHistory.cpp.obj
+
+core/CommandHistory.i: core/CommandHistory.cpp.i
+.PHONY : core/CommandHistory.i
+
+# target to preprocess a source file
+core/CommandHistory.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.i
+.PHONY : core/CommandHistory.cpp.i
+
+core/CommandHistory.s: core/CommandHistory.cpp.s
+.PHONY : core/CommandHistory.s
+
+# target to generate assembly for a file
+core/CommandHistory.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.s
+.PHONY : core/CommandHistory.cpp.s
+
 core/CurveObject.obj: core/CurveObject.cpp.obj
 .PHONY : core/CurveObject.obj
 
@@ -393,6 +437,30 @@ core/CustomOperation.s: core/CustomOperation.cpp.s
 core/CustomOperation.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.s
 .PHONY : core/CustomOperation.cpp.s
+
+core/DependencyGraph.obj: core/DependencyGraph.cpp.obj
+.PHONY : core/DependencyGraph.obj
+
+# target to build an object file
+core/DependencyGraph.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj
+.PHONY : core/DependencyGraph.cpp.obj
+
+core/DependencyGraph.i: core/DependencyGraph.cpp.i
+.PHONY : core/DependencyGraph.i
+
+# target to preprocess a source file
+core/DependencyGraph.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.i
+.PHONY : core/DependencyGraph.cpp.i
+
+core/DependencyGraph.s: core/DependencyGraph.cpp.s
+.PHONY : core/DependencyGraph.s
+
+# target to generate assembly for a file
+core/DependencyGraph.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.s
+.PHONY : core/DependencyGraph.cpp.s
 
 core/LineObject.obj: core/LineObject.cpp.obj
 .PHONY : core/LineObject.obj
@@ -514,6 +582,30 @@ core/PropagateWFOperation.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.s
 .PHONY : core/PropagateWFOperation.cpp.s
 
+core/RefPointDescriptor.obj: core/RefPointDescriptor.cpp.obj
+.PHONY : core/RefPointDescriptor.obj
+
+# target to build an object file
+core/RefPointDescriptor.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj
+.PHONY : core/RefPointDescriptor.cpp.obj
+
+core/RefPointDescriptor.i: core/RefPointDescriptor.cpp.i
+.PHONY : core/RefPointDescriptor.i
+
+# target to preprocess a source file
+core/RefPointDescriptor.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.i
+.PHONY : core/RefPointDescriptor.cpp.i
+
+core/RefPointDescriptor.s: core/RefPointDescriptor.cpp.s
+.PHONY : core/RefPointDescriptor.s
+
+# target to generate assembly for a file
+core/RefPointDescriptor.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.s
+.PHONY : core/RefPointDescriptor.cpp.s
+
 geometry/PointList.obj: geometry/PointList.cpp.obj
 .PHONY : geometry/PointList.obj
 
@@ -585,6 +677,30 @@ geometry/VectorAlgebra.s: geometry/VectorAlgebra.cpp.s
 geometry/VectorAlgebra.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.s
 .PHONY : geometry/VectorAlgebra.cpp.s
+
+io/CADExporter.obj: io/CADExporter.cpp.obj
+.PHONY : io/CADExporter.obj
+
+# target to build an object file
+io/CADExporter.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj
+.PHONY : io/CADExporter.cpp.obj
+
+io/CADExporter.i: io/CADExporter.cpp.i
+.PHONY : io/CADExporter.i
+
+# target to preprocess a source file
+io/CADExporter.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.i
+.PHONY : io/CADExporter.cpp.i
+
+io/CADExporter.s: io/CADExporter.cpp.s
+.PHONY : io/CADExporter.s
+
+# target to generate assembly for a file
+io/CADExporter.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.s
+.PHONY : io/CADExporter.cpp.s
 
 io/HistoryManager.obj: io/HistoryManager.cpp.obj
 .PHONY : io/HistoryManager.obj
@@ -946,6 +1062,30 @@ ui/dialogs/CalcOvalDialog.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.s
 .PHONY : ui/dialogs/CalcOvalDialog.cpp.s
 
+ui/dialogs/CopyObjectDialog.obj: ui/dialogs/CopyObjectDialog.cpp.obj
+.PHONY : ui/dialogs/CopyObjectDialog.obj
+
+# target to build an object file
+ui/dialogs/CopyObjectDialog.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj
+.PHONY : ui/dialogs/CopyObjectDialog.cpp.obj
+
+ui/dialogs/CopyObjectDialog.i: ui/dialogs/CopyObjectDialog.cpp.i
+.PHONY : ui/dialogs/CopyObjectDialog.i
+
+# target to preprocess a source file
+ui/dialogs/CopyObjectDialog.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.i
+.PHONY : ui/dialogs/CopyObjectDialog.cpp.i
+
+ui/dialogs/CopyObjectDialog.s: ui/dialogs/CopyObjectDialog.cpp.s
+.PHONY : ui/dialogs/CopyObjectDialog.s
+
+# target to generate assembly for a file
+ui/dialogs/CopyObjectDialog.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.s
+.PHONY : ui/dialogs/CopyObjectDialog.cpp.s
+
 ui/dialogs/CurvePointsDialog.obj: ui/dialogs/CurvePointsDialog.cpp.obj
 .PHONY : ui/dialogs/CurvePointsDialog.obj
 
@@ -969,6 +1109,30 @@ ui/dialogs/CurvePointsDialog.s: ui/dialogs/CurvePointsDialog.cpp.s
 ui/dialogs/CurvePointsDialog.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.s
 .PHONY : ui/dialogs/CurvePointsDialog.cpp.s
+
+ui/dialogs/DependencyGraphDialog.obj: ui/dialogs/DependencyGraphDialog.cpp.obj
+.PHONY : ui/dialogs/DependencyGraphDialog.obj
+
+# target to build an object file
+ui/dialogs/DependencyGraphDialog.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj
+.PHONY : ui/dialogs/DependencyGraphDialog.cpp.obj
+
+ui/dialogs/DependencyGraphDialog.i: ui/dialogs/DependencyGraphDialog.cpp.i
+.PHONY : ui/dialogs/DependencyGraphDialog.i
+
+# target to preprocess a source file
+ui/dialogs/DependencyGraphDialog.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.i
+.PHONY : ui/dialogs/DependencyGraphDialog.cpp.i
+
+ui/dialogs/DependencyGraphDialog.s: ui/dialogs/DependencyGraphDialog.cpp.s
+.PHONY : ui/dialogs/DependencyGraphDialog.s
+
+# target to generate assembly for a file
+ui/dialogs/DependencyGraphDialog.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.s
+.PHONY : ui/dialogs/DependencyGraphDialog.cpp.s
 
 ui/dialogs/EditPointDialog.obj: ui/dialogs/EditPointDialog.cpp.obj
 .PHONY : ui/dialogs/EditPointDialog.obj
@@ -1017,6 +1181,30 @@ ui/dialogs/ExportAllRhinoDialog.s: ui/dialogs/ExportAllRhinoDialog.cpp.s
 ui/dialogs/ExportAllRhinoDialog.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.s
 .PHONY : ui/dialogs/ExportAllRhinoDialog.cpp.s
+
+ui/dialogs/ExportCADDialog.obj: ui/dialogs/ExportCADDialog.cpp.obj
+.PHONY : ui/dialogs/ExportCADDialog.obj
+
+# target to build an object file
+ui/dialogs/ExportCADDialog.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj
+.PHONY : ui/dialogs/ExportCADDialog.cpp.obj
+
+ui/dialogs/ExportCADDialog.i: ui/dialogs/ExportCADDialog.cpp.i
+.PHONY : ui/dialogs/ExportCADDialog.i
+
+# target to preprocess a source file
+ui/dialogs/ExportCADDialog.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.i
+.PHONY : ui/dialogs/ExportCADDialog.cpp.i
+
+ui/dialogs/ExportCADDialog.s: ui/dialogs/ExportCADDialog.cpp.s
+.PHONY : ui/dialogs/ExportCADDialog.s
+
+# target to generate assembly for a file
+ui/dialogs/ExportCADDialog.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.s
+.PHONY : ui/dialogs/ExportCADDialog.cpp.s
 
 ui/dialogs/ExportObjectDialog.obj: ui/dialogs/ExportObjectDialog.cpp.obj
 .PHONY : ui/dialogs/ExportObjectDialog.obj
@@ -1210,6 +1398,30 @@ ui/dialogs/PropagateWFDialog.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.s
 .PHONY : ui/dialogs/PropagateWFDialog.cpp.s
 
+ui/dialogs/RotateObjectDialog.obj: ui/dialogs/RotateObjectDialog.cpp.obj
+.PHONY : ui/dialogs/RotateObjectDialog.obj
+
+# target to build an object file
+ui/dialogs/RotateObjectDialog.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj
+.PHONY : ui/dialogs/RotateObjectDialog.cpp.obj
+
+ui/dialogs/RotateObjectDialog.i: ui/dialogs/RotateObjectDialog.cpp.i
+.PHONY : ui/dialogs/RotateObjectDialog.i
+
+# target to preprocess a source file
+ui/dialogs/RotateObjectDialog.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.i
+.PHONY : ui/dialogs/RotateObjectDialog.cpp.i
+
+ui/dialogs/RotateObjectDialog.s: ui/dialogs/RotateObjectDialog.cpp.s
+.PHONY : ui/dialogs/RotateObjectDialog.s
+
+# target to generate assembly for a file
+ui/dialogs/RotateObjectDialog.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.s
+.PHONY : ui/dialogs/RotateObjectDialog.cpp.s
+
 ui/dialogs/SetScaleDialog.obj: ui/dialogs/SetScaleDialog.cpp.obj
 .PHONY : ui/dialogs/SetScaleDialog.obj
 
@@ -1257,6 +1469,30 @@ ui/dialogs/SplashDialog.s: ui/dialogs/SplashDialog.cpp.s
 ui/dialogs/SplashDialog.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.s
 .PHONY : ui/dialogs/SplashDialog.cpp.s
+
+ui/dialogs/TranslateObjectDialog.obj: ui/dialogs/TranslateObjectDialog.cpp.obj
+.PHONY : ui/dialogs/TranslateObjectDialog.obj
+
+# target to build an object file
+ui/dialogs/TranslateObjectDialog.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj
+.PHONY : ui/dialogs/TranslateObjectDialog.cpp.obj
+
+ui/dialogs/TranslateObjectDialog.i: ui/dialogs/TranslateObjectDialog.cpp.i
+.PHONY : ui/dialogs/TranslateObjectDialog.i
+
+# target to preprocess a source file
+ui/dialogs/TranslateObjectDialog.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.i
+.PHONY : ui/dialogs/TranslateObjectDialog.cpp.i
+
+ui/dialogs/TranslateObjectDialog.s: ui/dialogs/TranslateObjectDialog.cpp.s
+.PHONY : ui/dialogs/TranslateObjectDialog.s
+
+# target to generate assembly for a file
+ui/dialogs/TranslateObjectDialog.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.s
+.PHONY : ui/dialogs/TranslateObjectDialog.cpp.s
 
 ui/models/ObjectListModel.obj: ui/models/ObjectListModel.cpp.obj
 .PHONY : ui/models/ObjectListModel.obj
@@ -1378,6 +1614,30 @@ ui/widgets/PropertiesWidget.cpp.s:
 	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.s
 .PHONY : ui/widgets/PropertiesWidget.cpp.s
 
+utils/Logger.obj: utils/Logger.cpp.obj
+.PHONY : utils/Logger.obj
+
+# target to build an object file
+utils/Logger.cpp.obj:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj
+.PHONY : utils/Logger.cpp.obj
+
+utils/Logger.i: utils/Logger.cpp.i
+.PHONY : utils/Logger.i
+
+# target to preprocess a source file
+utils/Logger.cpp.i:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.i
+.PHONY : utils/Logger.cpp.i
+
+utils/Logger.s: utils/Logger.cpp.s
+.PHONY : utils/Logger.s
+
+# target to generate assembly for a file
+utils/Logger.cpp.s:
+	cd /d E:\Projects\newVibes\ExpressDesignerQt && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\ExpressDesigner.dir\build.make src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.s
+.PHONY : utils/Logger.cpp.s
+
 utils/NumericUtils.obj: utils/NumericUtils.cpp.obj
 .PHONY : utils/NumericUtils.obj
 
@@ -1437,6 +1697,8 @@ help:
 	@echo ... install/local
 	@echo ... install/strip
 	@echo ... list_install_components
+	@echo ... package
+	@echo ... package_source
 	@echo ... rebuild_cache
 	@echo ... ExpressDesigner_autogen
 	@echo ... ExpressDesigner_autogen_timestamp_deps
@@ -1456,6 +1718,9 @@ help:
 	@echo ... core/CarthesianOvalOperation.obj
 	@echo ... core/CarthesianOvalOperation.i
 	@echo ... core/CarthesianOvalOperation.s
+	@echo ... core/CommandHistory.obj
+	@echo ... core/CommandHistory.i
+	@echo ... core/CommandHistory.s
 	@echo ... core/CurveObject.obj
 	@echo ... core/CurveObject.i
 	@echo ... core/CurveObject.s
@@ -1465,6 +1730,9 @@ help:
 	@echo ... core/CustomOperation.obj
 	@echo ... core/CustomOperation.i
 	@echo ... core/CustomOperation.s
+	@echo ... core/DependencyGraph.obj
+	@echo ... core/DependencyGraph.i
+	@echo ... core/DependencyGraph.s
 	@echo ... core/LineObject.obj
 	@echo ... core/LineObject.i
 	@echo ... core/LineObject.s
@@ -1480,6 +1748,9 @@ help:
 	@echo ... core/PropagateWFOperation.obj
 	@echo ... core/PropagateWFOperation.i
 	@echo ... core/PropagateWFOperation.s
+	@echo ... core/RefPointDescriptor.obj
+	@echo ... core/RefPointDescriptor.i
+	@echo ... core/RefPointDescriptor.s
 	@echo ... geometry/PointList.obj
 	@echo ... geometry/PointList.i
 	@echo ... geometry/PointList.s
@@ -1489,6 +1760,9 @@ help:
 	@echo ... geometry/VectorAlgebra.obj
 	@echo ... geometry/VectorAlgebra.i
 	@echo ... geometry/VectorAlgebra.s
+	@echo ... io/CADExporter.obj
+	@echo ... io/CADExporter.i
+	@echo ... io/CADExporter.s
 	@echo ... io/HistoryManager.obj
 	@echo ... io/HistoryManager.i
 	@echo ... io/HistoryManager.s
@@ -1534,15 +1808,24 @@ help:
 	@echo ... ui/dialogs/CalcOvalDialog.obj
 	@echo ... ui/dialogs/CalcOvalDialog.i
 	@echo ... ui/dialogs/CalcOvalDialog.s
+	@echo ... ui/dialogs/CopyObjectDialog.obj
+	@echo ... ui/dialogs/CopyObjectDialog.i
+	@echo ... ui/dialogs/CopyObjectDialog.s
 	@echo ... ui/dialogs/CurvePointsDialog.obj
 	@echo ... ui/dialogs/CurvePointsDialog.i
 	@echo ... ui/dialogs/CurvePointsDialog.s
+	@echo ... ui/dialogs/DependencyGraphDialog.obj
+	@echo ... ui/dialogs/DependencyGraphDialog.i
+	@echo ... ui/dialogs/DependencyGraphDialog.s
 	@echo ... ui/dialogs/EditPointDialog.obj
 	@echo ... ui/dialogs/EditPointDialog.i
 	@echo ... ui/dialogs/EditPointDialog.s
 	@echo ... ui/dialogs/ExportAllRhinoDialog.obj
 	@echo ... ui/dialogs/ExportAllRhinoDialog.i
 	@echo ... ui/dialogs/ExportAllRhinoDialog.s
+	@echo ... ui/dialogs/ExportCADDialog.obj
+	@echo ... ui/dialogs/ExportCADDialog.i
+	@echo ... ui/dialogs/ExportCADDialog.s
 	@echo ... ui/dialogs/ExportObjectDialog.obj
 	@echo ... ui/dialogs/ExportObjectDialog.i
 	@echo ... ui/dialogs/ExportObjectDialog.s
@@ -1567,12 +1850,18 @@ help:
 	@echo ... ui/dialogs/PropagateWFDialog.obj
 	@echo ... ui/dialogs/PropagateWFDialog.i
 	@echo ... ui/dialogs/PropagateWFDialog.s
+	@echo ... ui/dialogs/RotateObjectDialog.obj
+	@echo ... ui/dialogs/RotateObjectDialog.i
+	@echo ... ui/dialogs/RotateObjectDialog.s
 	@echo ... ui/dialogs/SetScaleDialog.obj
 	@echo ... ui/dialogs/SetScaleDialog.i
 	@echo ... ui/dialogs/SetScaleDialog.s
 	@echo ... ui/dialogs/SplashDialog.obj
 	@echo ... ui/dialogs/SplashDialog.i
 	@echo ... ui/dialogs/SplashDialog.s
+	@echo ... ui/dialogs/TranslateObjectDialog.obj
+	@echo ... ui/dialogs/TranslateObjectDialog.i
+	@echo ... ui/dialogs/TranslateObjectDialog.s
 	@echo ... ui/models/ObjectListModel.obj
 	@echo ... ui/models/ObjectListModel.i
 	@echo ... ui/models/ObjectListModel.s
@@ -1588,6 +1877,9 @@ help:
 	@echo ... ui/widgets/PropertiesWidget.obj
 	@echo ... ui/widgets/PropertiesWidget.i
 	@echo ... ui/widgets/PropertiesWidget.s
+	@echo ... utils/Logger.obj
+	@echo ... utils/Logger.i
+	@echo ... utils/Logger.s
 	@echo ... utils/NumericUtils.obj
 	@echo ... utils/NumericUtils.i
 	@echo ... utils/NumericUtils.s

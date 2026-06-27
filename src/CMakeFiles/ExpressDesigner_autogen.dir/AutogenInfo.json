@@ -37,6 +37,12 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/core/CommandHistory.h",
+			"MU",
+			"TAC5DWH4SE/moc_CommandHistory.cpp",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/core/CurveObject.h",
 			"MU",
 			"TAC5DWH4SE/moc_CurveObject.cpp",
@@ -52,6 +58,12 @@
 			"E:/Projects/newVibes/ExpressDesignerQt/src/core/CustomOperation.h",
 			"MU",
 			"TAC5DWH4SE/moc_CustomOperation.cpp",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/core/DependencyGraph.h",
+			"MU",
+			"TAC5DWH4SE/moc_DependencyGraph.cpp",
 			null
 		],
 		[
@@ -85,9 +97,21 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/core/RefPointDescriptor.h",
+			"MU",
+			"TAC5DWH4SE/moc_RefPointDescriptor.cpp",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/geometry/SISLWrapper.h",
 			"MU",
 			"7ZYVOEMLRG/moc_SISLWrapper.cpp",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/io/CADExporter.h",
+			"MU",
+			"HR73DCNJIQ/moc_CADExporter.cpp",
 			null
 		],
 		[
@@ -175,9 +199,21 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/CopyObjectDialog.h",
+			"MU",
+			"ZB24L4LU7T/moc_CopyObjectDialog.cpp",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/CurvePointsDialog.h",
 			"MU",
 			"ZB24L4LU7T/moc_CurvePointsDialog.cpp",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/DependencyGraphDialog.h",
+			"MU",
+			"ZB24L4LU7T/moc_DependencyGraphDialog.cpp",
 			null
 		],
 		[
@@ -190,6 +226,12 @@
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/ExportAllRhinoDialog.h",
 			"MU",
 			"ZB24L4LU7T/moc_ExportAllRhinoDialog.cpp",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/ExportCADDialog.h",
+			"MU",
+			"ZB24L4LU7T/moc_ExportCADDialog.cpp",
 			null
 		],
 		[
@@ -241,6 +283,12 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/RotateObjectDialog.h",
+			"MU",
+			"ZB24L4LU7T/moc_RotateObjectDialog.cpp",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/SetScaleDialog.h",
 			"MU",
 			"ZB24L4LU7T/moc_SetScaleDialog.cpp",
@@ -250,6 +298,12 @@
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/SplashDialog.h",
 			"MU",
 			"ZB24L4LU7T/moc_SplashDialog.cpp",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/TranslateObjectDialog.h",
+			"MU",
+			"ZB24L4LU7T/moc_TranslateObjectDialog.cpp",
 			null
 		],
 		[
@@ -283,6 +337,12 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/utils/Logger.h",
+			"MU",
+			"7HEHEGDA3T/moc_Logger.cpp",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/utils/NumericUtils.h",
 			"MU",
 			"7HEHEGDA3T/moc_NumericUtils.cpp",
@@ -300,6 +360,7 @@
 	"MOC_COMPILATION_FILE" : "E:/Projects/newVibes/ExpressDesignerQt/src/ExpressDesigner_autogen/mocs_compilation.cpp",
 	"MOC_DEFINITIONS" : 
 	[
+		"HAS_OPENCASCADE",
 		"HAS_QT_CHARTS=1",
 		"MINGW_HAS_SECURE_API=1",
 		"QT_CHARTS_LIB",
@@ -309,6 +370,7 @@
 		"QT_OPENGL_LIB",
 		"QT_WIDGETS_LIB",
 		"UNICODE",
+		"USE_SISL=1",
 		"WIN32",
 		"WIN64",
 		"WINVER=0x0A00",
@@ -334,6 +396,8 @@
 		"E:/Projects/newVibes/ExpressDesignerQt/src/ui",
 		"E:/Projects/newVibes/ExpressDesignerQt/src/app",
 		"E:/Projects/newVibes/ExpressDesignerQt/src/utils",
+		"E:/Projects/newVibes/ExpressDesignerQt/third_party/sisl/include",
+		"C:/msys64/mingw64/include/opencascade",
 		"C:/msys64/mingw64/include/qt6/QtCore",
 		"C:/msys64/mingw64/include/qt6",
 		"C:/msys64/mingw64/share/qt6/mkspecs/win32-g++",
@@ -362,7 +426,7 @@
 	"MOC_PATH_PREFIX" : false,
 	"MOC_PREDEFS_CMD" : 
 	[
-		"C:/msys64/mingw64/bin/c++.exe",
+		"C:/msys64/mingw64/bin/g++.exe",
 		"-std=gnu++17",
 		"-w",
 		"-dM",
@@ -403,6 +467,11 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/core/CommandHistory.cpp",
+			"MU",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/core/CurveObject.cpp",
 			"MU",
 			null
@@ -414,6 +483,11 @@
 		],
 		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/core/CustomOperation.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/core/DependencyGraph.cpp",
 			"MU",
 			null
 		],
@@ -443,6 +517,11 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/core/RefPointDescriptor.cpp",
+			"MU",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/geometry/PointList.cpp",
 			"MU",
 			null
@@ -454,6 +533,11 @@
 		],
 		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/geometry/VectorAlgebra.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/io/CADExporter.cpp",
 			"MU",
 			null
 		],
@@ -529,7 +613,17 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/CopyObjectDialog.cpp",
+			"MU",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/CurvePointsDialog.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/DependencyGraphDialog.cpp",
 			"MU",
 			null
 		],
@@ -540,6 +634,11 @@
 		],
 		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/ExportAllRhinoDialog.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/ExportCADDialog.cpp",
 			"MU",
 			null
 		],
@@ -584,12 +683,22 @@
 			null
 		],
 		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/RotateObjectDialog.cpp",
+			"MU",
+			null
+		],
+		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/SetScaleDialog.cpp",
 			"MU",
 			null
 		],
 		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/SplashDialog.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/dialogs/TranslateObjectDialog.cpp",
 			"MU",
 			null
 		],
@@ -615,6 +724,11 @@
 		],
 		[
 			"E:/Projects/newVibes/ExpressDesignerQt/src/ui/widgets/PropertiesWidget.cpp",
+			"MU",
+			null
+		],
+		[
+			"E:/Projects/newVibes/ExpressDesignerQt/src/utils/Logger.cpp",
 			"MU",
 			null
 		],

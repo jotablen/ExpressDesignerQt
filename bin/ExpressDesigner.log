@@ -1,0 +1,143 @@
+03:40:20.293 [TRACE] [CMD] -> push
+03:40:20.293 [INFO ] [CMD]   push: Delete CL_Ref (undoStack=1)
+03:40:20.308 [TRACE] [CMD] <- push
+03:40:39.367 [TRACE] [CMD] -> push
+03:40:39.367 [INFO ] [CMD]   push: Modify FrontSrf (undoStack=2)
+03:40:39.367 [TRACE] [CMD] <- push
+03:40:41.461 [TRACE] [CMD] -> push
+03:40:41.461 [INFO ] [CMD]   push: Modify FrontSrf (undoStack=3)
+03:40:41.461 [TRACE] [CMD] <- push
+03:41:07.549 [TRACE] [CMD] -> push
+03:41:07.549 [INFO ] [CMD]   push: Modify WF_CL (undoStack=4)
+03:41:07.549 [TRACE] [CMD] <- push
+03:41:15.409 [TRACE] [CMD] -> push
+03:41:15.409 [INFO ] [CMD]   push: Edit points of WF_CL (undoStack=5)
+03:41:15.409 [TRACE] [CMD] <- push
+03:41:18.690 [TRACE] [CMD] -> push
+03:41:18.690 [INFO ] [CMD]   push: Edit points of WF_CL (undoStack=6)
+03:41:18.690 [TRACE] [CMD] <- push
+03:42:04.344 [TRACE] [CMD] -> push
+03:42:04.344 [INFO ] [CMD]   push: Execute ArcWF CL (undoStack=7)
+03:42:04.344 [TRACE] [CMD]   -> execute
+03:42:04.360 [INFO ] [CMD]     ExecuteCMD: execute() name='ArcWF CL'
+03:42:04.360 [INFO ] [CMD]     ExecuteCMD: re-adding op 'ArcWF CL' to project
+03:42:04.360 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+03:42:04.360 [INFO ] [GEO]     PropgWF: wf=50 pts, surf=50 pts, offset=1.000
+03:42:04.360 [INFO ] [CMD]     ExecuteCMD: OK, result=ArcWF CL
+03:42:04.360 [TRACE] [CMD]   <- execute
+03:42:04.360 [TRACE] [CMD] <- push
+03:42:20.820 [TRACE] [CMD] -> push
+03:42:20.820 [INFO ] [CMD]   push: Execute ArcWF Lateral (undoStack=8)
+03:42:20.820 [TRACE] [CMD]   -> execute
+03:42:20.820 [INFO ] [CMD]     ExecuteCMD: execute() name='ArcWF Lateral'
+03:42:20.820 [INFO ] [CMD]     ExecuteCMD: re-adding op 'ArcWF Lateral' to project
+03:42:20.820 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+03:42:20.820 [INFO ] [GEO]     PropgWF: wf=50 pts, surf=2 pts, offset=1.000
+03:42:20.820 [INFO ] [CMD]     ExecuteCMD: OK, result=ArcWF Lateral
+03:42:20.820 [TRACE] [CMD]   <- execute
+03:42:20.820 [TRACE] [CMD] <- push
+03:42:41.715 [TRACE] [CMD] -> push
+03:42:41.715 [INFO ] [CMD]   push: Execute PlanarWF FS (undoStack=9)
+03:42:41.715 [TRACE] [CMD]   -> execute
+03:42:41.715 [INFO ] [CMD]     ExecuteCMD: execute() name='PlanarWF FS'
+03:42:41.715 [INFO ] [CMD]     ExecuteCMD: re-adding op 'PlanarWF FS' to project
+03:42:41.715 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+03:42:41.715 [INFO ] [GEO]     PropgWF: wf=2 pts, surf=2 pts, offset=1.000
+03:42:41.715 [INFO ] [CMD]     ExecuteCMD: OK, result=PlanarWF FS
+03:42:41.715 [TRACE] [CMD]   <- execute
+03:42:41.715 [TRACE] [CMD] <- push
+03:43:18.745 [TRACE] [CMD] -> push
+03:43:18.745 [INFO ] [CMD]   push: Execute Oval from: ArcWF CL - WF_CL (undoStack=10)
+03:43:18.745 [TRACE] [CMD]   -> execute
+03:43:18.745 [INFO ] [CMD]     ExecuteCMD: execute() name='Oval from: ArcWF CL - WF_CL'
+03:43:18.745 [INFO ] [CMD]     ExecuteCMD: re-adding op 'Oval from: ArcWF CL - WF_CL' to project
+03:43:18.745 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+03:43:18.808 [INFO ] [CMD]     ExecuteCMD: OK, result=Oval from: ArcWF CL - WF_CL
+03:43:18.808 [TRACE] [CMD]   <- execute
+03:43:18.808 [TRACE] [CMD] <- push
+03:44:13.095 [TRACE] [CMD] -> push
+03:44:13.095 [INFO ] [CMD]   push: Execute Oval from: ArcWF Lateral - PlanarWF FS (undoStack=11)
+03:44:13.095 [TRACE] [CMD]   -> execute
+03:44:13.095 [INFO ] [CMD]     ExecuteCMD: execute() name='Oval from: ArcWF Lateral - PlanarWF FS'
+03:44:13.095 [INFO ] [CMD]     ExecuteCMD: re-adding op 'Oval from: ArcWF Lateral - PlanarWF FS' to project
+03:44:13.095 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+03:44:13.454 [INFO ] [CMD]     ExecuteCMD: OK, result=Oval from: ArcWF Lateral - PlanarWF FS
+03:44:13.454 [TRACE] [CMD]   <- execute
+03:44:13.454 [TRACE] [CMD] <- push
+03:45:16.837 [INFO ] [CAD] exportMultipleToCAD: 5 objects → E:/Projects/newVibes/ExpressDesignerQt/bin/cad/export_r-extrussion_3.step
+03:45:16.837 [INFO ] [CAD] Format: STEP (AP214)
+03:45:16.837 [INFO ] [CAD] [1/5] 146 pts, rot=1 lin=0
+03:45:16.869 [INFO ] [CAD] [1/5] Wire OK
+03:45:16.869 [INFO ] [CAD] [2/5] 200 pts, rot=1 lin=0
+03:45:16.962 [INFO ] [CAD] [2/5] Wire OK
+03:45:16.962 [WARN ] [CAD] Curve crosses axis — cannot revolve; exporting wire only.
+03:45:16.962 [WARN ] [CAD] [2/5] Extrusion degraded: Curve crosses rotational axis.
+03:45:16.962 [INFO ] [CAD] [3/5] 50 pts, rot=1 lin=0
+03:45:16.962 [INFO ] [CAD] [3/5] Wire OK
+03:45:16.962 [WARN ] [CAD] Curve crosses axis — cannot revolve; exporting wire only.
+03:45:16.962 [WARN ] [CAD] [3/5] Extrusion degraded: Curve crosses rotational axis.
+03:45:16.962 [INFO ] [CAD] [4/5] 2 pts, rot=1 lin=0
+03:45:16.962 [INFO ] [CAD] [4/5] Wire OK
+03:45:16.962 [INFO ] [CAD] [5/5] 2 pts, rot=1 lin=0
+03:45:16.962 [INFO ] [CAD] [5/5] Wire OK
+03:45:16.962 [INFO ] [CAD] Writing STEP with 5 shapes...
+03:45:16.994 [INFO ] [CAD] exportMultipleToCAD: SUCCESS → E:/Projects/newVibes/ExpressDesignerQt/bin/cad/export_r-extrussion_3.step
+13:22:17.584 [TRACE] [CMD] -> push
+13:22:17.584 [INFO ] [CMD]   push: Delete Oval from: ArcWF CL - WF_CL (undoStack=1)
+13:22:17.619 [TRACE] [CMD] <- push
+13:22:21.577 [TRACE] [CMD] -> push
+13:22:21.577 [INFO ] [CMD]   push: Delete Oval from: ArcWF Lateral - PlanarWF FS (undoStack=2)
+13:22:21.598 [TRACE] [CMD] <- push
+13:22:47.577 [TRACE] [CMD] -> push
+13:22:47.577 [INFO ] [CMD]   push: Execute Oval from: ArcWF CL - WF_CL (undoStack=3)
+13:22:47.577 [TRACE] [CMD]   -> execute
+13:22:47.577 [INFO ] [CMD]     ExecuteCMD: execute() name='Oval from: ArcWF CL - WF_CL'
+13:22:47.577 [INFO ] [CMD]     ExecuteCMD: re-adding op 'Oval from: ArcWF CL - WF_CL' to project
+13:22:47.577 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+13:22:47.726 [INFO ] [CMD]     ExecuteCMD: OK, result=Oval from: ArcWF CL - WF_CL
+13:22:47.726 [TRACE] [CMD]   <- execute
+13:22:47.726 [TRACE] [CMD] <- push
+13:23:06.070 [TRACE] [CMD] -> push
+13:23:06.070 [INFO ] [CMD]   push: Execute Oval from: ArcWF Lateral - PlanarWF FS (undoStack=4)
+13:23:06.070 [TRACE] [CMD]   -> execute
+13:23:06.070 [INFO ] [CMD]     ExecuteCMD: execute() name='Oval from: ArcWF Lateral - PlanarWF FS'
+13:23:06.070 [INFO ] [CMD]     ExecuteCMD: re-adding op 'Oval from: ArcWF Lateral - PlanarWF FS' to project
+13:23:06.070 [INFO ] [CMD]     ExecuteCMD: calling op->execute()...
+13:23:06.524 [INFO ] [CMD]     ExecuteCMD: OK, result=Oval from: ArcWF Lateral - PlanarWF FS
+13:23:06.524 [TRACE] [CMD]   <- execute
+13:23:06.524 [TRACE] [CMD] <- push
+13:23:35.936 [INFO ] [CAD] exportMultipleToCAD: 5 objects → E:/Projects/newVibes/ExpressDesignerQt/bin/cad/export_r-extrussion_3.step
+13:23:35.936 [INFO ] [CAD] Format: STEP (AP214)
+13:23:35.942 [INFO ] [CAD] [1/5] 183 pts, rot=1 lin=0
+13:23:35.983 [INFO ] [CAD] [1/5] Wire OK
+13:23:35.987 [INFO ] [CAD] [2/5] 230 pts, rot=1 lin=0
+13:23:36.072 [INFO ] [CAD] [2/5] Wire OK
+13:23:36.073 [INFO ] [CAD] Revol with face failed, trying healed wire...
+13:23:36.074 [WARN ] [CAD] [2/5] Extrusion degraded: Rotational extrusion failed.
+13:23:36.074 [INFO ] [CAD] [3/5] 50 pts, rot=1 lin=0
+13:23:36.075 [INFO ] [CAD] [3/5] Wire OK
+13:23:36.075 [INFO ] [CAD] Curve crossed axis — clipped to X≥0 (50 pts → 0 pts)
+13:23:36.075 [WARN ] [CAD] Not enough points after axis clipping; exporting wire only.
+13:23:36.075 [WARN ] [CAD] [3/5] Extrusion degraded: Not enough points after axis clipping.
+13:23:36.075 [INFO ] [CAD] [4/5] 2 pts, rot=1 lin=0
+13:23:36.075 [INFO ] [CAD] [4/5] Wire OK
+13:23:36.075 [INFO ] [CAD] [5/5] 2 pts, rot=1 lin=0
+13:23:36.076 [INFO ] [CAD] [5/5] Wire OK
+13:23:36.076 [INFO ] [CAD] Writing STEP with 5 shapes...
+13:23:36.102 [INFO ] [CAD] exportMultipleToCAD: SUCCESS → E:/Projects/newVibes/ExpressDesignerQt/bin/cad/export_r-extrussion_3.step
+15:08:02.469 [INFO ] [CAD] exportMultipleToCAD: 5 objects → E:/Projects/newVibes/ExpressDesignerQt/bin/cad/export_r-extrussion_3.step
+15:08:02.469 [INFO ] [CAD] Format: STEP (AP214)
+15:08:02.484 [INFO ] [CAD] [1/5] 2 pts, rot=1 lin=0
+15:08:02.484 [INFO ] [CAD] [1/5] Wire OK
+15:08:02.484 [INFO ] [CAD] [2/5] 2 pts, rot=1 lin=0
+15:08:02.484 [INFO ] [CAD] [2/5] Wire OK
+15:08:02.484 [INFO ] [CAD] [3/5] 50 pts, rot=1 lin=0
+15:08:02.484 [INFO ] [CAD] [3/5] Wire OK
+15:08:02.484 [INFO ] [CAD] Curve clipped for rotation (50 pts → 48 pts)
+15:08:02.484 [INFO ] [CAD] [4/5] 230 pts, rot=1 lin=0
+15:08:02.567 [INFO ] [CAD] [4/5] Wire OK
+15:08:02.567 [INFO ] [CAD] Curve clipped for rotation (230 pts → 229 pts)
+15:08:02.639 [INFO ] [CAD] [5/5] 183 pts, rot=1 lin=0
+15:08:02.686 [INFO ] [CAD] [5/5] Wire OK
+15:08:02.733 [INFO ] [CAD] Writing STEP with 5 shapes...
+15:08:02.749 [INFO ] [CAD] exportMultipleToCAD: SUCCESS → E:/Projects/newVibes/ExpressDesignerQt/bin/cad/export_r-extrussion_3.step

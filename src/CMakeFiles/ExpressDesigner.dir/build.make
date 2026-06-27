@@ -76,770 +76,921 @@ src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.
 src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj: src/ExpressDesigner_autogen/mocs_compilation.cpp
 src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ExpressDesigner_autogen\mocs_compilation.cpp
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ExpressDesigner_autogen\mocs_compilation.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ExpressDesigner_autogen\mocs_compilation.cpp > CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ExpressDesigner_autogen\mocs_compilation.cpp > CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ExpressDesigner_autogen\mocs_compilation.cpp -o CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ExpressDesigner_autogen\mocs_compilation.cpp -o CMakeFiles\ExpressDesigner.dir\ExpressDesigner_autogen\mocs_compilation.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj: src/main.cpp
 src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\main.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\main.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\main.cpp
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\main.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\main.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\main.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/main.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\main.cpp > CMakeFiles\ExpressDesigner.dir\main.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\main.cpp > CMakeFiles\ExpressDesigner.dir\main.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/main.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\main.cpp -o CMakeFiles\ExpressDesigner.dir\main.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\main.cpp -o CMakeFiles\ExpressDesigner.dir\main.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj: src/core/RefPointDescriptor.cpp
+src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\RefPointDescriptor.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\RefPointDescriptor.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\RefPointDescriptor.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\RefPointDescriptor.cpp > CMakeFiles\ExpressDesigner.dir\core\RefPointDescriptor.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\RefPointDescriptor.cpp -o CMakeFiles\ExpressDesigner.dir\core\RefPointDescriptor.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj: src/core/BaseObject.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\BaseObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\BaseObject.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\BaseObject.cpp > CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\BaseObject.cpp > CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\BaseObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\BaseObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\BaseObject.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj: src/core/CustomObject.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomObject.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomObject.cpp > CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomObject.cpp > CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\CustomObject.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj: src/core/PointObject.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\PointObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\PointObject.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\PointObject.cpp > CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\PointObject.cpp > CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\PointObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\PointObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\PointObject.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj: src/core/LineObject.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\LineObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\LineObject.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\LineObject.cpp > CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\LineObject.cpp > CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/LineObject.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\LineObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\LineObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\LineObject.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj: src/core/ArcObject.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\ArcObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\ArcObject.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\ArcObject.cpp > CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\ArcObject.cpp > CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/ArcObject.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\ArcObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\ArcObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\ArcObject.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj: src/core/CurveObject.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CurveObject.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CurveObject.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CurveObject.cpp > CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CurveObject.cpp > CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/CurveObject.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CurveObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CurveObject.cpp -o CMakeFiles\ExpressDesigner.dir\core\CurveObject.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj: src/core/Project.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\Project.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\Project.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\Project.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\Project.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\Project.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\Project.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/Project.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\Project.cpp > CMakeFiles\ExpressDesigner.dir\core\Project.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\Project.cpp > CMakeFiles\ExpressDesigner.dir\core\Project.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/Project.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/Project.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\Project.cpp -o CMakeFiles\ExpressDesigner.dir\core\Project.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\Project.cpp -o CMakeFiles\ExpressDesigner.dir\core\Project.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj: src/core/CustomOperation.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomOperation.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomOperation.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomOperation.cpp > CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomOperation.cpp > CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/CustomOperation.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomOperation.cpp -o CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CustomOperation.cpp -o CMakeFiles\ExpressDesigner.dir\core\CustomOperation.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj: src/core/CarthesianOvalOperation.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CarthesianOvalOperation.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CarthesianOvalOperation.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CarthesianOvalOperation.cpp > CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CarthesianOvalOperation.cpp > CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CarthesianOvalOperation.cpp -o CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CarthesianOvalOperation.cpp -o CMakeFiles\ExpressDesigner.dir\core\CarthesianOvalOperation.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj: src/core/PropagateWFOperation.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\PropagateWFOperation.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\PropagateWFOperation.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\PropagateWFOperation.cpp > CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\PropagateWFOperation.cpp > CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\PropagateWFOperation.cpp -o CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\PropagateWFOperation.cpp -o CMakeFiles\ExpressDesigner.dir\core\PropagateWFOperation.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj: src/core/ObjectFactory.cpp
 src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\ObjectFactory.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\ObjectFactory.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\ObjectFactory.cpp > CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\ObjectFactory.cpp > CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\ObjectFactory.cpp -o CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\ObjectFactory.cpp -o CMakeFiles\ExpressDesigner.dir\core\ObjectFactory.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj: src/core/DependencyGraph.cpp
+src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\DependencyGraph.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\DependencyGraph.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\DependencyGraph.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\DependencyGraph.cpp > CMakeFiles\ExpressDesigner.dir\core\DependencyGraph.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\DependencyGraph.cpp -o CMakeFiles\ExpressDesigner.dir\core\DependencyGraph.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj: src/core/CommandHistory.cpp
+src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\core\CommandHistory.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\core\CommandHistory.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\core\CommandHistory.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\core\CommandHistory.cpp > CMakeFiles\ExpressDesigner.dir\core\CommandHistory.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\core\CommandHistory.cpp -o CMakeFiles\ExpressDesigner.dir\core\CommandHistory.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj: src/geometry/SISLWrapper.cpp
 src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\geometry\SISLWrapper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\geometry\SISLWrapper.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\geometry\SISLWrapper.cpp > CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\geometry\SISLWrapper.cpp > CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\geometry\SISLWrapper.cpp -o CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\geometry\SISLWrapper.cpp -o CMakeFiles\ExpressDesigner.dir\geometry\SISLWrapper.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj: src/geometry/PointList.cpp
 src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\geometry\PointList.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\geometry\PointList.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\geometry\PointList.cpp > CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\geometry\PointList.cpp > CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\geometry\PointList.cpp -o CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\geometry\PointList.cpp -o CMakeFiles\ExpressDesigner.dir\geometry\PointList.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj: src/geometry/VectorAlgebra.cpp
 src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\geometry\VectorAlgebra.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\geometry\VectorAlgebra.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\geometry\VectorAlgebra.cpp > CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\geometry\VectorAlgebra.cpp > CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\geometry\VectorAlgebra.cpp -o CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\geometry\VectorAlgebra.cpp -o CMakeFiles\ExpressDesigner.dir\geometry\VectorAlgebra.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj: src/optics/CartesianOval.cpp
 src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\CartesianOval.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\CartesianOval.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\CartesianOval.cpp > CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\CartesianOval.cpp > CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/optics/CartesianOval.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\CartesianOval.cpp -o CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\CartesianOval.cpp -o CMakeFiles\ExpressDesigner.dir\optics\CartesianOval.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj: src/optics/WavefrontPropagator.cpp
 src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\WavefrontPropagator.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\WavefrontPropagator.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\WavefrontPropagator.cpp > CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\WavefrontPropagator.cpp > CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/optics/WavefrontPropagator.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\WavefrontPropagator.cpp -o CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\WavefrontPropagator.cpp -o CMakeFiles\ExpressDesigner.dir\optics\WavefrontPropagator.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj: src/optics/FresnelLensCalculator.cpp
 src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\FresnelLensCalculator.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\FresnelLensCalculator.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\FresnelLensCalculator.cpp > CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\FresnelLensCalculator.cpp > CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/optics/FresnelLensCalculator.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\FresnelLensCalculator.cpp -o CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\FresnelLensCalculator.cpp -o CMakeFiles\ExpressDesigner.dir\optics\FresnelLensCalculator.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj: src/optics/SnellLaw.cpp
 src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\SnellLaw.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\SnellLaw.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\SnellLaw.cpp > CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\SnellLaw.cpp > CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/optics/SnellLaw.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\SnellLaw.cpp -o CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\SnellLaw.cpp -o CMakeFiles\ExpressDesigner.dir\optics\SnellLaw.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj: src/optics/OpticalPathLength.cpp
 src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\OpticalPathLength.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\optics\OpticalPathLength.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\OpticalPathLength.cpp > CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\optics\OpticalPathLength.cpp > CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/optics/OpticalPathLength.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\OpticalPathLength.cpp -o CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\optics\OpticalPathLength.cpp -o CMakeFiles\ExpressDesigner.dir\optics\OpticalPathLength.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj: src/io/ProjectSerializer.cpp
 src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\ProjectSerializer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\ProjectSerializer.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\ProjectSerializer.cpp > CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\ProjectSerializer.cpp > CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\ProjectSerializer.cpp -o CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\ProjectSerializer.cpp -o CMakeFiles\ExpressDesigner.dir\io\ProjectSerializer.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj: src/io/TXTExporter.cpp
 src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTExporter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTExporter.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTExporter.cpp > CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTExporter.cpp > CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTExporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTExporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\TXTExporter.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj: src/io/TXTImporter.cpp
 src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTImporter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTImporter.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTImporter.cpp > CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTImporter.cpp > CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTImporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\TXTImporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\TXTImporter.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj: src/io/RhinoExporter.cpp
 src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_25) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\RhinoExporter.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\RhinoExporter.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\RhinoExporter.cpp > CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\RhinoExporter.cpp > CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\RhinoExporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\RhinoExporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\RhinoExporter.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj: src/io/CADExporter.cpp
+src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\CADExporter.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\CADExporter.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\CADExporter.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\CADExporter.cpp > CMakeFiles\ExpressDesigner.dir\io\CADExporter.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\CADExporter.cpp -o CMakeFiles\ExpressDesigner.dir\io\CADExporter.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj: src/io/HistoryManager.cpp
 src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_26) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\HistoryManager.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\io\HistoryManager.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\HistoryManager.cpp > CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\io\HistoryManager.cpp > CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\HistoryManager.cpp -o CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\io\HistoryManager.cpp -o CMakeFiles\ExpressDesigner.dir\io\HistoryManager.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj: src/ui/MainWindow.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_27) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\MainWindow.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\MainWindow.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\MainWindow.cpp > CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\MainWindow.cpp > CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\MainWindow.cpp -o CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\MainWindow.cpp -o CMakeFiles\ExpressDesigner.dir\ui\MainWindow.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj: src/ui/dialogs/SplashDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_28) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SplashDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SplashDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SplashDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SplashDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SplashDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SplashDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SplashDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj: src/ui/dialogs/AboutDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_29) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\AboutDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\AboutDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\AboutDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\AboutDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/AboutDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\AboutDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\AboutDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\AboutDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj: src/ui/dialogs/InsertObjectDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_30) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\InsertObjectDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\InsertObjectDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\InsertObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\InsertObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/InsertObjectDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\InsertObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\InsertObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\InsertObjectDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj: src/ui/dialogs/CalcOvalDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_31) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CalcOvalDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CalcOvalDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CalcOvalDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CalcOvalDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/CalcOvalDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CalcOvalDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CalcOvalDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CalcOvalDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj: src/ui/dialogs/PropagateWFDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_32) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PropagateWFDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PropagateWFDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PropagateWFDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PropagateWFDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/PropagateWFDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PropagateWFDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PropagateWFDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PropagateWFDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj: src/ui/dialogs/ExportObjectDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_33) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportObjectDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportObjectDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportObjectDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportObjectDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj: src/ui/dialogs/ExportAllRhinoDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_34) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportAllRhinoDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_38) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportAllRhinoDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportAllRhinoDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportAllRhinoDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportAllRhinoDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportAllRhinoDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportAllRhinoDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportAllRhinoDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj: src/ui/dialogs/ImportObjectDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_35) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ImportObjectDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_39) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ImportObjectDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ImportObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ImportObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/ImportObjectDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ImportObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ImportObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ImportObjectDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj: src/ui/dialogs/CurvePointsDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_36) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CurvePointsDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_40) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CurvePointsDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CurvePointsDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CurvePointsDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/CurvePointsDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CurvePointsDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CurvePointsDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CurvePointsDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj: src/ui/dialogs/EditPointDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_37) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\EditPointDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_41) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\EditPointDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\EditPointDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\EditPointDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/EditPointDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\EditPointDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\EditPointDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\EditPointDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj: src/ui/dialogs/NormalsParamsDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_38) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\NormalsParamsDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_42) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\NormalsParamsDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\NormalsParamsDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\NormalsParamsDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/NormalsParamsDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\NormalsParamsDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\NormalsParamsDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\NormalsParamsDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj: src/ui/dialogs/OffsetWFDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_39) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\OffsetWFDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_43) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\OffsetWFDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\OffsetWFDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\OffsetWFDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\OffsetWFDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\OffsetWFDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\OffsetWFDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj: src/ui/dialogs/SetScaleDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_40) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SetScaleDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_44) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SetScaleDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SetScaleDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SetScaleDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SetScaleDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\SetScaleDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\SetScaleDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj: src/ui/dialogs/ProjectHistoryDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_41) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ProjectHistoryDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_45) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ProjectHistoryDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ProjectHistoryDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ProjectHistoryDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ProjectHistoryDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ProjectHistoryDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ProjectHistoryDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj: src/ui/dialogs/PreferencesDialog.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_42) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PreferencesDialog.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_46) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PreferencesDialog.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PreferencesDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PreferencesDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PreferencesDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\PreferencesDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\PreferencesDialog.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj: src/ui/dialogs/RotateObjectDialog.cpp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_47) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\RotateObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\RotateObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\RotateObjectDialog.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\RotateObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\RotateObjectDialog.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\RotateObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\RotateObjectDialog.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj: src/ui/dialogs/TranslateObjectDialog.cpp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_48) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\TranslateObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\TranslateObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\TranslateObjectDialog.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\TranslateObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\TranslateObjectDialog.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\TranslateObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\TranslateObjectDialog.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj: src/ui/dialogs/DependencyGraphDialog.cpp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_49) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\DependencyGraphDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\DependencyGraphDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\DependencyGraphDialog.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\DependencyGraphDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\DependencyGraphDialog.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\DependencyGraphDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\DependencyGraphDialog.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj: src/ui/dialogs/CopyObjectDialog.cpp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_50) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\CopyObjectDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CopyObjectDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CopyObjectDialog.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CopyObjectDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\CopyObjectDialog.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\CopyObjectDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\CopyObjectDialog.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj: src/ui/dialogs/ExportCADDialog.cpp
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_51) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportCADDialog.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportCADDialog.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportCADDialog.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportCADDialog.cpp > CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportCADDialog.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\dialogs\ExportCADDialog.cpp -o CMakeFiles\ExpressDesigner.dir\ui\dialogs\ExportCADDialog.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj: src/ui/widgets/ObjectTreeWidget.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_43) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ObjectTreeWidget.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_52) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ObjectTreeWidget.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ObjectTreeWidget.cpp > CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ObjectTreeWidget.cpp > CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ObjectTreeWidget.cpp -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ObjectTreeWidget.cpp -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ObjectTreeWidget.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj: src/ui/widgets/PropertiesWidget.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_44) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\PropertiesWidget.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_53) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\PropertiesWidget.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\PropertiesWidget.cpp > CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\PropertiesWidget.cpp > CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\PropertiesWidget.cpp -o CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\PropertiesWidget.cpp -o CMakeFiles\ExpressDesigner.dir\ui\widgets\PropertiesWidget.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj: src/ui/widgets/ChartWidget.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_45) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ChartWidget.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_54) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ChartWidget.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ChartWidget.cpp > CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ChartWidget.cpp > CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ChartWidget.cpp -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\widgets\ChartWidget.cpp -o CMakeFiles\ExpressDesigner.dir\ui\widgets\ChartWidget.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj: src/ui/models/ObjectTreeModel.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_46) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectTreeModel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_55) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectTreeModel.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectTreeModel.cpp > CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectTreeModel.cpp > CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/models/ObjectTreeModel.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectTreeModel.cpp -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectTreeModel.cpp -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectTreeModel.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj: src/ui/models/ObjectListModel.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_47) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectListModel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_56) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectListModel.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectListModel.cpp > CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectListModel.cpp > CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/models/ObjectListModel.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectListModel.cpp -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\models\ObjectListModel.cpp -o CMakeFiles\ExpressDesigner.dir\ui\models\ObjectListModel.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj: src/ui/delegates/PropertyDelegate.cpp
 src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_48) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\delegates\PropertyDelegate.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_57) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\ui\delegates\PropertyDelegate.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\delegates\PropertyDelegate.cpp > CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\ui\delegates\PropertyDelegate.cpp > CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\delegates\PropertyDelegate.cpp -o CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\ui\delegates\PropertyDelegate.cpp -o CMakeFiles\ExpressDesigner.dir\ui\delegates\PropertyDelegate.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj: src/app/OvalDesignerApp.cpp
 src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_49) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\app\OvalDesignerApp.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_58) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\app\OvalDesignerApp.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\app\OvalDesignerApp.cpp > CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\app\OvalDesignerApp.cpp > CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\app\OvalDesignerApp.cpp -o CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\app\OvalDesignerApp.cpp -o CMakeFiles\ExpressDesigner.dir\app\OvalDesignerApp.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj: src/utils/NumericUtils.cpp
 src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_50) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\utils\NumericUtils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_59) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\utils\NumericUtils.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\utils\NumericUtils.cpp > CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\utils\NumericUtils.cpp > CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\utils\NumericUtils.cpp -o CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\utils\NumericUtils.cpp -o CMakeFiles\ExpressDesigner.dir\utils\NumericUtils.cpp.s
 
 src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
 src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
 src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj: src/utils/StringUtils.cpp
 src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_51) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\utils\StringUtils.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_60) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\utils\StringUtils.cpp
 
 src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.i"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\utils\StringUtils.cpp > CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.i
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\utils\StringUtils.cpp > CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.i
 
 src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.s"
-	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\c++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\utils\StringUtils.cpp -o CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.s
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\utils\StringUtils.cpp -o CMakeFiles\ExpressDesigner.dir\utils\StringUtils.cpp.s
+
+src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/flags.make
+src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/includes_CXX.rsp
+src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj: src/utils/Logger.cpp
+src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj: src/CMakeFiles/ExpressDesigner.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_61) "Building CXX object src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj -MF CMakeFiles\ExpressDesigner.dir\utils\Logger.cpp.obj.d -o CMakeFiles\ExpressDesigner.dir\utils\Logger.cpp.obj -c E:\Projects\newVibes\ExpressDesignerQt\src\utils\Logger.cpp
+
+src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.i"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E E:\Projects\newVibes\ExpressDesignerQt\src\utils\Logger.cpp > CMakeFiles\ExpressDesigner.dir\utils\Logger.cpp.i
+
+src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.s"
+	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && C:\msys64\mingw64\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S E:\Projects\newVibes\ExpressDesignerQt\src\utils\Logger.cpp -o CMakeFiles\ExpressDesigner.dir\utils\Logger.cpp.s
 
 # Object files for target ExpressDesigner
 ExpressDesigner_OBJECTS = \
 "CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/main.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj" \
@@ -851,6 +1002,8 @@ ExpressDesigner_OBJECTS = \
 "CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj" \
@@ -863,6 +1016,7 @@ ExpressDesigner_OBJECTS = \
 "CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj" \
@@ -880,6 +1034,11 @@ ExpressDesigner_OBJECTS = \
 "CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj" \
@@ -888,13 +1047,15 @@ ExpressDesigner_OBJECTS = \
 "CMakeFiles/ExpressDesigner.dir/ui/delegates/PropertyDelegate.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj" \
 "CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj" \
-"CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj"
+"CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj" \
+"CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj"
 
 # External object files for target ExpressDesigner
 ExpressDesigner_EXTERNAL_OBJECTS =
 
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ExpressDesigner_autogen/mocs_compilation.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/main.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/RefPointDescriptor.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/BaseObject.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/CustomObject.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/PointObject.cpp.obj
@@ -906,6 +1067,8 @@ src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/CustomOperation
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/CarthesianOvalOperation.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/PropagateWFOperation.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/ObjectFactory.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/DependencyGraph.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/core/CommandHistory.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/geometry/SISLWrapper.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/geometry/PointList.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/geometry/VectorAlgebra.cpp.obj
@@ -918,6 +1081,7 @@ src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/io/ProjectSerializer
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/io/TXTExporter.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/io/TXTImporter.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/io/RhinoExporter.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/io/CADExporter.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/io/HistoryManager.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/MainWindow.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SplashDialog.cpp.obj
@@ -935,6 +1099,11 @@ src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/OffsetWFD
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/SetScaleDialog.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ProjectHistoryDialog.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/PreferencesDialog.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/RotateObjectDialog.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/TranslateObjectDialog.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/DependencyGraphDialog.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/CopyObjectDialog.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/dialogs/ExportCADDialog.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ObjectTreeWidget.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/widgets/PropertiesWidget.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/widgets/ChartWidget.cpp.obj
@@ -944,8 +1113,35 @@ src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/ui/delegates/Propert
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/app/OvalDesignerApp.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/utils/NumericUtils.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/utils/StringUtils.cpp.obj
+src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/utils/Logger.cpp.obj
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/build.make
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Charts.dll.a
+src/ExpressDesigner.exe: sisl/libsisl.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKernel.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKMath.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKG2d.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKG3d.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKGeomBase.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKGeomAlgo.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKBRep.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKTopAlgo.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKPrim.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKBO.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKBool.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKDESTEP.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKDEIGES.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKDE.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKXSBase.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKShHealing.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKMesh.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKBinXCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKDCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKLCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKVCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKXCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libTKXmlXCAF.dll.a
+src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libtbb12.dll.a
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6OpenGLWidgets.dll.a
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Widgets.dll.a
 src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6OpenGL.dll.a
@@ -954,7 +1150,7 @@ src/ExpressDesigner.exe: C:/msys64/mingw64/lib/libQt6Core.dll.a
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/linkLibs.rsp
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/objects1.rsp
 src/ExpressDesigner.exe: src/CMakeFiles/ExpressDesigner.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_52) "Linking CXX executable ExpressDesigner.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=E:\Projects\newVibes\ExpressDesignerQt\CMakeFiles --progress-num=$(CMAKE_PROGRESS_62) "Linking CXX executable ExpressDesigner.exe"
 	cd /d E:\Projects\newVibes\ExpressDesignerQt\src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\ExpressDesigner.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

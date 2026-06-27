@@ -6,6 +6,8 @@ set(__QT_DEPLOY_TARGET_gmock_FILE E:/Projects/newVibes/ExpressDesignerQt/lib/lib
 set(__QT_DEPLOY_TARGET_gmock_TYPE STATIC_LIBRARY)
 set(__QT_DEPLOY_TARGET_gmock_main_FILE E:/Projects/newVibes/ExpressDesignerQt/lib/libgmock_main.a)
 set(__QT_DEPLOY_TARGET_gmock_main_TYPE STATIC_LIBRARY)
+set(__QT_DEPLOY_TARGET_sisl_FILE E:/Projects/newVibes/ExpressDesignerQt/sisl/libsisl.a)
+set(__QT_DEPLOY_TARGET_sisl_TYPE STATIC_LIBRARY)
 set(__QT_DEPLOY_TARGET_ExpressDesigner_FILE E:/Projects/newVibes/ExpressDesignerQt/src/ExpressDesigner.exe)
 set(__QT_DEPLOY_TARGET_ExpressDesigner_TYPE EXECUTABLE)
 set(__QT_DEPLOY_TARGET_ExpressDesigner_RUNTIME_DLLS C:/msys64/mingw64/bin/Qt6Charts.dll;C:/msys64/mingw64/bin/Qt6OpenGLWidgets.dll;C:/msys64/mingw64/bin/Qt6Widgets.dll;C:/msys64/mingw64/bin/Qt6OpenGL.dll;C:/msys64/mingw64/bin/Qt6Gui.dll;C:/msys64/mingw64/bin/Qt6Core.dll)
