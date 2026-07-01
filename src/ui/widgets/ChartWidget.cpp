@@ -50,7 +50,8 @@ QColor ChartWidget::objectColor(CustomObject* obj)
 // ============================================================================
 void ChartWidget::populateChart(QChart* chart, Project* project,
                                  bool showControlPoints, bool showNormals,
-                                 CustomObject* selectedObject, bool alignLegendRight)
+                                 CustomObject* selectedObject, bool alignLegendRight,
+                                 int normalsCount)
 {
     if (!chart || !project) return;
 
@@ -79,7 +80,7 @@ void ChartWidget::populateChart(QChart* chart, Project* project,
 
     // --- Step 2: Draw normal arrows ---
     if (showNormals)
-        addNormalArrows(chart, project, selectedObject, bounds);
+        addNormalArrows(chart, project, selectedObject, bounds, normalsCount);
 
     // --- Step 3: Create axes and attach all series ---
     if (addedAny)
@@ -156,7 +157,7 @@ bool ChartWidget::addObjectSeries(QChart* chart, CustomObject* obj,
 // addNormalArrows — draw normal vectors for all objects
 // ============================================================================
 void ChartWidget::addNormalArrows(QChart* chart, Project* project,
-                                   CustomObject* selectedObject, Bounds& bnd)
+                                   CustomObject* selectedObject, Bounds& bnd, int normalsCount)
 {
     auto effectivePen = [selectedObject](CustomObject* obj) -> QColor {
         if (obj == selectedObject) return QColor(255, 215, 0);
@@ -165,7 +166,7 @@ void ChartWidget::addNormalArrows(QChart* chart, Project* project,
 
     for (auto* obj : project->allObjects()) {
         if (!obj || !obj->isVisible()) continue;
-        auto normals = obj->computeNormals();
+        auto normals = obj->computeNormals(normalsCount);
         QColor color = effectivePen(obj);
         for (const auto& pair : normals) {
             auto* arrow = new QLineSeries();

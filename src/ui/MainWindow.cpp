@@ -1232,7 +1232,13 @@ void MainWindow::maintainChartAspectRatio()
 #endif
 }
 
-void MainWindow::onPreferences() { PreferencesDialog dlg(this); dlg.exec(); }
+void MainWindow::onPreferences() {
+    PreferencesDialog dlg(this);
+    if (dlg.exec() == QDialog::Accepted) {
+        // Refresh chart in case normals-related preferences changed
+        refreshChart();
+    }
+}
 
 void MainWindow::updateDeleteActionState()
 {
@@ -1432,7 +1438,10 @@ void MainWindow::refreshChart()
 #ifdef HAS_QT_CHARTS
     if (!m_chart || !m_currentProject) return;
     m_chart->removeAllSeries();
-    ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals, m_selectedObject);
+    QSettings settings;
+    const int normalsCount = settings.value(QStringLiteral("Preferences/defaultNormalsQty"), 10).toInt();
+    ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals,
+                               m_selectedObject, true, normalsCount);
     // Ensure 1:1 aspect ratio after chart population (deferred to allow layout)
     QMetaObject::invokeMethod(this, [this]() { maintainChartAspectRatio(); }, Qt::QueuedConnection);
 #endif
