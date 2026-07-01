@@ -33,6 +33,9 @@
 #include <QLabel>
 #include <QMenu>
 #include <QAction>
+#include <QFile>
+#include <QFileInfo>
+
 #include <QSplitter>
 #include <QVBoxLayout>
 #include <QApplication>
@@ -63,10 +66,24 @@ MainWindow::MainWindow(QWidget* parent)
     setupConnections();
 
     onNewProject();
+    updateRecentFilesMenu();
 
     QSettings settings;
     restoreGeometry(settings.value(QStringLiteral("MainWindow/geometry")).toByteArray());
+
+    // Auto-open last project if the user enabled that preference
+    if (settings.value(QStringLiteral("Preferences/openLastProjectAutomatically"), false).toBool()) {
+        const QStringList recentFiles = settings.value(QStringLiteral("RecentFiles/list")).toStringList();
+        if (!recentFiles.isEmpty() && QFile::exists(recentFiles.first())) {
+            Project* loaded = ProjectSerializer::load(recentFiles.first());
+            if (loaded) {
+                m_currentFilePath = recentFiles.first();
+                setProject(loaded);
+            }
+        }
+    }
 }
+
 
 MainWindow::~MainWindow()
 {
@@ -118,7 +135,9 @@ void MainWindow::setupMenuBar()
     QMenu* fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(tr("&New Project"), QKeySequence::New, this, &MainWindow::onNewProject);
     fileMenu->addAction(tr("&Open Project..."), QKeySequence::Open, this, &MainWindow::onOpenProject);
+    m_recentFilesMenu = fileMenu->addMenu(tr("Open &Recent..."));
     fileMenu->addAction(tr("&Save Project"), QKeySequence::Save, this, &MainWindow::onSaveProject);
+
     fileMenu->addAction(tr("Save Project &As..."), QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S), this, &MainWindow::onSaveProjectAs);
     fileMenu->addAction(tr("&Close Project"), this, &MainWindow::onCloseProject);
     fileMenu->addSeparator();
@@ -629,6 +648,7 @@ void MainWindow::onOpenProject()
     if (!loaded) { QMessageBox::critical(this, tr("Error"), tr("Failed to load project.")); return; }
     m_currentFilePath = filePath;
     setProject(loaded);
+    addToRecentFiles(filePath);
     m_history->addEntry(QStringLiteral("project_opened"), filePath);
 }
 
@@ -638,7 +658,86 @@ void MainWindow::onSaveProject()
     if (m_currentProject && ProjectSerializer::save(*m_currentProject, m_currentFilePath)) {
         setModified(false);
         statusBar()->showMessage(tr("Project saved."), 3000);
+        addToRecentFiles(m_currentFilePath);
     }
+}
+
+void MainWindow::onOpenRecentFile()
+{
+    auto* action = qobject_cast<QAction*>(sender());
+    if (!action) return;
+    const QString filePath = action->data().toString();
+    if (filePath.isEmpty()) return;
+
+    if (!QFile::exists(filePath)) {
+        QMessageBox::warning(this, tr("File Not Found"),
+            tr("The project file '%1' no longer exists.").arg(filePath));
+        QSettings settings;
+        QStringList files = settings.value(QStringLiteral("RecentFiles/list")).toStringList();
+        files.removeAll(filePath);
+        settings.setValue(QStringLiteral("RecentFiles/list"), files);
+        updateRecentFilesMenu();
+        return;
+    }
+
+    if (!maybeSaveBeforeAction(tr("opening another project"))) return;
+
+    Project* loaded = ProjectSerializer::load(filePath);
+    if (!loaded) { QMessageBox::critical(this, tr("Error"), tr("Failed to load project.")); return; }
+    m_currentFilePath = filePath;
+    setProject(loaded);
+    addToRecentFiles(filePath);
+    m_history->addEntry(QStringLiteral("project_opened"), filePath);
+}
+
+void MainWindow::onClearRecentFiles()
+{
+    QSettings settings;
+    settings.remove(QStringLiteral("RecentFiles/list"));
+    updateRecentFilesMenu();
+}
+
+void MainWindow::addToRecentFiles(const QString& filePath)
+{
+    if (filePath.isEmpty()) return;
+
+    QSettings settings;
+    QStringList files = settings.value(QStringLiteral("RecentFiles/list")).toStringList();
+    files.removeAll(filePath);
+    files.prepend(filePath);
+    while (files.size() > 5)
+        files.removeLast();
+    settings.setValue(QStringLiteral("RecentFiles/list"), files);
+
+    updateRecentFilesMenu();
+}
+
+void MainWindow::updateRecentFilesMenu()
+{
+    if (!m_recentFilesMenu) return;
+    m_recentFilesMenu->clear();
+
+    QSettings settings;
+    const QStringList files = settings.value(QStringLiteral("RecentFiles/list")).toStringList();
+
+    if (files.isEmpty()) {
+        QAction* noneAction = m_recentFilesMenu->addAction(tr("(No recent projects)"));
+        noneAction->setEnabled(false);
+        return;
+    }
+
+    int index = 1;
+    for (const QString& filePath : files) {
+        QAction* action = m_recentFilesMenu->addAction(
+            tr("&%1 %2").arg(index).arg(QFileInfo(filePath).fileName()));
+        action->setData(filePath);
+        action->setToolTip(filePath);
+        connect(action, &QAction::triggered, this, &MainWindow::onOpenRecentFile);
+        ++index;
+    }
+
+    m_recentFilesMenu->addSeparator();
+    m_recentFilesMenu->addAction(tr("&Clear Recent Files"), this, &MainWindow::onClearRecentFiles);
 }
 
 void MainWindow::onSaveProjectAs()

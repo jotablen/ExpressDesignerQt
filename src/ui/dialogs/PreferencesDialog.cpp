@@ -35,17 +35,22 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
     normalsLenSpin->setValue(settings.value(QStringLiteral("Preferences/defaultNormalsLen"), 1.0).toDouble());
     form->addRow(QStringLiteral("Default normals length:"), normalsLenSpin);
 
+    auto* openLastChk = new QCheckBox(this);
+    openLastChk->setChecked(settings.value(QStringLiteral("Preferences/openLastProjectAutomatically"), false).toBool());
+    form->addRow(QStringLiteral("Open last project automatically:"), openLastChk);
+
     layout->addLayout(form);
     layout->addStretch();
 
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     layout->addWidget(buttons);
 
-    connect(buttons, &QDialogButtonBox::accepted, this, [this, autoZoomChk, normalsQtySpin, normalsLenSpin]() {
+    connect(buttons, &QDialogButtonBox::accepted, this, [this, autoZoomChk, normalsQtySpin, normalsLenSpin, openLastChk]() {
         QSettings settings;
         settings.setValue(QStringLiteral("Preferences/autoZoom"), autoZoomChk->isChecked());
         settings.setValue(QStringLiteral("Preferences/defaultNormalsQty"), normalsQtySpin->value());
         settings.setValue(QStringLiteral("Preferences/defaultNormalsLen"), normalsLenSpin->value());
+        settings.setValue(QStringLiteral("Preferences/openLastProjectAutomatically"), openLastChk->isChecked());
         accept();
     });
 

@@ -48,6 +48,9 @@ private slots:
     void onSaveProject();
     void onSaveProjectAs();
     void onCloseProject();
+    void onOpenRecentFile();
+    void onClearRecentFiles();
+
 
     // Object actions
     void onInsertObject();
@@ -108,6 +111,11 @@ private:
     void updateDeleteActionState();
     void updateUndoRedoActions();
 
+    // Recent files (File -> Open Recent...)
+    void updateRecentFilesMenu();
+    void addToRecentFiles(const QString& filePath);
+
+
     // Cascade recalculation — re-executes all operations in order
     void recalculateAll();
 
@@ -124,6 +132,8 @@ private:
     QAction* m_deleteAction = nullptr;
     QAction* m_undoAction = nullptr;
     QAction* m_redoAction = nullptr;
+    QMenu* m_recentFilesMenu = nullptr;
+
 
     // Models
     ObjectTreeModel* m_treeModel = nullptr;
