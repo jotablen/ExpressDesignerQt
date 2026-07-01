@@ -51,6 +51,7 @@ public:
     // --- Normals ---
     QVector<QPair<QPointF, QPointF>> computeNormals() const;
     QVector<QPair<QPointF, QPointF>> computeNormals(int numPoints) const;
+    QVector<QPair<QPointF, QPointF>> computeNormals(int numPoints, double length) const;
 
     // --- Chart Colors ---
     void setNormalColor(const QColor& color);

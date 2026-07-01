@@ -104,6 +104,11 @@ QVector<QPair<QPointF, QPointF>> CustomObject::computeNormals() const
 
 QVector<QPair<QPointF, QPointF>> CustomObject::computeNormals(int numPoints) const
 {
+    return computeNormals(numPoints, m_raysLen);
+}
+
+QVector<QPair<QPointF, QPointF>> CustomObject::computeNormals(int numPoints, double length) const
+{
     QVector<QPair<QPointF, QPointF>> result;
     if (m_controlPoints.size() < 2 || numPoints < 1)
         return result;
@@ -127,7 +132,7 @@ QVector<QPair<QPointF, QPointF>> CustomObject::computeNormals(int numPoints) con
         if (len > 1e-12) {
             QPointF normal(-dir.y() / len, dir.x() / len);
             if (m_normalFlipped) normal = -normal;
-            QPointF normalEnd = pos + normal * m_raysLen;
+            QPointF normalEnd = pos + normal * length;
             result.append({pos, normalEnd});
         }
     }

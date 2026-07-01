@@ -262,7 +262,9 @@ void MainWindow::setupCentralWidget()
     m_rightSplitter->setStretchFactor(0, 1);
     m_rightSplitter->setStretchFactor(1, 0);
     m_rightSplitter->setCollapsible(1, false);
-    m_rightSplitter->setSizes({600, 150});
+    // ODs: pctrlObjProperties Height=182, MinHeight=180 — give enough room
+    m_propertiesWidget->setMinimumHeight(220);
+    m_rightSplitter->setSizes({500, 280});
 
     m_mainSplitter->addWidget(m_objectTree);
     m_mainSplitter->addWidget(m_rightSplitter);
@@ -995,7 +997,7 @@ void MainWindow::onCalculateOval()
         op->setAmountOfPoints(dlg.amountEdit()->text().toInt());
         op->setParamName(CarthesianOvalOperation::PARAM_WF1, dlg.wfOriginCombo()->currentText());
         op->setParamName(CarthesianOvalOperation::PARAM_WF2, dlg.wfDestCombo()->currentText());
-        op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointCombo()->currentText());
+        op->setParamName(CarthesianOvalOperation::PARAM_REF_POINT, dlg.refPointSourceName());
         op->setRefPointKind(dlg.refPointKind());
         op->setRefPointSourceName(dlg.refPointSourceName());
         op->setForceRefPoint(dlg.includeRefPoint());
@@ -1440,8 +1442,9 @@ void MainWindow::refreshChart()
     m_chart->removeAllSeries();
     QSettings settings;
     const int normalsCount = settings.value(QStringLiteral("Preferences/defaultNormalsQty"), 10).toInt();
+    const double normalsLength = settings.value(QStringLiteral("Preferences/defaultNormalsLen"), 1.0).toDouble();
     ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals,
-                               m_selectedObject, true, normalsCount);
+                               m_selectedObject, true, normalsCount, normalsLength);
     // Ensure 1:1 aspect ratio after chart population (deferred to allow layout)
     QMetaObject::invokeMethod(this, [this]() { maintainChartAspectRatio(); }, Qt::QueuedConnection);
 #endif

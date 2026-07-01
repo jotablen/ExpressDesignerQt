@@ -224,11 +224,17 @@ void CarthesianOvalOperation::saveToJson(QJsonObject& json) const
 {
     CustomOperation::saveToJson(json);
     json[QStringLiteral("operationSubType")] = QStringLiteral("cartesianOval");
+    json[QStringLiteral("refPointKind")] = m_refPointKind;
+    json[QStringLiteral("refPointSourceName")] = m_refPointSourceName;
+    json[QStringLiteral("forceRefPoint")] = m_forceRefPoint;
 }
 
 void CarthesianOvalOperation::loadFromJson(const QJsonObject& json)
 {
     CustomOperation::loadFromJson(json);
+    m_refPointKind = json[QStringLiteral("refPointKind")].toInt(0);
+    m_refPointSourceName = json[QStringLiteral("refPointSourceName")].toString();
+    m_forceRefPoint = json[QStringLiteral("forceRefPoint")].toBool(true);
 }
 
 } // namespace ExpressDesigner

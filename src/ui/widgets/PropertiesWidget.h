@@ -6,6 +6,7 @@
 #include <QPushButton>
 #include <QTableWidget>
 #include <QListWidget>
+#include <QGroupBox>
 #include <QLabel>
 #include <core/CustomObject.h>
 #include <core/Project.h>
@@ -65,6 +66,7 @@ private:
     void setupOperationTabs();
     void showObjectTabs(CustomObject* obj);
     void showOperationTabs(CustomOperation* op);
+    QGroupBox* createWFPanel(QWidget* parent, QLineEdit*& refIndexEdit, QCheckBox*& flipNCheck);
 
     QTabWidget* m_tabs = nullptr;
     CustomObject* m_currentObject = nullptr;
@@ -82,16 +84,15 @@ private:
 
     // Point tab widgets
     QLineEdit* m_ptNameEdit = nullptr;
-    QLabel* m_ptRefIndexLabel = nullptr;
     QLineEdit* m_ptRefIndexEdit = nullptr;
     QLineEdit* m_ptXEdit = nullptr;
     QLineEdit* m_ptYEdit = nullptr;
     QCheckBox* m_ptFlipNCheck = nullptr;
     QLabel* m_ptWFStatusLabel = nullptr;
+    QGroupBox* m_ptWFPanel = nullptr;
 
     // Line tab widgets
     QLineEdit* m_lnNameEdit = nullptr;
-    QLabel* m_lnRefIndexLabel = nullptr;
     QLineEdit* m_lnRefIndexEdit = nullptr;
     QLineEdit* m_lnP1XEdit = nullptr;
     QLineEdit* m_lnP1YEdit = nullptr;
@@ -99,10 +100,10 @@ private:
     QLineEdit* m_lnP2YEdit = nullptr;
     QCheckBox* m_lnFlipNCheck = nullptr;
     QLabel* m_lnWFStatusLabel = nullptr;
+    QGroupBox* m_lnWFPanel = nullptr;
 
     // Arc tab widgets
     QLineEdit* m_arcNameEdit = nullptr;
-    QLabel* m_arcRefIndexLabel = nullptr;
     QLineEdit* m_arcRefIndexEdit = nullptr;
     QLineEdit* m_arcXEdit = nullptr;
     QLineEdit* m_arcYEdit = nullptr;
@@ -112,10 +113,10 @@ private:
     QLineEdit* m_arcAmntPtsEdit = nullptr;
     QCheckBox* m_arcFlipNCheck = nullptr;
     QLabel* m_arcWFStatusLabel = nullptr;
+    QGroupBox* m_arcWFPanel = nullptr;
 
     // Curve tab widgets
     QLineEdit* m_cvNameEdit = nullptr;
-    QLabel* m_cvRefIndexLabel = nullptr;
     QLineEdit* m_cvRefIndexEdit = nullptr;
     QTableWidget* m_cvGrid = nullptr;
     QPushButton* m_cvAddBtn = nullptr;
@@ -124,6 +125,7 @@ private:
     QCheckBox* m_cvFlipNCheck = nullptr;
     CommandHistory* m_cmdHistory = nullptr;
     QLabel* m_cvWFStatusLabel = nullptr;
+    QGroupBox* m_cvWFPanel = nullptr;
 
     // Objects tab widgets
     QListWidget* m_objListWidget = nullptr;

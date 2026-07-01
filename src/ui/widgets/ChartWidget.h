@@ -17,7 +17,7 @@ public:
     static void populateChart(QChart* chart, Project* project,
                               bool showControlPoints, bool showNormals,
                               CustomObject* selectedObject = nullptr, bool alignLegendRight = true,
-                              int normalsCount = 10);
+                              int normalsCount = 10, double normalsLength = 1.0);
 
 private:
     // Internal helpers — each adds series/axes to chart, updates bounding rect
@@ -26,7 +26,8 @@ private:
                                  CustomObject* selectedObject,
                                  bool showControlPoints, Bounds& bounds);
     static void addNormalArrows(QChart* chart, Project* project,
-                                 CustomObject* selectedObject, Bounds& bounds, int normalsCount);
+                                 CustomObject* selectedObject, Bounds& bounds,
+                                 int normalsCount, double normalsLength);
     static void setupAxes(QChart* chart, const Bounds& bounds);
 #else
     static void populateChart(void* chart, Project* project,
