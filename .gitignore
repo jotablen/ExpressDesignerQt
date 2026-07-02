@@ -1,7 +1,24 @@
 build/
+build_android/
+build_macos/
 third_party/build/
 _deps/
 bin/project_1.json
 bin/ExpressDesigner.exe
+bin/ExpressDesigner.app
 bin/project*.json
 bin/cad/
+bin/android/*.apk
+*.apk
+*.aab
+
+# Packaging artifacts
+packaging/android/build/
+packaging/android/.gradle/
+packaging/android/libs/
+packaging/android/local.properties
+packaging/macos/build/
+
+# macOS artifacts
+*.dmg
+*.dSYM.zip

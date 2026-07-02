@@ -1,0 +1,8 @@
+rootProject.name = 'ExpressDesigner'
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}

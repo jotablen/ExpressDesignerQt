@@ -116,29 +116,90 @@ if(USE_SISL AND TARGET sisl)
     target_link_libraries(ExpressDesigner PRIVATE sisl)
 endif()
 
-# OpenCASCADE (CAD export) — manually link against MSYS2 OCCT DLLs
-set(OCCT_ROOT "C:/msys64/mingw64")
-if(EXISTS "${OCCT_ROOT}/include/opencascade/Standard_Version.hxx")
-    set(OCCT_INCLUDE_DIR "${OCCT_ROOT}/include/opencascade")
-    set(OCCT_LIB_DIR "${OCCT_ROOT}/lib")
-    set(OCCT_CORE_MODULES
-        TKernel TKMath TKG2d TKG3d TKGeomBase TKGeomAlgo TKBRep
-        TKTopAlgo TKPrim TKBO TKBool
-        TKDESTEP TKDEIGES TKDE TKXSBase TKShHealing TKMesh
-        TKCAF TKBinXCAF TKDCAF TKLCAF TKVCAF TKXCAF TKXmlXCAF
-        tbb12
-    )
-    foreach(mod ${OCCT_CORE_MODULES})
-        if(EXISTS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
-            list(APPEND OCCT_LIBS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
+# OpenCASCADE (CAD export)
+option(ENABLE_CAD_EXPORT "Enable OpenCASCADE-based CAD export (STEP/IGES)" ON)
+
+if(ENABLE_CAD_EXPORT)
+    if(WIN32)
+        # Windows: MSYS2/MinGW — manually link against OCCT DLLs
+        set(OCCT_ROOT "C:/msys64/mingw64")
+        if(EXISTS "${OCCT_ROOT}/include/opencascade/Standard_Version.hxx")
+            set(OCCT_INCLUDE_DIR "${OCCT_ROOT}/include/opencascade")
+            set(OCCT_LIB_DIR "${OCCT_ROOT}/lib")
+            set(OCCT_CORE_MODULES
+                TKernel TKMath TKG2d TKG3d TKGeomBase TKGeomAlgo TKBRep
+                TKTopAlgo TKPrim TKBO TKBool
+                TKDESTEP TKDEIGES TKDE TKXSBase TKShHealing TKMesh
+                TKCAF TKBinXCAF TKDCAF TKLCAF TKVCAF TKXCAF TKXmlXCAF
+                tbb12
+            )
+            foreach(mod ${OCCT_CORE_MODULES})
+                if(EXISTS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
+                    list(APPEND OCCT_LIBS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
+                endif()
+            endforeach()
+            if(OCCT_LIBS)
+                target_include_directories(ExpressDesigner PRIVATE ${OCCT_INCLUDE_DIR})
+                target_link_libraries(ExpressDesigner PRIVATE ${OCCT_LIBS})
+                target_compile_definitions(ExpressDesigner PRIVATE HAS_OPENCASCADE)
+                message(STATUS "OpenCASCADE found — CAD export enabled (${OCCT_LIBS})")
+            endif()
+        else()
+            message(STATUS "OpenCASCADE not found — CAD export disabled")
         endif()
-    endforeach()
-    if(OCCT_LIBS)
-        target_include_directories(ExpressDesigner PRIVATE ${OCCT_INCLUDE_DIR})
-        target_link_libraries(ExpressDesigner PRIVATE ${OCCT_LIBS})
-        target_compile_definitions(ExpressDesigner PRIVATE HAS_OPENCASCADE)
-        message(STATUS "OpenCASCADE found — CAD export enabled (${OCCT_LIBS})")
+    elseif(APPLE)
+        # macOS: Homebrew OpenCASCADE
+        find_library(OCCT_TKERNEL NAMES TKernel PATHS /opt/homebrew/lib /usr/local/lib)
+        if(OCCT_TKERNEL)
+            execute_process(COMMAND brew --prefix opencascade
+                OUTPUT_VARIABLE OCCT_PREFIX
+                OUTPUT_STRIP_TRAILING_WHITESPACE
+                ERROR_QUIET)
+            if(NOT OCCT_PREFIX)
+                find_path(OCCT_INCLUDE_DIR Standard_Version.hxx
+                    PATHS /opt/homebrew/include/opencascade /usr/local/include/opencascade)
+            else()
+                set(OCCT_INCLUDE_DIR "${OCCT_PREFIX}/include/opencascade")
+            endif()
+            find_library(OCCT_LIBS
+                NAMES
+                    TKernel TKMath TKG2d TKG3d TKGeomBase TKGeomAlgo TKBRep
+                    TKTopAlgo TKPrim TKBO TKBool
+                    TKDESTEP TKDEIGES TKDE TKXSBase TKShHealing TKMesh
+                    TKCAF TKBinXCAF TKDCAF TKLCAF TKVCAF TKXCAF TKXmlXCAF
+                    tbb
+                PATHS /opt/homebrew/lib /usr/local/lib)
+            if(OCCT_LIBS AND OCCT_INCLUDE_DIR)
+                target_include_directories(ExpressDesigner PRIVATE ${OCCT_INCLUDE_DIR})
+                target_link_libraries(ExpressDesigner PRIVATE ${OCCT_LIBS})
+                target_compile_definitions(ExpressDesigner PRIVATE HAS_OPENCASCADE)
+                message(STATUS "OpenCASCADE found — CAD export enabled")
+            else()
+                message(STATUS "OpenCASCADE libraries not found — CAD export disabled")
+            endif()
+        else()
+            message(STATUS "OpenCASCADE not found — CAD export disabled")
+        endif()
+    else()
+        # Linux / other: use find_package as fallback
+        find_package(OpenCASCADE QUIET)
+        if(OpenCASCADE_FOUND)
+            find_package(TBB QUIET)
+            target_include_directories(ExpressDesigner PRIVATE ${OpenCASCADE_INCLUDE_DIR})
+            target_link_libraries(ExpressDesigner PRIVATE
+                TKBinXCAF TKBin TKBool TKBO TKBRep TKCAF TKCDF TKDCAF TKDE TKDESTEP
+                TKDraw TKernel TKFeat TKFillet TKG2d TKG3d TKGeomAlgo TKGeomBase
+                TKHLR TKIVtk TKLCAF TKMath TKMesh TKMeshVS TKOffset TKOpenGl
+                TKPrim TKQADraw TKRWMesh TKService TKShHealing TKStd TKStdL
+                TKTObj TKTopAlgo TKV3d TKVCAF TKViewerTest TKXCAF TKXDEDRAW
+                TKXDEIGES TKXMesh TKXml TKXmlL TKXmlTObj TKXmlXCAF TKXSBase
+                TKXSDRAW TKXSDRAWIGES ${TBB_LIBRARIES})
+            target_compile_definitions(ExpressDesigner PRIVATE HAS_OPENCASCADE)
+            message(STATUS "OpenCASCADE found — CAD export enabled")
+        else()
+            message(STATUS "OpenCASCADE not found — CAD export disabled")
+        endif()
     endif()
 else()
-    message(STATUS "OpenCASCADE not found — CAD export disabled")
+    message(STATUS "CAD export disabled (ENABLE_CAD_EXPORT=OFF)")
 endif()

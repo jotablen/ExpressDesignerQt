@@ -10,6 +10,7 @@ set(CMAKE_AUTOUIC ON)
 # Options
 option(BUILD_TESTS "Build unit tests" ON)
 option(USE_SISL "Use SISL geometry library" ON)
+option(ENABLE_CAD_EXPORT "Enable OpenCASCADE-based CAD export (STEP/IGES)" ON)
 
 # Qt6 Configuration
 find_package(Qt6 REQUIRED COMPONENTS
@@ -51,6 +52,24 @@ if(USE_SISL)
     endif()
     add_compile_definitions(USE_SISL=1)
 endif()
+
+# Android-specific configuration
+if(ANDROID)
+    message(STATUS "=== Android build ===")
+    message(STATUS "  ABI: ${ANDROID_ABI}")
+    message(STATUS "  Platform: ${ANDROID_PLATFORM}")
+    if(ENABLE_CAD_EXPORT)
+        message(STATUS "  CAD export: DISABLED (OpenCASCADE not supported on Android)")
+        set(ENABLE_CAD_EXPORT OFF CACHE BOOL "CAD export disabled for Android" FORCE)
+    endif()
+    if(BUILD_TESTS)
+        message(STATUS "  Unit tests: DISABLED for Android")
+        set(BUILD_TESTS OFF CACHE BOOL "Tests disabled for Android" FORCE)
+    endif()
+endif()
+
+# Pass ENABLE_CAD_EXPORT to subdirectory
+set(ENABLE_CAD_EXPORT ${ENABLE_CAD_EXPORT} CACHE BOOL "CAD export" FORCE)
 
 add_subdirectory(src)
 
