@@ -3,6 +3,7 @@
 #include "CustomOperation.h"
 #include "Project.h"
 #include "ArcObject.h"
+#include "PropagateWFOperation.h"
 #include <QtMath>
 #include <QVariant>
 #include <utils/Logger.h>
@@ -263,6 +264,47 @@ bool TranslateObjectCommand::undo(Project* project) {
     if (auto* arc = qobject_cast<ArcObject*>(m_obj)) {
         arc->setCenter(arc->center() - m_delta);
     }
+    return true;
+}
+
+// ============================================================================
+// ModifyOperationCommand
+// ============================================================================
+ModifyOperationCommand::ModifyOperationCommand(CustomOperation* op,
+    const QString& oldName, int oldQty, const QStringList& oldParams,
+    const QString& oldResultName, double oldOffset,
+    const QString& newName, int newQty, const QStringList& newParams,
+    const QString& newResultName, double newOffset)
+    : Command(QStringLiteral("Modify ") + (op ? op->name() : QString()))
+    , m_op(op), m_oldName(oldName), m_newName(newName)
+    , m_oldQty(oldQty), m_newQty(newQty)
+    , m_oldParams(oldParams), m_newParams(newParams)
+    , m_oldResultName(oldResultName), m_newResultName(newResultName)
+    , m_oldOffset(oldOffset), m_newOffset(newOffset)
+{
+}
+
+bool ModifyOperationCommand::execute(Project* project) {
+    Q_UNUSED(project);
+    if (!m_op) return false;
+    m_op->setName(m_newName);
+    m_op->setAmountOfPoints(m_newQty);
+    for (int i = 0; i < qMin(m_newParams.size(), m_op->paramCount()); ++i)
+        m_op->setParamName(i, m_newParams[i]);
+    // offset handling: only for PropagateWFOperation
+    if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_op))
+        pop->setOffset(m_newOffset);
+    return true;
+}
+bool ModifyOperationCommand::undo(Project* project) {
+    Q_UNUSED(project);
+    if (!m_op) return false;
+    m_op->setName(m_oldName);
+    m_op->setAmountOfPoints(m_oldQty);
+    for (int i = 0; i < qMin(m_oldParams.size(), m_op->paramCount()); ++i)
+        m_op->setParamName(i, m_oldParams[i]);
+    if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_op))
+        pop->setOffset(m_oldOffset);
     return true;
 }
 

@@ -133,6 +133,24 @@ private:
     QPointF m_delta;
 };
 
+class ModifyOperationCommand : public Command {
+public:
+    ModifyOperationCommand(CustomOperation* op,
+        const QString& oldName, int oldQty, const QStringList& oldParams,
+        const QString& oldResultName, double oldOffset,
+        const QString& newName, int newQty, const QStringList& newParams,
+        const QString& newResultName, double newOffset);
+    bool execute(Project* project) override;
+    bool undo(Project* project) override;
+private:
+    CustomOperation* m_op;
+    QString m_oldName, m_newName;
+    int m_oldQty, m_newQty;
+    QStringList m_oldParams, m_newParams;
+    QString m_oldResultName, m_newResultName;
+    double m_oldOffset, m_newOffset;
+};
+
 // ============================================================================
 // CommandHistory — Stack-based undo/redo
 // ============================================================================

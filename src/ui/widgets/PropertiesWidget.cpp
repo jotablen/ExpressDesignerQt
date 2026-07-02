@@ -257,11 +257,20 @@ void PropertiesWidget::setupCalcOvalTab() {
     auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
     auto* tl = new QLabel(QStringLiteral("Cartesian Oval parameters"), tab); QFont bf = tl->font(); bf.setBold(true); tl->setFont(bf); l->addWidget(tl);
     m_cOvalNameEdit = new QLineEdit(tab); m_cOvalNameEdit->setReadOnly(true); l->addWidget(m_cOvalNameEdit);
-    auto* f = new QFormLayout();
-    m_cOvalWF1Edit = new QLineEdit(tab); m_cOvalWF1Edit->setReadOnly(true); f->addRow(QStringLiteral("First WF:"), m_cOvalWF1Edit);
-    m_cOvalWF2Edit = new QLineEdit(tab); m_cOvalWF2Edit->setReadOnly(true); f->addRow(QStringLiteral("Second WF:"), m_cOvalWF2Edit);
-    m_cOvalRefEdit = new QLineEdit(tab); m_cOvalRefEdit->setReadOnly(true); f->addRow(QStringLiteral("Ref. Point:"), m_cOvalRefEdit);
-    m_cOvalQtyPtsEdit = new QLineEdit(tab); f->addRow(QStringLiteral("Calculations Qty:"), m_cOvalQtyPtsEdit); l->addLayout(f);
+    // Row 1: First WF + Second WF
+    auto* row1 = new QHBoxLayout();
+    m_cOvalWF1Edit = new QLineEdit(tab); m_cOvalWF1Edit->setReadOnly(true);
+    row1->addWidget(new QLabel(QStringLiteral("First WF:"), tab)); row1->addWidget(m_cOvalWF1Edit);
+    m_cOvalWF2Edit = new QLineEdit(tab); m_cOvalWF2Edit->setReadOnly(true);
+    row1->addWidget(new QLabel(QStringLiteral("Second WF:"), tab)); row1->addWidget(m_cOvalWF2Edit);
+    l->addLayout(row1);
+    // Row 2: Ref Point + Calculation Qty
+    auto* row2 = new QHBoxLayout();
+    m_cOvalRefEdit = new QLineEdit(tab); m_cOvalRefEdit->setReadOnly(true);
+    row2->addWidget(new QLabel(QStringLiteral("Ref. Point:"), tab)); row2->addWidget(m_cOvalRefEdit);
+    m_cOvalQtyPtsEdit = new QLineEdit(tab);
+    row2->addWidget(new QLabel(QStringLiteral("Calculations Qty:"), tab)); row2->addWidget(m_cOvalQtyPtsEdit);
+    l->addLayout(row2);
     auto* sep = new QFrame(tab); sep->setFrameShape(QFrame::HLine); sep->setFrameShadow(QFrame::Sunken); l->addWidget(sep);
     l->addWidget(new QLabel(QStringLiteral("Result object name:"), tab)); m_cOvalResultEdit = new QLineEdit(tab); m_cOvalResultEdit->setReadOnly(true); l->addWidget(m_cOvalResultEdit);
     auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
@@ -275,12 +284,22 @@ void PropertiesWidget::setupPropagateTab() {
     auto* tab = new QWidget(); auto* l = new QVBoxLayout(tab);
     auto* tl = new QLabel(QStringLiteral("WF Propagation parammeters"), tab); QFont bf = tl->font(); bf.setBold(true); tl->setFont(bf); l->addWidget(tl);
     m_propgNameEdit = new QLineEdit(tab); m_propgNameEdit->setReadOnly(true); l->addWidget(m_propgNameEdit);
-    auto* f = new QFormLayout();
-    m_propgWFEdit = new QLineEdit(tab); m_propgWFEdit->setReadOnly(true); f->addRow(QStringLiteral("Wave-Front"), m_propgWFEdit);
-    m_propgIOREdit = new QLineEdit(tab); m_propgIOREdit->setReadOnly(true); f->addRow(QStringLiteral("Refract. Indx:"), m_propgIOREdit);
-    m_propgSurfEdit = new QLineEdit(tab); m_propgSurfEdit->setReadOnly(true); f->addRow(QStringLiteral("Surface:"), m_propgSurfEdit);
-    m_propgQtyPtsEdit = new QLineEdit(tab); f->addRow(QStringLiteral("Calculations Qty:"), m_propgQtyPtsEdit);
-    m_propgOffsetEdit = new QLineEdit(tab); f->addRow(QStringLiteral("OPL Offset:"), m_propgOffsetEdit); l->addLayout(f);
+    // Row 1: Wave-Front + Surface
+    auto* row1 = new QHBoxLayout();
+    m_propgWFEdit = new QLineEdit(tab); m_propgWFEdit->setReadOnly(true);
+    row1->addWidget(new QLabel(QStringLiteral("Wave-Front"), tab)); row1->addWidget(m_propgWFEdit);
+    m_propgSurfEdit = new QLineEdit(tab); m_propgSurfEdit->setReadOnly(true);
+    row1->addWidget(new QLabel(QStringLiteral("Surface:"), tab)); row1->addWidget(m_propgSurfEdit);
+    l->addLayout(row1);
+    // Row 2: Refractive Index + Calculation Qty + OPL Offset
+    auto* row2 = new QHBoxLayout();
+    m_propgIOREdit = new QLineEdit(tab); m_propgIOREdit->setReadOnly(true);
+    row2->addWidget(new QLabel(QStringLiteral("Refract. Indx:"), tab)); row2->addWidget(m_propgIOREdit);
+    m_propgQtyPtsEdit = new QLineEdit(tab);
+    row2->addWidget(new QLabel(QStringLiteral("Calculations Qty:"), tab)); row2->addWidget(m_propgQtyPtsEdit);
+    m_propgOffsetEdit = new QLineEdit(tab);
+    row2->addWidget(new QLabel(QStringLiteral("OPL Offset:"), tab)); row2->addWidget(m_propgOffsetEdit);
+    l->addLayout(row2);
     auto* sep = new QFrame(tab); sep->setFrameShape(QFrame::HLine); sep->setFrameShadow(QFrame::Sunken); l->addWidget(sep);
     l->addWidget(new QLabel(QStringLiteral("Result object name:"), tab)); m_propgResultEdit = new QLineEdit(tab); m_propgResultEdit->setReadOnly(true); l->addWidget(m_propgResultEdit);
     auto* br = new QHBoxLayout(); auto* sb = new QPushButton(QStringLiteral("Save"), tab); sb->setDefault(true);
@@ -495,12 +514,35 @@ void PropertiesWidget::onRestoreCurve() { if (m_currentObject) showObjectTabs(m_
 void PropertiesWidget::onSaveCalcOval()
 {
     if (!m_currentOperation) return;
-    // Update modifiable (non-object-reference) parameters from UI
-    m_currentOperation->setName(m_cOvalNameEdit->text());
-    m_currentOperation->setAmountOfPoints(m_cOvalQtyPtsEdit->text().toInt());
-    m_currentOperation->setParamName(0, m_cOvalWF1Edit->text());
-    m_currentOperation->setParamName(1, m_cOvalWF2Edit->text());
-    m_currentOperation->setParamName(2, m_cOvalRefEdit->text());
+    // Capture old state for undo/redo
+    QString oldName = m_currentOperation->name();
+    int oldQty = m_currentOperation->amountOfPoints();
+    QStringList oldParams;
+    for (int i = 0; i < m_currentOperation->paramCount(); ++i)
+        oldParams << m_currentOperation->paramName(i);
+    QString oldResultName = m_cOvalResultEdit->text(); // resultName is set in UI
+    double oldOffset = 0.0; // not used for CartesianOval
+
+    // New values from UI
+    QString newName = m_cOvalNameEdit->text();
+    int newQty = m_cOvalQtyPtsEdit->text().toInt();
+    QStringList newParams;
+    newParams << m_cOvalWF1Edit->text() << m_cOvalWF2Edit->text() << m_cOvalRefEdit->text();
+    QString newResultName = m_cOvalResultEdit->text();
+    double newOffset = 0.0;
+
+    if (m_cmdHistory) {
+        auto cmd = std::make_unique<ModifyOperationCommand>(
+            m_currentOperation, oldName, oldQty, oldParams, oldResultName, oldOffset,
+            newName, newQty, newParams, newResultName, newOffset);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
+    } else {
+        // Fallback without undo/redo
+        m_currentOperation->setName(newName);
+        m_currentOperation->setAmountOfPoints(newQty);
+        for (int i = 0; i < qMin(newParams.size(), m_currentOperation->paramCount()); ++i)
+            m_currentOperation->setParamName(i, newParams[i]);
+    }
     emit operationModified(m_currentOperation);
 }
 void PropertiesWidget::onRestoreCalcOval()
@@ -511,13 +553,39 @@ void PropertiesWidget::onRestoreCalcOval()
 void PropertiesWidget::onSavePropagate()
 {
     if (!m_currentOperation) return;
-    m_currentOperation->setName(m_propgNameEdit->text());
-    m_currentOperation->setAmountOfPoints(m_propgQtyPtsEdit->text().toInt());
-    m_currentOperation->setParamName(0, m_propgWFEdit->text());
-    m_currentOperation->setParamName(1, m_propgSurfEdit->text());
-    m_currentOperation->setParamName(2, m_propgIOREdit->text());
+    // Capture old state for undo/redo
+    QString oldName = m_currentOperation->name();
+    int oldQty = m_currentOperation->amountOfPoints();
+    QStringList oldParams;
+    for (int i = 0; i < m_currentOperation->paramCount(); ++i)
+        oldParams << m_currentOperation->paramName(i);
+    QString oldResultName = m_propgResultEdit->text();
+    double oldOffset = 0.0;
     if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_currentOperation))
-        pop->setOffset(m_propgOffsetEdit->text().toDouble());
+        oldOffset = pop->offset();
+
+    // New values from UI
+    QString newName = m_propgNameEdit->text();
+    int newQty = m_propgQtyPtsEdit->text().toInt();
+    QStringList newParams;
+    newParams << m_propgWFEdit->text() << m_propgSurfEdit->text() << m_propgIOREdit->text();
+    QString newResultName = m_propgResultEdit->text();
+    double newOffset = m_propgOffsetEdit->text().toDouble();
+
+    if (m_cmdHistory) {
+        auto cmd = std::make_unique<ModifyOperationCommand>(
+            m_currentOperation, oldName, oldQty, oldParams, oldResultName, oldOffset,
+            newName, newQty, newParams, newResultName, newOffset);
+        m_cmdHistory->push(std::move(cmd), m_currentProject);
+    } else {
+        // Fallback without undo/redo
+        m_currentOperation->setName(newName);
+        m_currentOperation->setAmountOfPoints(newQty);
+        for (int i = 0; i < qMin(newParams.size(), m_currentOperation->paramCount()); ++i)
+            m_currentOperation->setParamName(i, newParams[i]);
+        if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_currentOperation))
+            pop->setOffset(newOffset);
+    }
     emit operationModified(m_currentOperation);
 }
 void PropertiesWidget::onRestorePropagate()
