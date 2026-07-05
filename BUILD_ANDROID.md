@@ -86,6 +86,7 @@ export ANDROID_KEYPASS="your-key-password"
 | Dependency graph (undo/redo) | ✅ Works |
 | Project save/load (JSON) | ✅ Works |
 | Export TXT / RhinoScript | ✅ Works |
+| **STL 3D export** | ✅ Works (built-in, no dependencies) |
 | **STEP/IGES CAD export** | ❌ Disabled (OpenCASCADE not available for Android) |
 | Chart visualization | ⚠️ Qt Charts must be installed |
 | Touch-friendly UX | ⚠️ Desktop-style UI; touch works but is not optimized |
