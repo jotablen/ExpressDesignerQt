@@ -143,7 +143,7 @@ void MainWindow::setupMenuBar()
     fileMenu->addSeparator();
     fileMenu->addAction(tr("&Import Object..."), this, &MainWindow::onImportObject);
     fileMenu->addAction(tr("&Export Object..."), this, &MainWindow::onExportObject);
-    fileMenu->addAction(tr("Export &CAD (Step/IGES)..."), this, &MainWindow::onExportCAD);
+    fileMenu->addAction(tr("Export &CAD (STL/Step/IGES)..."), this, &MainWindow::onExportCAD);
     fileMenu->addAction(tr("Export All to &Rhino..."), this, &MainWindow::onExportAllRhino);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);

@@ -1,5 +1,10 @@
 #include "CADExporter.h"
+#include "STLExporter.h"
 
+#include <utils/Logger.h>
+#include <QtMath>
+
+#ifdef HAS_OPENCASCADE
 #include <Standard_Version.hxx>
 #include <BRepBuilderAPI_MakeEdge.hxx>
 #include <BRepBuilderAPI_MakeWire.hxx>
@@ -25,8 +30,7 @@
 #include <IGESControl_Controller.hxx>
 #include <Interface_Static.hxx>
 #include <Message_ProgressRange.hxx>
-#include <utils/Logger.h>
-#include <QtMath>
+#endif
 
 namespace ExpressDesigner {
 
@@ -317,4 +321,25 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
     catch (...) { s_lastError = QStringLiteral("Unknown error."); LOG_ERROR(QStringLiteral("CAD"), s_lastError); return false; }
 }
 
+
 } // namespace ExpressDesigner
+
+#else // !HAS_OPENCASCADE — STL-only fallback
+
+namespace ExpressDesigner {
+
+QString CADExporter::errorMessage() { return STLExporter::errorMessage(); }
+
+bool CADExporter::exportToCAD(const CADExportParams& params)
+{
+    return STLExporter::exportToSTL(params);
+}
+
+bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
+{
+    return STLExporter::exportMultipleToSTL(allParams);
+}
+
+} // namespace ExpressDesigner
+
+#endif // HAS_OPENCASCADE

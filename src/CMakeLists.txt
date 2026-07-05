@@ -35,6 +35,7 @@ set(IO_SOURCES
     io/TXTImporter.cpp
     io/RhinoExporter.cpp
     io/CADExporter.cpp
+    io/STLExporter.cpp
     io/HistoryManager.cpp
 )
 

@@ -16,7 +16,7 @@ namespace ExpressDesigner {
 
 ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("Export CAD (Step/IGES)"));
+    setWindowTitle(QStringLiteral("Export CAD (STL/Step/IGES)"));
     resize(780, 520);
 
     auto* mainLayout = new QHBoxLayout(this);
@@ -169,7 +169,6 @@ void ExportCADDialog::populateObjects(Project* project)
     m_objectList->clear();
     if (!project) return;
 
-    // Always show non-WF data objects and result objects
     for (auto* obj : project->dataObjects()) {
         if (!obj) continue;
         if (!isWavefront(obj->objectType())
@@ -198,7 +197,6 @@ void ExportCADDialog::refilterObjects()
 {
     if (!m_project) return;
     const bool includeWFs = m_includeWFsCheck->isChecked();
-    // Remember current selection names
     QStringList oldSelected = selectedObjectNames();
 
     m_objectList->clear();
@@ -216,7 +214,6 @@ void ExportCADDialog::refilterObjects()
         m_objectList->addItem(obj->name());
     }
 
-    // Restore selection where possible
     for (int i = 0; i < m_objectList->count(); ++i) {
         if (oldSelected.contains(m_objectList->item(i)->text()))
             m_objectList->item(i)->setSelected(true);
@@ -243,8 +240,8 @@ void ExportCADDialog::onBrowse()
     QString path = QFileDialog::getSaveFileName(
         this,
         QStringLiteral("Export CAD File"),
-        m_fileNameEdit->text().isEmpty() ? QStringLiteral("export.step") : m_fileNameEdit->text(),
-        QStringLiteral("STEP Files (*.step *.stp);;IGES Files (*.igs *.iges);;All Files (*)"));
+        m_fileNameEdit->text().isEmpty() ? QStringLiteral("export.stl") : m_fileNameEdit->text(),
+        QStringLiteral("STL Files (*.stl);;STEP Files (*.step *.stp);;IGES Files (*.igs *.iges);;All Files (*)"));
     if (!path.isEmpty())
         m_fileNameEdit->setText(path);
 }
