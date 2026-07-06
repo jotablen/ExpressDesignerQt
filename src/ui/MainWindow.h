@@ -80,6 +80,7 @@ private slots:
     void onToggleControlPoints();
     void onToggleLabels();
     void onToggleNormals();
+    void onToggleExtremeRays();
     void onSetAspectRatio();
 
     // Edit
@@ -158,6 +159,7 @@ private:
     bool m_showControlPoints = true;
     bool m_showLabels = true;
     bool m_showNormals = false;
+    bool m_showExtremeRays = false;
     bool m_isModified = false;
     bool maybeSaveBeforeAction(const QString& action);
 

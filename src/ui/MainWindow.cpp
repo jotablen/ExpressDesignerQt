@@ -180,6 +180,7 @@ void MainWindow::setupMenuBar()
     viewMenu->addAction(tr("Toggle &Control Points"), this, &MainWindow::onToggleControlPoints);
     viewMenu->addAction(tr("Toggle &Labels"), this, &MainWindow::onToggleLabels);
     viewMenu->addAction(tr("Toggle &Normals"), this, &MainWindow::onToggleNormals);
+    viewMenu->addAction(tr("Toggle &Extreme Rays"), this, &MainWindow::onToggleExtremeRays);
 
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -1204,6 +1205,7 @@ void MainWindow::onZoomAll()
 void MainWindow::onToggleControlPoints() { m_showControlPoints = !m_showControlPoints; refreshChart(); }
 void MainWindow::onToggleLabels() { m_showLabels = !m_showLabels; refreshChart(); }
 void MainWindow::onToggleNormals() { m_showNormals = !m_showNormals; refreshChart(); }
+void MainWindow::onToggleExtremeRays() { m_showExtremeRays = !m_showExtremeRays; refreshChart(); }
 void MainWindow::onSetAspectRatio() {}
 
 void MainWindow::maintainChartAspectRatio()
@@ -1444,7 +1446,8 @@ void MainWindow::refreshChart()
     const int normalsCount = settings.value(QStringLiteral("Preferences/defaultNormalsQty"), 10).toInt();
     const double normalsLength = settings.value(QStringLiteral("Preferences/defaultNormalsLen"), 1.0).toDouble();
     ChartWidget::populateChart(m_chart, m_currentProject, m_showControlPoints, m_showNormals,
-                               m_selectedObject, true, normalsCount, normalsLength);
+                               m_selectedObject, true, normalsCount, normalsLength,
+                               m_showExtremeRays);
     // Ensure 1:1 aspect ratio after chart population (deferred to allow layout)
     QMetaObject::invokeMethod(this, [this]() { maintainChartAspectRatio(); }, Qt::QueuedConnection);
 #endif
