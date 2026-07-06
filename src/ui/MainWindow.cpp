@@ -177,10 +177,22 @@ void MainWindow::setupMenuBar()
     viewMenu->addSeparator();
     viewMenu->addAction(tr("&Dependency Graph..."), this, &MainWindow::onShowDependencyGraph);
     viewMenu->addSeparator();
-    viewMenu->addAction(tr("Toggle &Control Points"), this, &MainWindow::onToggleControlPoints);
-    viewMenu->addAction(tr("Toggle &Labels"), this, &MainWindow::onToggleLabels);
-    viewMenu->addAction(tr("Toggle &Normals"), this, &MainWindow::onToggleNormals);
-    viewMenu->addAction(tr("Toggle &Extreme Rays"), this, &MainWindow::onToggleExtremeRays);
+    // Checkable toggle actions — shared between menu and toolbar
+    m_toggleControlPointsAction = viewMenu->addAction(tr("Toggle &Control Points"), this, &MainWindow::onToggleControlPoints);
+    m_toggleControlPointsAction->setCheckable(true);
+    m_toggleControlPointsAction->setChecked(m_showControlPoints);
+
+    m_toggleLabelsAction = viewMenu->addAction(tr("Toggle &Labels"), this, &MainWindow::onToggleLabels);
+    m_toggleLabelsAction->setCheckable(true);
+    m_toggleLabelsAction->setChecked(m_showLabels);
+
+    m_toggleNormalsAction = viewMenu->addAction(tr("Toggle &Normals"), this, &MainWindow::onToggleNormals);
+    m_toggleNormalsAction->setCheckable(true);
+    m_toggleNormalsAction->setChecked(m_showNormals);
+
+    m_toggleExtremeRaysAction = viewMenu->addAction(tr("Toggle &Extreme Rays"), this, &MainWindow::onToggleExtremeRays);
+    m_toggleExtremeRaysAction->setCheckable(true);
+    m_toggleExtremeRaysAction->setChecked(m_showExtremeRays);
 
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -201,6 +213,13 @@ void MainWindow::setupToolBar()
     toolbar->addAction(tr("Rotate"), this, &MainWindow::onRotateObject);
     toolbar->addAction(tr("Translate"), this, &MainWindow::onTranslateObject);
     toolbar->addAction(tr("Copy"), this, &MainWindow::onCopyObject);
+    toolbar->addSeparator();
+
+    // View toggle buttons (checkable, connected to same actions as menu)
+    if (m_toggleControlPointsAction) toolbar->addAction(m_toggleControlPointsAction);
+    if (m_toggleLabelsAction) toolbar->addAction(m_toggleLabelsAction);
+    if (m_toggleNormalsAction) toolbar->addAction(m_toggleNormalsAction);
+    if (m_toggleExtremeRaysAction) toolbar->addAction(m_toggleExtremeRaysAction);
     toolbar->addSeparator();
 
     m_deleteAction = new QAction(tr("Delete"), this);
@@ -1202,10 +1221,30 @@ void MainWindow::onZoomAll()
 #endif
 }
 
-void MainWindow::onToggleControlPoints() { m_showControlPoints = !m_showControlPoints; refreshChart(); }
-void MainWindow::onToggleLabels() { m_showLabels = !m_showLabels; refreshChart(); }
-void MainWindow::onToggleNormals() { m_showNormals = !m_showNormals; refreshChart(); }
-void MainWindow::onToggleExtremeRays() { m_showExtremeRays = !m_showExtremeRays; refreshChart(); }
+void MainWindow::onToggleControlPoints()
+{
+    m_showControlPoints = !m_showControlPoints;
+    if (m_toggleControlPointsAction) m_toggleControlPointsAction->setChecked(m_showControlPoints);
+    refreshChart();
+}
+void MainWindow::onToggleLabels()
+{
+    m_showLabels = !m_showLabels;
+    if (m_toggleLabelsAction) m_toggleLabelsAction->setChecked(m_showLabels);
+    refreshChart();
+}
+void MainWindow::onToggleNormals()
+{
+    m_showNormals = !m_showNormals;
+    if (m_toggleNormalsAction) m_toggleNormalsAction->setChecked(m_showNormals);
+    refreshChart();
+}
+void MainWindow::onToggleExtremeRays()
+{
+    m_showExtremeRays = !m_showExtremeRays;
+    if (m_toggleExtremeRaysAction) m_toggleExtremeRaysAction->setChecked(m_showExtremeRays);
+    refreshChart();
+}
 void MainWindow::onSetAspectRatio() {}
 
 void MainWindow::maintainChartAspectRatio()

@@ -135,6 +135,12 @@ private:
     QAction* m_redoAction = nullptr;
     QMenu* m_recentFilesMenu = nullptr;
 
+    // View toggle actions (checkable, shared between menu and toolbar)
+    QAction* m_toggleControlPointsAction = nullptr;
+    QAction* m_toggleLabelsAction = nullptr;
+    QAction* m_toggleNormalsAction = nullptr;
+    QAction* m_toggleExtremeRaysAction = nullptr;
+
 
     // Models
     ObjectTreeModel* m_treeModel = nullptr;
