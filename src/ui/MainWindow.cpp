@@ -874,111 +874,121 @@ void MainWindow::onDeleteObject()
     QModelIndex idx = m_objectTree->currentIndex();
     if (!idx.isValid() || !m_currentProject) return;
 
-    CustomObject* obj = m_treeModel->objectAt(idx);
-    CustomOperation* op = m_treeModel->operationAt(idx);
-
-    if (obj) {
-        // --- Deleting an object ---
-        // Check for dependent results
-        if (m_depGraph) {
-            m_depGraph->rebuildFromProject(m_currentProject);
-            QSet<CustomObject*> dependents = m_depGraph->transitiveDependents(obj);
-            if (!dependents.isEmpty()) {
-                QStringList depNames;
-                for (auto* dep : dependents)
-                    depNames << dep->name();
-                auto answer = QMessageBox::warning(this, tr("Object has dependents"),
-                    tr("The object '%1' is used to calculate:\n%2\n\n"
-                       "If you delete it, these results will no longer be recalculated.\n"
-                       "Do you still want to delete it?")
-                       .arg(obj->name(), depNames.join(QStringLiteral(", "))),
-                    QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
-                if (answer != QMessageBox::Yes) return;
-            }
-        }
-
-        bool isResult = m_currentProject->resultObjects().contains(obj);
-        CustomOperation* relatedOp = nullptr;
-
-        // If deleting a result object, find the operation that produced it and remove it too
-        if (isResult) {
-            QString objName = obj->name();
-            const auto& ops = m_currentProject->operations();
-            for (auto* candidate : ops) {
-                if (!candidate) continue;
-                if (candidate->name() == objName || candidate->resultName() == objName) {
-                    relatedOp = candidate;
-                    break;
-                }
-                // If result was auto-renamed (e.g. "X_2"), original operation name could be "X"
-                if (objName.startsWith(candidate->name() + QStringLiteral("_"))) {
-                    relatedOp = candidate;
-                    break;
-                }
-            }
-        }
-
-        auto cmd = std::make_unique<DeleteObjectCommand>(obj, isResult);
-        m_cmdHistory->push(std::move(cmd), m_currentProject);
-        if (m_depGraph)
-            m_depGraph->removeObject(obj);
-
-        // Also remove the associated operation if found
-        if (relatedOp) {
-            CustomOperation* takenOp = m_currentProject->takeOperation(relatedOp);
-            delete takenOp; // clean up the orphan operation
-        }
-
-        m_history->recordObjectDeletion(obj->name());
-        m_selectedObject = nullptr;
-        m_selectedOperation = nullptr;
-        updateDeleteActionState();
-        updateUndoRedoActions();
-        setModified(true);
-        refreshChart();
-        updateStatusBar();
-    } else if (op) {
-        // --- Deleting an operation ---
-        // Ask if the user also wants to delete the result object
-        CustomObject* resultObj = m_currentProject->findObject(op->resultName());
-        QString resultName = op->resultName();
-
-        bool deleteResult = false;
-        if (resultObj) {
-            auto answer = QMessageBox::question(this, tr("Delete Operation"),
-                tr("Do you also want to delete the result object '%1'?").arg(resultName),
-                QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
-                QMessageBox::No);
-            if (answer == QMessageBox::Cancel) return;
-            deleteResult = (answer == QMessageBox::Yes);
-        }
-
-        // Remove operation from project
-        CustomOperation* takenOp = m_currentProject->takeOperation(op);
-        Q_UNUSED(takenOp);
-        delete op; // delete the operation after taking it out of the project
-
-        // Remove result object if requested
-        if (deleteResult && resultObj) {
-            m_currentProject->removeResultObject(resultObj);
-            if (m_depGraph)
-                m_depGraph->removeObject(resultObj);
-            if (m_selectedObject == resultObj)
-                m_selectedObject = nullptr;
-        }
-
-        if (m_selectedOperation == op)
-            m_selectedOperation = nullptr;
-        if (m_propertiesWidget)
-            m_propertiesWidget->setOperation(nullptr);
-
-        m_history->recordObjectDeletion(resultName);
-        updateDeleteActionState();
-        updateUndoRedoActions();
-        setModified(true);
-        refreshChart();
-        updateStatusBar();
+    if (CustomObject* obj = m_treeModel->objectAt(idx)) {
+        if (!confirmDeleteWithDependents(obj)) return;
+        deleteSelectedObject(obj);
+    } else if (CustomOperation* op = m_treeModel->operationAt(idx)) {
+        deleteSelectedOperation(op);
     }
+}
+
+// ---------------------------------------------------------------------------
+// confirmDeleteWithDependents — warn if the object has transitive dependents
+// ---------------------------------------------------------------------------
+bool MainWindow::confirmDeleteWithDependents(CustomObject* obj)
+{
+    if (!m_depGraph) return true;
+    m_depGraph->rebuildFromProject(m_currentProject);
+    QSet<CustomObject*> dependents = m_depGraph->transitiveDependents(obj);
+    if (dependents.isEmpty()) return true;
+
+    QStringList depNames;
+    for (auto* dep : dependents)
+        depNames << dep->name();
+    auto answer = QMessageBox::warning(this, tr("Object has dependents"),
+        tr("The object '%1' is used to calculate:\n%2\n\n"
+           "If you delete it, these results will no longer be recalculated.\n"
+           "Do you still want to delete it?")
+           .arg(obj->name(), depNames.join(QStringLiteral(", "))),
+        QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+    return (answer == QMessageBox::Yes);
+}
+
+// ---------------------------------------------------------------------------
+// deleteSelectedObject — remove a data/result object (and its operation, if any)
+// ---------------------------------------------------------------------------
+void MainWindow::deleteSelectedObject(CustomObject* obj)
+{
+    bool isResult = m_currentProject->resultObjects().contains(obj);
+    CustomOperation* relatedOp = nullptr;
+
+    if (isResult) {
+        const QString objName = obj->name();
+        const auto& ops = m_currentProject->operations();
+        for (auto* candidate : ops) {
+            if (!candidate) continue;
+            if (candidate->name() == objName || candidate->resultName() == objName) {
+                relatedOp = candidate;
+                break;
+            }
+            if (objName.startsWith(candidate->name() + QStringLiteral("_"))) {
+                relatedOp = candidate;
+                break;
+            }
+        }
+    }
+
+    auto cmd = std::make_unique<DeleteObjectCommand>(obj, isResult);
+    m_cmdHistory->push(std::move(cmd), m_currentProject);
+    if (m_depGraph)
+        m_depGraph->removeObject(obj);
+
+    if (relatedOp) {
+        CustomOperation* takenOp = m_currentProject->takeOperation(relatedOp);
+        delete takenOp;
+    }
+
+    m_history->recordObjectDeletion(obj->name());
+    m_selectedObject = nullptr;
+    m_selectedOperation = nullptr;
+    updateDeleteActionState();
+    updateUndoRedoActions();
+    setModified(true);
+    refreshChart();
+    updateStatusBar();
+}
+
+// ---------------------------------------------------------------------------
+// deleteSelectedOperation — remove an operation, optionally removing its result
+// ---------------------------------------------------------------------------
+void MainWindow::deleteSelectedOperation(CustomOperation* op)
+{
+    CustomObject* resultObj = m_currentProject->findObject(op->resultName());
+    const QString resultName = op->resultName();
+
+    bool deleteResult = false;
+    if (resultObj) {
+        auto answer = QMessageBox::question(this, tr("Delete Operation"),
+            tr("Do you also want to delete the result object '%1'?").arg(resultName),
+            QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel,
+            QMessageBox::No);
+        if (answer == QMessageBox::Cancel) return;
+        deleteResult = (answer == QMessageBox::Yes);
+    }
+
+    CustomOperation* takenOp = m_currentProject->takeOperation(op);
+    Q_UNUSED(takenOp);
+    delete op;
+
+    if (deleteResult && resultObj) {
+        m_currentProject->removeResultObject(resultObj);
+        if (m_depGraph)
+            m_depGraph->removeObject(resultObj);
+        if (m_selectedObject == resultObj)
+            m_selectedObject = nullptr;
+    }
+
+    if (m_selectedOperation == op)
+        m_selectedOperation = nullptr;
+    if (m_propertiesWidget)
+        m_propertiesWidget->setOperation(nullptr);
+
+    m_history->recordObjectDeletion(resultName);
+    updateDeleteActionState();
+    updateUndoRedoActions();
+    setModified(true);
+    refreshChart();
+    updateStatusBar();
 }
 
 void MainWindow::onEditObject() {}

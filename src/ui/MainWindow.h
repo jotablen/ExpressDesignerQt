@@ -179,6 +179,11 @@ private:
     QVector<QPointF> m_dragCPOldPoints; // snapshot before drag starts
 
 
+    // Delete helpers — extracted from onDeleteObject
+    bool confirmDeleteWithDependents(CustomObject* obj);
+    void deleteSelectedObject(CustomObject* obj);
+    void deleteSelectedOperation(CustomOperation* op);
+
     // Chart helpers
     void maintainChartAspectRatio();
 
