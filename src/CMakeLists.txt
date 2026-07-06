@@ -78,6 +78,11 @@ set(UTILS_SOURCES
     utils/Logger.cpp
 )
 
+# Qt resource file (icons, images)
+set(RESOURCE_FILES
+    ${CMAKE_SOURCE_DIR}/resources/resources.qrc
+)
+
 # Main executable
 add_executable(ExpressDesigner
     main.cpp
@@ -88,6 +93,7 @@ add_executable(ExpressDesigner
     ${UI_SOURCES}
     ${APP_SOURCES}
     ${UTILS_SOURCES}
+    ${RESOURCE_FILES}
 )
 
 target_include_directories(ExpressDesigner PRIVATE

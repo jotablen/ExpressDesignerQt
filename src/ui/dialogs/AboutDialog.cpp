@@ -2,6 +2,7 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QDialogButtonBox>
+#include <QPixmap>
 #include <QFrame>
 
 namespace ExpressDesigner {
@@ -9,14 +10,27 @@ namespace ExpressDesigner {
 AboutDialog::AboutDialog(QWidget* parent)
     : QDialog(parent)
 {
-    setWindowTitle(QStringLiteral("About"));
-    setFixedSize(436, 343);
+    setWindowTitle(QStringLiteral("About ExpressDesigner"));
+    setFixedSize(436, 440);
 
     auto* layout = new QVBoxLayout(this);
 
     auto* panel = new QFrame(this);
     panel->setFrameStyle(QFrame::Panel | QFrame::Raised);
     auto* panelLayout = new QVBoxLayout(panel);
+
+    auto* imageLabel = new QLabel(panel);
+    QPixmap aboutPixmap(":/resources/ExpressDesigner-About.png");
+    if (!aboutPixmap.isNull()) {
+        imageLabel->setPixmap(aboutPixmap.scaled(400, 200, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    }
+    imageLabel->setAlignment(Qt::AlignCenter);
+    panelLayout->addWidget(imageLabel);
+
+    auto* separatorLine = new QFrame(panel);
+    separatorLine->setFrameShape(QFrame::HLine);
+    separatorLine->setFrameShadow(QFrame::Sunken);
+    panelLayout->addWidget(separatorLine);
 
     auto* titleLabel = new QLabel(QStringLiteral("Ovals Designer"), panel);
     QFont titleFont = titleLabel->font();

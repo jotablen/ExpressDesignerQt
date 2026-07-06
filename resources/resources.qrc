@@ -1,0 +1,6 @@
+﻿<RCC>
+    <qresource prefix="/resources">
+        <file>ExpressDesigner_icon.png</file>
+        <file>ExpressDesigner-About.png</file>
+    </qresource>
+</RCC>

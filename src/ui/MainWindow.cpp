@@ -41,6 +41,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QPainter>
+#include <QPixmap>
 #ifdef HAS_QT_CHARTS
 #include <QtCharts/QLineSeries>
 #include <QtCharts/QSplineSeries>
@@ -49,6 +51,64 @@
 #endif
 
 namespace ExpressDesigner {
+
+static QIcon createToggleIcon(int type)
+{
+    // type: 0=controlPoints, 1=labels, 2=normals, 3=extremeRays
+    const int s = 24;
+    QPixmap pix(s, s);
+    pix.fill(Qt::transparent);
+    QPainter p(&pix);
+    p.setRenderHint(QPainter::Antialiasing);
+    QPen pen(Qt::black, 1.5);
+    p.setPen(pen);
+
+    switch (type) {
+    case 0: // Control Points — small circles on a curve
+        p.drawLine(2, 18, 10, 10);
+        p.drawLine(10, 10, 14, 12);
+        p.drawLine(14, 12, 22, 4);
+        p.setBrush(Qt::red);
+        p.drawEllipse(QPointF(2, 18), 2.5, 2.5);
+        p.drawEllipse(QPointF(10, 10), 2.5, 2.5);
+        p.drawEllipse(QPointF(14, 12), 2.5, 2.5);
+        p.drawEllipse(QPointF(22, 4), 2.5, 2.5);
+        break;
+    case 1: // Labels — tag shape with "L"
+        p.drawLine(6, 4, 6, 20);
+        p.drawLine(6, 4, 16, 4);
+        p.drawLine(6, 12, 12, 12);
+        p.setPen(QPen(Qt::darkBlue, 2));
+        p.setFont(QFont("Arial", 8, QFont::Bold));
+        p.drawText(QRect(0, 0, s, s), Qt::AlignCenter, "L");
+        break;
+    case 2: // Normals — line with perpendicular arrows
+        p.drawLine(6, 12, 18, 12);
+        // perpendicular arrows
+        p.drawLine(8, 6, 8, 18);
+        p.drawLine(6, 8, 8, 6);
+        p.drawLine(10, 8, 8, 6);
+        p.drawLine(16, 6, 16, 18);
+        p.drawLine(14, 8, 16, 6);
+        p.drawLine(18, 8, 16, 6);
+        break;
+    case 3: // Extreme Rays — dashed rays from endpoints
+        {
+            QPen dashPen(Qt::darkMagenta, 1.5, Qt::DashLine);
+            p.setPen(dashPen);
+            p.drawLine(4, 14, 14, 4);
+            p.drawLine(20, 14, 10, 4);
+            // endpoints
+            p.setPen(QPen(Qt::black, 1.5));
+            p.setBrush(Qt::red);
+            p.drawEllipse(QPointF(4, 14), 2, 2);
+            p.drawEllipse(QPointF(20, 14), 2, 2);
+        }
+        break;
+    }
+    p.end();
+    return QIcon(pix);
+}
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -181,18 +241,22 @@ void MainWindow::setupMenuBar()
     m_toggleControlPointsAction = viewMenu->addAction(tr("Toggle &Control Points"), this, &MainWindow::onToggleControlPoints);
     m_toggleControlPointsAction->setCheckable(true);
     m_toggleControlPointsAction->setChecked(m_showControlPoints);
+    m_toggleControlPointsAction->setIcon(createToggleIcon(0));
 
     m_toggleLabelsAction = viewMenu->addAction(tr("Toggle &Labels"), this, &MainWindow::onToggleLabels);
     m_toggleLabelsAction->setCheckable(true);
     m_toggleLabelsAction->setChecked(m_showLabels);
+    m_toggleLabelsAction->setIcon(createToggleIcon(1));
 
     m_toggleNormalsAction = viewMenu->addAction(tr("Toggle &Normals"), this, &MainWindow::onToggleNormals);
     m_toggleNormalsAction->setCheckable(true);
     m_toggleNormalsAction->setChecked(m_showNormals);
+    m_toggleNormalsAction->setIcon(createToggleIcon(2));
 
     m_toggleExtremeRaysAction = viewMenu->addAction(tr("Toggle &Extreme Rays"), this, &MainWindow::onToggleExtremeRays);
     m_toggleExtremeRaysAction->setCheckable(true);
     m_toggleExtremeRaysAction->setChecked(m_showExtremeRays);
+    m_toggleExtremeRaysAction->setIcon(createToggleIcon(3));
 
     // Help menu
     QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
