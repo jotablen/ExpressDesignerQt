@@ -1233,11 +1233,11 @@ void MainWindow::onCopyObject()
                 return; // Cancel
             }
         }
-        // Manual copy: duplicate control points
-        auto* copy = new CurveObject(newName, true);
-        copy->setObjectType(src->objectType());
-        copy->setControlPoints(src->controlPoints());
-        copy->setRefractiveIndex(src->refractiveIndex());
+        // Use virtual clone to preserve object-specific properties (center, radius, angles for arcs, etc.)
+        auto* copy = src->clone();
+        copy->setName(newName);
+        // Assign a new UUID so the copy is a distinct object
+        copy->setUuid(QUuid::createUuid());
         m_currentProject->addDataObject(copy);
         m_history->recordObjectCreation(newName);
         setModified(true);
