@@ -25,6 +25,7 @@
 #include <IGESControl_Controller.hxx>
 #include <Interface_Static.hxx>
 #include <Message_ProgressRange.hxx>
+#include <core/CADGeometryBuilder.h>
 #include <utils/Logger.h>
 #include <QtMath>
 
@@ -38,151 +39,6 @@ bool CADExporter::isStepFile(const QString& path)
     return lower.endsWith(QStringLiteral(".step")) || lower.endsWith(QStringLiteral(".stp"));
 }
 
-double CADExporter::toRadians(double degrees) { return degrees * M_PI / 180.0; }
-
-/// Build one B-spline edge from control points
-static TopoDS_Edge buildEdge(const QVector<QPointF>& pts, QString& err)
-{
-    if (pts.size() < 2) { err = QStringLiteral("Need at least 2 points."); return TopoDS_Edge(); }
-    TColgp_Array1OfPnt array(1, pts.size());
-    for (int i = 0; i < pts.size(); ++i)
-        array.SetValue(i + 1, gp_Pnt(pts[i].x(), pts[i].y(), 0.0));
-    GeomAPI_PointsToBSpline splineMaker(array, 3, 8, GeomAbs_C2, 1.0e-9);
-    if (!splineMaker.IsDone()) { err = QStringLiteral("B-spline build failed."); return TopoDS_Edge(); }
-    return BRepBuilderAPI_MakeEdge(splineMaker.Curve());
-}
-
-/// Build open wire (no closing edge) — for wires-only export
-static bool buildWire(const QVector<QPointF>& pts, TopoDS_Wire& outWire, QString& err)
-{
-    if (pts.size() < 2) { err = QStringLiteral("Need at least 2 control points."); return false; }
-    TopoDS_Edge edge = buildEdge(pts, err);
-    if (edge.IsNull()) return false;
-    BRepBuilderAPI_MakeWire wireBuilder(edge);
-    wireBuilder.Build();
-    if (!wireBuilder.IsDone()) { err = QStringLiteral("Wire build failed."); return false; }
-    outWire = wireBuilder.Wire();
-    return true;
-}
-
-/// Build closed wire for extrusion (closes if endpoints differ)
-static bool buildClosedWire(const QVector<QPointF>& pts, TopoDS_Wire& outWire, QString& err)
-{
-    if (pts.size() < 2) { err = QStringLiteral("Need at least 2 control points."); return false; }
-    TopoDS_Edge edge = buildEdge(pts, err);
-    if (edge.IsNull()) return false;
-    BRepBuilderAPI_MakeWire wireBuilder(edge);
-
-    // Check if first and last points coincide — if not, add closing straight edge
-    gp_Pnt first(pts.first().x(), pts.first().y(), 0.0);
-    gp_Pnt last(pts.last().x(), pts.last().y(), 0.0);
-    if (first.Distance(last) > 1e-9) {
-        TopoDS_Edge closingEdge = BRepBuilderAPI_MakeEdge(last, first);
-        wireBuilder.Add(closingEdge);
-    }
-
-    wireBuilder.Build();
-    if (!wireBuilder.IsDone()) { err = QStringLiteral("Closed wire build failed."); return false; }
-    outWire = wireBuilder.Wire();
-    return true;
-}
-
-static bool buildShape(const CADExportParams& params,
-                       TopoDS_Wire& wire,
-                       TopoDS_Shape& outShape,
-                       QString& err)
-{
-    if (params.wiresOnly || (!params.rotational && !params.linear)) {
-        outShape = wire;
-        return true;
-    }
-
-    if (params.rotational) {
-        gp_Ax1 rotAxis;
-        if (params.rotationalAxis == QStringLiteral("X"))
-            rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
-        else if (params.rotationalAxis == QStringLiteral("Z"))
-            rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1));
-        else
-            rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
-        double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
-
-        // ═══ Re-sample for X-positive curves (rotational) ═══
-        // If curve crosses or touches the axis, re-sample to X≥0 portion
-        QVector<QPointF> filteredPts;
-        for (const auto& pt : params.controlPoints) {
-            double checkVal = (params.rotationalAxis == QStringLiteral("Z")) ? pt.y() : pt.x();
-            if (checkVal >= -1e-6) filteredPts.append(pt);
-        }
-        if (filteredPts.size() != params.controlPoints.size()) {
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Curve clipped for rotation (%1 pts → %2 pts)")
-                     .arg(params.controlPoints.size()).arg(filteredPts.size()));
-        }
-        if (filteredPts.size() < 2) {
-            LOG_WARN(QStringLiteral("CAD"), QStringLiteral("Not enough points after axis clipping; exporting wire only."));
-            err = QStringLiteral("Not enough points after axis clipping.");
-            outShape = wire;
-            return false;
-        }
-        // Always rebuild wire from (possibly filtered) points
-        TopoDS_Wire clippedWire;
-        if (!buildWire(filteredPts, clippedWire, err)) {
-            outShape = wire;
-            return false;
-        }
-        TopoDS_Wire& workWire = clippedWire;
-
-        // Heal wire tolerance before building face/revol
-        ShapeFix_Wire wireFix(workWire, TopoDS_Face(), 1e-6);
-        wireFix.Perform();
-        TopoDS_Wire healedWire = wireFix.Wire();
-
-        // Try face first, then wire directly
-        BRepBuilderAPI_MakeFace faceMaker(healedWire);
-        faceMaker.Build();
-        if (faceMaker.IsDone()) {
-            BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
-            revol.Build();
-            if (revol.IsDone()) { outShape = revol.Shape(); return true; }
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Revol with face failed, trying healed wire..."));
-        }
-        // Fallback: extrude healed wire directly → produces shell
-        BRepPrimAPI_MakeRevol revolFromWire(healedWire, rotAxis, angleRad);
-        revolFromWire.Build();
-        if (revolFromWire.IsDone()) { outShape = revolFromWire.Shape(); return true; }
-        err = QStringLiteral("Rotational extrusion failed.");
-        outShape = wire;
-        return false;
-    }
-
-    if (params.linear) {
-        gp_Vec vec;
-        double len = params.wideness;
-        if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len, 0, 0);
-        else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0, len, 0);
-        else vec = gp_Vec(0, 0, len);
-
-        // Try face first, then wire directly
-        BRepBuilderAPI_MakeFace faceMaker(wire);
-        faceMaker.Build();
-        if (faceMaker.IsDone()) {
-            BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
-            prism.Build();
-            if (prism.IsDone()) { outShape = prism.Shape(); return true; }
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Prism with face failed, trying wire..."));
-        }
-        // Fallback: extrude wire directly → produces shell
-        BRepPrimAPI_MakePrism prismFromWire(wire, vec);
-        prismFromWire.Build();
-        if (prismFromWire.IsDone()) { outShape = prismFromWire.Shape(); return true; }
-        err = QStringLiteral("Linear extrusion failed.");
-        outShape = wire;
-        return false;
-    }
-    outShape = wire;
-    return true;
-}
-
 bool CADExporter::exportToCAD(const CADExportParams& params)
 {
     s_lastError.clear();
@@ -190,9 +46,9 @@ bool CADExporter::exportToCAD(const CADExportParams& params)
     if (params.filePath.isEmpty()) { s_lastError = QStringLiteral("No output file path specified."); return false; }
     try {
         TopoDS_Wire wire;
-        if (!buildWire(params.controlPoints, wire, s_lastError)) return false;
+        if (!CADGeometryBuilder::buildWire(params.controlPoints, wire, s_lastError)) return false;
         TopoDS_Shape finalShape;
-        buildShape(params, wire, finalShape, s_lastError);
+        CADGeometryBuilder::buildShape(params, wire, finalShape, s_lastError);
 
         if (isStepFile(params.filePath)) {
             STEPControl_Writer stepWriter;
@@ -247,19 +103,19 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
             int shapeCount = 0;
 
             for (int i = 0; i < allParams.size(); ++i) {
-                const auto& params = allParams[i];
+                const auto& p = allParams[i];
                 LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] %3 pts, rot=%4 lin=%5").arg(i+1).arg(allParams.size())
-                         .arg(params.controlPoints.size()).arg(params.rotational?1:0).arg(params.linear?1:0));
-                if (params.controlPoints.size() < 2) continue;
+                         .arg(p.controlPoints.size()).arg(p.rotational?1:0).arg(p.linear?1:0));
+                if (p.controlPoints.size() < 2) continue;
 
                 TopoDS_Wire wire;
                 QString err;
-                bool ok = buildWire(params.controlPoints, wire, err);
+                bool ok = CADGeometryBuilder::buildWire(p.controlPoints, wire, err);
                 if (!ok) { LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire FAILED: %3").arg(i+1).arg(allParams.size()).arg(err)); continue; }
                 LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire OK").arg(i+1).arg(allParams.size()));
 
                 TopoDS_Shape shape;
-                if (buildShape(params, wire, shape, err) || !err.isEmpty()) {
+                if (CADGeometryBuilder::buildShape(p, wire, shape, err) || !err.isEmpty()) {
                     if (!err.isEmpty()) LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Extrusion degraded: %3").arg(i+1).arg(allParams.size()).arg(err));
                     compoundBuilder.Add(compound, shape);
                     ++shapeCount;
@@ -282,19 +138,19 @@ bool CADExporter::exportMultipleToCAD(const QVector<CADExportParams>& allParams)
             int shapeCount = 0;
 
             for (int i = 0; i < allParams.size(); ++i) {
-                const auto& params = allParams[i];
+                const auto& p = allParams[i];
                 LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] %3 pts, rot=%4 lin=%5").arg(i+1).arg(allParams.size())
-                         .arg(params.controlPoints.size()).arg(params.rotational?1:0).arg(params.linear?1:0));
-                if (params.controlPoints.size() < 2) continue;
+                         .arg(p.controlPoints.size()).arg(p.rotational?1:0).arg(p.linear?1:0));
+                if (p.controlPoints.size() < 2) continue;
 
                 TopoDS_Wire wire;
                 QString err;
-                bool ok = buildWire(params.controlPoints, wire, err);
+                bool ok = CADGeometryBuilder::buildWire(p.controlPoints, wire, err);
                 if (!ok) { LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire FAILED: %3").arg(i+1).arg(allParams.size()).arg(err)); continue; }
                 LOG_INFO(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Wire OK").arg(i+1).arg(allParams.size()));
 
                 TopoDS_Shape shape;
-                if (buildShape(params, wire, shape, err) || !err.isEmpty()) {
+                if (CADGeometryBuilder::buildShape(p, wire, shape, err) || !err.isEmpty()) {
                     if (!err.isEmpty()) LOG_WARN(QStringLiteral("CAD"), QStringLiteral("[%1/%2] Extrusion degraded: %3").arg(i+1).arg(allParams.size()).arg(err));
                     compoundBuilder.Add(compound, shape);
                     ++shapeCount;

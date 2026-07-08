@@ -13,6 +13,7 @@ set(CORE_SOURCES
     core/ObjectFactory.cpp
     core/DependencyGraph.cpp
     core/CommandHistory.cpp
+    core/CADGeometryBuilder.cpp
 )
 
 set(GEOMETRY_SOURCES
@@ -60,9 +61,11 @@ set(UI_SOURCES
     ui/dialogs/DependencyGraphDialog.cpp
     ui/dialogs/CopyObjectDialog.cpp
     ui/dialogs/ExportCADDialog.cpp
+    ui/dialogs/CADPreviewDialog.cpp
     ui/widgets/ObjectTreeWidget.cpp
     ui/widgets/PropertiesWidget.cpp
     ui/widgets/ChartWidget.cpp
+    ui/widgets/CADPreviewWidget.cpp
     ui/models/ObjectTreeModel.cpp
     ui/models/ObjectListModel.cpp
     ui/delegates/PropertyDelegate.cpp
@@ -122,11 +125,12 @@ if(USE_SISL AND TARGET sisl)
     target_link_libraries(ExpressDesigner PRIVATE sisl)
 endif()
 
-# OpenCASCADE (CAD export) — manually link against MSYS2 OCCT DLLs
+# OpenCASCADE (CAD export + preview) — manually link against MSYS2 OCCT DLLs
 set(OCCT_ROOT "C:/msys64/mingw64")
 if(EXISTS "${OCCT_ROOT}/include/opencascade/Standard_Version.hxx")
     set(OCCT_INCLUDE_DIR "${OCCT_ROOT}/include/opencascade")
     set(OCCT_LIB_DIR "${OCCT_ROOT}/lib")
+    # Core geometric + IO modules
     set(OCCT_CORE_MODULES
         TKernel TKMath TKG2d TKG3d TKGeomBase TKGeomAlgo TKBRep
         TKTopAlgo TKPrim TKBO TKBool
@@ -134,7 +138,11 @@ if(EXISTS "${OCCT_ROOT}/include/opencascade/Standard_Version.hxx")
         TKCAF TKBinXCAF TKDCAF TKLCAF TKVCAF TKXCAF TKXmlXCAF
         tbb12
     )
-    foreach(mod ${OCCT_CORE_MODULES})
+    # Visualization modules (for CADPreviewWidget)
+    set(OCCT_VIS_MODULES
+        TKOpenGl TKService TKV3d TKHLR TKIVtk
+    )
+    foreach(mod ${OCCT_CORE_MODULES} ${OCCT_VIS_MODULES})
         if(EXISTS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
             list(APPEND OCCT_LIBS "${OCCT_LIB_DIR}/lib${mod}.dll.a")
         endif()
@@ -143,8 +151,8 @@ if(EXISTS "${OCCT_ROOT}/include/opencascade/Standard_Version.hxx")
         target_include_directories(ExpressDesigner PRIVATE ${OCCT_INCLUDE_DIR})
         target_link_libraries(ExpressDesigner PRIVATE ${OCCT_LIBS})
         target_compile_definitions(ExpressDesigner PRIVATE HAS_OPENCASCADE)
-        message(STATUS "OpenCASCADE found — CAD export enabled (${OCCT_LIBS})")
+        message(STATUS "OpenCASCADE found — CAD export + preview enabled (${OCCT_LIBS})")
     endif()
 else()
-    message(STATUS "OpenCASCADE not found — CAD export disabled")
+    message(STATUS "OpenCASCADE not found — CAD export + preview disabled")
 endif()

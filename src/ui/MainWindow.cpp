@@ -15,6 +15,7 @@
 #include <ui/dialogs/AboutDialog.h>
 #include <ui/dialogs/ExportAllRhinoDialog.h>
 #include <ui/dialogs/ExportCADDialog.h>
+#include <ui/dialogs/CADPreviewDialog.h>
 #include <ui/dialogs/ImportObjectDialog.h>
 #include <ui/dialogs/ProjectHistoryDialog.h>
 #include <ui/dialogs/PreferencesDialog.h>

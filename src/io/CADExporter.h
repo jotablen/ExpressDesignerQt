@@ -2,22 +2,9 @@
 #include <QString>
 #include <QVector>
 #include <QPointF>
+#include <core/CADGeometryBuilder.h>
 
 namespace ExpressDesigner {
-
-struct CADExportParams {
-    QString filePath;
-    QVector<QPointF> controlPoints;
-    bool wiresOnly = false;
-    bool rotational = false;
-    QString rotationalAxis;       // "X", "Y", or "Z"
-    double angleStart = 0.0;     // degrees
-    double angleEnd = 360.0;     // degrees
-    int angularSteps = 36;
-    bool linear = false;
-    QString linearDirection;     // "X", "Y", or "Z"
-    double wideness = 1.0;       // mm
-};
 
 class CADExporter {
 public:
@@ -37,7 +24,6 @@ private:
 
     // Helpers
     static bool isStepFile(const QString& path);
-    static double toRadians(double degrees);
 };
 
 } // namespace ExpressDesigner

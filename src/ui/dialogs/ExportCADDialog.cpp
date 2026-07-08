@@ -1,5 +1,7 @@
 #include "ExportCADDialog.h"
+#include "CADPreviewDialog.h"
 #include <core/ObjectTypes.h>
+#include <core/CustomObject.h>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>

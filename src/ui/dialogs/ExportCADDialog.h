@@ -7,6 +7,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <core/Project.h>
+#include <core/CADGeometryBuilder.h>
 
 namespace ExpressDesigner {
 
@@ -70,6 +71,7 @@ private:
     QDoubleSpinBox* m_linearWidenessSpin = nullptr;
 
     // Buttons
+    QPushButton* m_previewButton = nullptr;
     QPushButton* m_exportButton = nullptr;
 };
 
