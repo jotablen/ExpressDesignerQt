@@ -6,13 +6,12 @@
 #include <AIS_InteractiveContext.hxx>
 #include <V3d_Viewer.hxx>
 #include <V3d_View.hxx>
-#include <Graphic3d_RenderingParams.hxx>
 #include <Aspect_DisplayConnection.hxx>
 
 namespace ExpressDesigner {
 
 /**
- * @brief OpenGL widget for interactive 3D preview of CAD shapes.
+ * @brief OpenGL widget for interactive 3D preview of CAD shapes (Nivel 1).
  *
  * Uses OpenCASCADE's Visualization module (AIS_InteractiveContext + V3d_View)
  * to display and manipulate TopoDS_Shape objects with mouse interaction.
@@ -22,11 +21,9 @@ namespace ExpressDesigner {
  * - Rotate (left mouse button drag)
  * - Zoom (mouse wheel)
  * - Shaded / Wireframe toggle
- * - PBR materials (steel/aluminium/gold/glass)
- * - Optional raytracing
  *
- * Note: Uses QOpenGLWidget::winId() after widget is shown to create
- * the OCCT window handle (WNT_Window on Windows).
+ * Note: Nivel 1 intentionally keeps materials and raytracing out;
+ * those belong in feature/preview_cad_raytracing.
  */
 class CADPreviewWidget : public QOpenGLWidget {
     Q_OBJECT
@@ -43,15 +40,6 @@ public:
     /// Toggle shading mode (shaded vs wireframe)
     void setShadingMode(bool shaded);
 
-    /// Toggle raytracing on/off
-    void setRaytracingEnabled(bool enabled);
-
-    /// Set material preset: "steel", "aluminium", "gold", "glass"
-    void setMaterialPreset(const QString& preset);
-
-    /// Take a snapshot of the current view and return as QImage
-    QImage snapshot() const;
-
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -65,7 +53,6 @@ protected:
 
 private:
     void initViewer();
-    void updateMaterial();
     void fitAll();
 
     Handle(V3d_Viewer) m_viewer;
@@ -76,8 +63,6 @@ private:
 
     TopoDS_Shape m_currentShape;
     bool m_shaded = true;
-    bool m_raytracing = false;
-    QString m_materialPreset = QStringLiteral("steel");
     bool m_viewerInitialized = false;
 
     // Mouse state

@@ -114,22 +114,6 @@ void CADPreviewDialog::setupUi()
     m_shadingCheck->setChecked(true);
     displayLayout->addWidget(m_shadingCheck);
 
-    m_raytracingCheck = new QCheckBox(tr("Raytracing"), displayGroup);
-    m_raytracingCheck->setChecked(false);
-    m_raytracingCheck->setToolTip(tr("Requires OpenGL 4.3+ GPU. May be slower."));
-    displayLayout->addWidget(m_raytracingCheck);
-
-    auto* matLayout = new QFormLayout();
-    m_materialCombo = new QComboBox(displayGroup);
-    m_materialCombo->addItems({
-        QStringLiteral("Steel"),
-        QStringLiteral("Aluminium"),
-        QStringLiteral("Gold"),
-        QStringLiteral("Glass")
-    });
-    matLayout->addRow(tr("Material:"), m_materialCombo);
-    displayLayout->addLayout(matLayout);
-
     rightLayout->addWidget(displayGroup);
 
     // --- Buttons ---
@@ -157,9 +141,6 @@ void CADPreviewDialog::setupUi()
     // ─── Connections ───────────────────────────────────────────────────
     connect(m_applyButton, &QPushButton::clicked, this, &CADPreviewDialog::onApplyExtrusion);
     connect(m_shadingCheck, &QCheckBox::toggled, this, &CADPreviewDialog::onShadingToggled);
-    connect(m_raytracingCheck, &QCheckBox::toggled, this, &CADPreviewDialog::onRaytracingToggled);
-    connect(m_materialCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            this, &CADPreviewDialog::onMaterialChanged);
     connect(m_exportButton, &QPushButton::clicked, this, &CADPreviewDialog::onExportCAD);
     connect(m_resetViewButton, &QPushButton::clicked, this, &CADPreviewDialog::onResetView);
     connect(m_closeButton, &QPushButton::clicked, this, &QDialog::reject);
@@ -212,26 +193,6 @@ void CADPreviewDialog::onApplyExtrusion()
 void CADPreviewDialog::onShadingToggled(bool shaded)
 {
     m_previewWidget->setShadingMode(shaded);
-}
-
-void CADPreviewDialog::onRaytracingToggled(bool enabled)
-{
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-    m_previewWidget->setRaytracingEnabled(enabled);
-    QApplication::restoreOverrideCursor();
-}
-
-void CADPreviewDialog::onMaterialChanged(int index)
-{
-    QString preset;
-    switch (index) {
-    case 0: preset = QStringLiteral("steel"); break;
-    case 1: preset = QStringLiteral("aluminium"); break;
-    case 2: preset = QStringLiteral("gold"); break;
-    case 3: preset = QStringLiteral("glass"); break;
-    default: preset = QStringLiteral("steel"); break;
-    }
-    m_previewWidget->setMaterialPreset(preset);
 }
 
 void CADPreviewDialog::onExportCAD()

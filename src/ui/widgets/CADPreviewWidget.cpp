@@ -3,7 +3,6 @@
 #include <OpenGl_GraphicDriver.hxx>
 #include <AIS_Shape.hxx>
 #include <AIS_DisplayMode.hxx>
-#include <Graphic3d_NameOfMaterial.hxx>
 #include <Quantity_Color.hxx>
 #include <V3d_TypeOfOrientation.hxx>
 #include <Standard_Type.hxx>
@@ -75,11 +74,6 @@ void CADPreviewWidget::initViewer()
         m_view->SetBackgroundColor(Quantity_NOC_ALICEBLUE);
         m_view->MustBeResized();
 
-        // Configure rendering for quality
-        Graphic3d_RenderingParams& rp = m_view->ChangeRenderingParams();
-        rp.IsAntialiasingEnabled = Standard_True;
-        rp.NbMsaaSample = 4;
-
         m_viewerInitialized = true;
     } catch (...) {
         // Failed to initialize viewer — proceed without OCCT visualization
@@ -105,25 +99,6 @@ void CADPreviewWidget::paintGL()
 // ============================================================================
 // Private helpers
 // ============================================================================
-void CADPreviewWidget::updateMaterial()
-{
-    if (m_aisShape.IsNull() || m_context.IsNull()) return;
-
-    Graphic3d_MaterialAspect mat(Graphic3d_NOM_STEEL);
-
-    if (m_materialPreset == QStringLiteral("aluminium")) {
-        mat = Graphic3d_MaterialAspect(Graphic3d_NOM_ALUMINIUM);
-    } else if (m_materialPreset == QStringLiteral("gold")) {
-        mat = Graphic3d_MaterialAspect(Graphic3d_NOM_GOLD);
-    } else if (m_materialPreset == QStringLiteral("glass")) {
-        mat = Graphic3d_MaterialAspect(Graphic3d_NOM_GLASS);
-        mat.SetTransparency(0.3f);
-    }
-
-    m_aisShape->SetMaterial(mat);
-    m_context->UpdateCurrentViewer();
-}
-
 void CADPreviewWidget::fitAll()
 {
     if (!m_view.IsNull() && !m_currentShape.IsNull()) {
@@ -151,10 +126,9 @@ void CADPreviewWidget::setShape(const TopoDS_Shape& shape)
         return;
     }
 
-    // Create new AIS shape
+    // Create new AIS shape with default material
     m_aisShape = new AIS_Shape(shape);
     m_context->SetDisplayMode(m_aisShape, m_shaded ? AIS_Shaded : AIS_WireFrame, Standard_False);
-    updateMaterial();
 
     // Display and update
     m_context->Display(m_aisShape, Standard_False);
@@ -178,34 +152,6 @@ void CADPreviewWidget::setShadingMode(bool shaded)
         m_context->SetDisplayMode(m_aisShape, shaded ? AIS_Shaded : AIS_WireFrame, Standard_True);
         m_context->UpdateCurrentViewer();
     }
-}
-
-void CADPreviewWidget::setRaytracingEnabled(bool enabled)
-{
-    m_raytracing = enabled;
-    if (m_viewerInitialized && !m_view.IsNull()) {
-        Graphic3d_RenderingParams& rp = m_view->ChangeRenderingParams();
-        rp.Method = enabled ? Graphic3d_RTM_RAYTRACING : Graphic3d_RTM_RASTERIZATION;
-        rp.IsAntialiasingEnabled = enabled;
-        rp.NbRayTracingReflections = enabled ? 3 : 0;
-        rp.NbRayTracingRefractions = enabled ? 3 : 0;
-        rp.IsShadowEnabled = enabled;
-        m_view->Update();
-    }
-}
-
-void CADPreviewWidget::setMaterialPreset(const QString& preset)
-{
-    m_materialPreset = preset;
-    updateMaterial();
-}
-
-QImage CADPreviewWidget::snapshot() const
-{
-    if (m_view.IsNull()) return QImage();
-
-    // Simplified snapshot — just grab this widget
-    return const_cast<CADPreviewWidget*>(this)->grab().toImage();
 }
 
 // ============================================================================

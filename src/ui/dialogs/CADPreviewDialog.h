@@ -2,11 +2,8 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QCheckBox>
-#include <QComboBox>
 #include <QSplitter>
 #include <QGroupBox>
-#include <QRadioButton>
-#include <QButtonGroup>
 #include <QDoubleSpinBox>
 #include <TopoDS_Shape.hxx>
 #include <core/CADGeometryBuilder.h>
@@ -15,16 +12,17 @@
 namespace ExpressDesigner {
 
 /**
- * @brief Dialog for interactive 3D preview of CAD extrusions.
+ * @brief Dialog for interactive 3D preview of CAD extrusions (Nivel 1).
  *
  * Allows the user to:
  * - Rotate, pan, zoom the 3D view
  * - Toggle rotational/linear extrusion
  * - Adjust extrusion parameters in real-time
  * - Toggle shading/wireframe
- * - Select material preset (steel/aluminium/gold/glass)
- * - Toggle raytracing
  * - Export to CAD
+ *
+ * Nivel 1 keeps it simple — no materials or raytracing.
+ * See feature/preview_cad_raytracing for Nivel 3.
  */
 class CADPreviewDialog : public QDialog {
     Q_OBJECT
@@ -39,8 +37,6 @@ public:
 private slots:
     void onApplyExtrusion();
     void onShadingToggled(bool shaded);
-    void onRaytracingToggled(bool enabled);
-    void onMaterialChanged(int index);
     void onExportCAD();
     void onResetView();
 
@@ -67,8 +63,6 @@ private:
 
     QCheckBox* m_wiresOnlyCheck = nullptr;
     QCheckBox* m_shadingCheck = nullptr;
-    QCheckBox* m_raytracingCheck = nullptr;
-    QComboBox* m_materialCombo = nullptr;
 
     QPushButton* m_applyButton = nullptr;
     QPushButton* m_exportButton = nullptr;
