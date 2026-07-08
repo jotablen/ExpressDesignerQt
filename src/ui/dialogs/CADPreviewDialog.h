@@ -2,9 +2,13 @@
 #include <QDialog>
 #include <QPushButton>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QSplitter>
 #include <QGroupBox>
 #include <QDoubleSpinBox>
+#include <QSpinBox>
+#include <QSlider>
+#include <QComboBox>
 #include <TopoDS_Shape.hxx>
 #include <core/CADGeometryBuilder.h>
 #include <ui/widgets/CADPreviewWidget.h>
@@ -12,17 +16,9 @@
 namespace ExpressDesigner {
 
 /**
- * @brief Dialog for interactive 3D preview of CAD extrusions (Nivel 1).
+ * @brief Dialog for interactive 3D preview of CAD extrusions (Nivel 3).
  *
- * Allows the user to:
- * - Rotate, pan, zoom the 3D view
- * - Toggle rotational/linear extrusion
- * - Adjust extrusion parameters in real-time
- * - Toggle shading/wireframe
- * - Export to CAD
- *
- * Nivel 1 keeps it simple — no materials or raytracing.
- * See feature/preview_cad_raytracing for Nivel 3.
+ * Full raytracing with PBR materials, HDRI, lights, and snapshot.
  */
 class CADPreviewDialog : public QDialog {
     Q_OBJECT
@@ -37,7 +33,17 @@ public:
 private slots:
     void onApplyExtrusion();
     void onShadingToggled(bool shaded);
+    void onRaytracingToggled(bool enabled);
+    void onMaterialChanged(int index);
+    void onReflBouncesChanged(int value);
+    void onRefrBouncesChanged(int value);
+    void onShadowSoftnessChanged(double value);
+    void onShadowsToggled(bool enabled);
+    void onReflectionsToggled(bool enabled);
+    void onRefractionsToggled(bool enabled);
+    void onEnvIntensityChanged(double value);
     void onExportCAD();
+    void onSnapshot();
     void onResetView();
 
 private:
@@ -50,7 +56,7 @@ private:
     // Parameters
     CADExportParams m_params;
 
-    // Controls
+    // Extrusion controls
     QCheckBox* m_rotationalCheck = nullptr;
     QComboBox* m_rotAxisCombo = nullptr;
     QDoubleSpinBox* m_rotAngleStartSpin = nullptr;
@@ -60,12 +66,26 @@ private:
     QCheckBox* m_linearCheck = nullptr;
     QComboBox* m_linearDirCombo = nullptr;
     QDoubleSpinBox* m_linearWidenessSpin = nullptr;
-
     QCheckBox* m_wiresOnlyCheck = nullptr;
-    QCheckBox* m_shadingCheck = nullptr;
 
+    // Display controls
+    QCheckBox* m_shadingCheck = nullptr;
+    QCheckBox* m_raytracingCheck = nullptr;
+    QComboBox* m_materialCombo = nullptr;
+
+    // Raytracing advanced controls
+    QSpinBox* m_reflBouncesSpin = nullptr;
+    QSpinBox* m_refrBouncesSpin = nullptr;
+    QDoubleSpinBox* m_shadowSoftnessSpin = nullptr;
+    QCheckBox* m_shadowsCheck = nullptr;
+    QCheckBox* m_reflectionsCheck = nullptr;
+    QCheckBox* m_refractionsCheck = nullptr;
+    QDoubleSpinBox* m_envIntensitySpin = nullptr;
+
+    // Buttons
     QPushButton* m_applyButton = nullptr;
     QPushButton* m_exportButton = nullptr;
+    QPushButton* m_snapshotButton = nullptr;
     QPushButton* m_resetViewButton = nullptr;
     QPushButton* m_closeButton = nullptr;
 };

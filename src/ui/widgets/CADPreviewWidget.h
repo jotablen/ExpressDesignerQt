@@ -6,24 +6,23 @@
 #include <AIS_InteractiveContext.hxx>
 #include <V3d_Viewer.hxx>
 #include <V3d_View.hxx>
+#include <Graphic3d_RenderingParams.hxx>
+#include <Graphic3d_NameOfMaterial.hxx>
+#include <Graphic3d_TextureEnv.hxx>
 #include <Aspect_DisplayConnection.hxx>
 
 namespace ExpressDesigner {
 
 /**
- * @brief OpenGL widget for interactive 3D preview of CAD shapes (Nivel 1).
+ * @brief OpenGL widget for full raytracing CAD preview (Nivel 3).
  *
- * Uses OpenCASCADE's Visualization module (AIS_InteractiveContext + V3d_View)
- * to display and manipulate TopoDS_Shape objects with mouse interaction.
- *
- * Supports:
- * - Pan (middle mouse button drag)
- * - Rotate (left mouse button drag)
- * - Zoom (mouse wheel)
- * - Shaded / Wireframe toggle
- *
- * Note: Nivel 1 intentionally keeps materials and raytracing out;
- * those belong in feature/preview_cad_raytracing.
+ * All features from Nivel 1 +:
+ * - Raytracing with configurable bounces and samples
+ * - PBR materials: Steel, Aluminium, Gold, Copper, Mirror, Glass, Plastic
+ * - HDRI environment map (procedural sky gradient)
+ * - Directional + positional lights
+ * - Snapshot to QImage
+ * - Post-processing tone mapping
  */
 class CADPreviewWidget : public QOpenGLWidget {
     Q_OBJECT
@@ -40,6 +39,42 @@ public:
     /// Toggle shading mode (shaded vs wireframe)
     void setShadingMode(bool shaded);
 
+    // ── Nivel 3: Raytracing ──
+    void setRaytracingEnabled(bool enabled);
+
+    /// Set material preset
+    void setMaterialPreset(const QString& preset);
+
+    /// Set raytracing reflection bounces (0-10)
+    void setReflectionBounces(int bounces);
+
+    /// Set raytracing refraction bounces (0-10)
+    void setRefractionBounces(int bounces);
+
+    /// Set shadow softness (0=hard, 1=softest)
+    void setShadowSoftness(double softness);
+
+    /// Enable/disable shadows
+    void setShadowsEnabled(bool enabled);
+
+    /// Enable/disable reflections
+    void setReflectionsEnabled(bool enabled);
+
+    /// Enable/disable refractions
+    void setRefractionsEnabled(bool enabled);
+
+    /// Set environment map intensity (0.0 - 1.0)
+    void setEnvironmentIntensity(double intensity);
+
+    /// Setup a procedural HDRI sky gradient
+    void setupProceduralHDRI(const QColor& skyTop, const QColor& skyBottom);
+
+    /// Take a high-resolution snapshot and save to file
+    bool saveSnapshot(const QString& filePath, int width = 1920, int height = 1080);
+
+    /// Get the rendering params for fine-tuning
+    Graphic3d_RenderingParams& renderingParams();
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -53,6 +88,9 @@ protected:
 
 private:
     void initViewer();
+    void updateMaterial();
+    void applyRaytracingParams();
+    void setupDefaultLights();
     void fitAll();
 
     Handle(V3d_Viewer) m_viewer;
@@ -60,10 +98,24 @@ private:
     Handle(AIS_InteractiveContext) m_context;
     Handle(AIS_Shape) m_aisShape;
     Handle(Aspect_DisplayConnection) m_displayConnection;
+    Handle(Graphic3d_TextureEnv) m_envTexture;
 
     TopoDS_Shape m_currentShape;
     bool m_shaded = true;
+    bool m_raytracing = false;
     bool m_viewerInitialized = false;
+
+    // Material
+    QString m_materialPreset = QStringLiteral("steel");
+
+    // Raytracing parameters
+    int m_reflectionBounces = 6;
+    int m_refractionBounces = 4;
+    double m_shadowSoftness = 0.5;
+    bool m_shadowsEnabled = true;
+    bool m_reflectionsEnabled = true;
+    bool m_refractionsEnabled = true;
+    double m_envIntensity = 0.3;
 
     // Mouse state
     Qt::MouseButtons m_mouseButtons = Qt::NoButton;
