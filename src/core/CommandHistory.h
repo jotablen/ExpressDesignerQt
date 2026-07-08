@@ -23,6 +23,11 @@ public:
     virtual bool undo(Project* project) = 0;
     QString description() const;
     QDateTime timestamp() const;
+
+    /// Returns the name of the object that was modified by this command.
+    /// Used by CommandHistory for targeted recalculation after undo/redo.
+    /// Empty string means "unknown/recalc everything".
+    virtual QString modifiedObjectName() const { return {}; }
 protected:
     QString m_description;
     QDateTime m_timestamp;
@@ -59,6 +64,7 @@ public:
                        const QVariant& oldVal, const QVariant& newVal);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     QString m_property;
@@ -73,6 +79,7 @@ public:
         const QString& newName, double newIR, bool newFlip, const QVector<QPointF>& newPts);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     QString m_oldName, m_newName;
@@ -88,6 +95,7 @@ public:
                                const QVector<QPointF>& newPts);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     QVector<QPointF> m_oldPoints;
@@ -101,6 +109,7 @@ public:
     bool undo(Project* project) override;
     CustomOperation* operation() const;
     CustomObject* resultObject() const;
+    QString modifiedObjectName() const override;
 private:
     CustomOperation* m_op;
     CustomObject* m_resultObj = nullptr;
@@ -114,6 +123,7 @@ public:
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomObject* object() const { return m_obj; }
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     double m_degrees;
@@ -128,6 +138,7 @@ public:
     bool execute(Project* project) override;
     bool undo(Project* project) override;
     CustomObject* object() const { return m_obj; }
+    QString modifiedObjectName() const override;
 private:
     CustomObject* m_obj;
     QPointF m_delta;
@@ -142,6 +153,7 @@ public:
         const QString& newResultName, double newOffset);
     bool execute(Project* project) override;
     bool undo(Project* project) override;
+    QString modifiedObjectName() const override;
 private:
     CustomOperation* m_op;
     QString m_oldName, m_newName;
@@ -170,6 +182,14 @@ public:
     QString redoText() const;
     void clear();
 
+    /// Returns the modifiedObjectName() of the command that was just undone.
+    /// Only valid immediately after undo() returns true.
+    QString lastUndoneModifiedObjectName() const;
+
+    /// Returns the modifiedObjectName() of the command that was just redone.
+    /// Only valid immediately after redo() returns true.
+    QString lastRedoneModifiedObjectName() const;
+
 signals:
     void stackChanged();
 
@@ -177,6 +197,8 @@ private:
     static constexpr int kMaxStack = 200;
     std::vector<std::unique_ptr<Command>> m_undoStack;
     std::vector<std::unique_ptr<Command>> m_redoStack;
+    QString m_lastUndoneObjName;
+    QString m_lastRedoneObjName;
 };
 
 } // namespace ExpressDesigner

@@ -33,6 +33,7 @@ public:
     void loadFromJson(const QJsonObject& json) override;
     QString toRhinoScript(bool exchangeYZ = false) const override;
     ArcObject* clone(QObject* parent = nullptr) const;
+    void applyTransformDelta(const QPointF& delta) override;
 
 private:
     QPointF m_center;

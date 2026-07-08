@@ -352,8 +352,8 @@ void PropertiesWidget::setOperation(CustomOperation* op)
         m_propgSurfEdit->setText(op->paramName(1));
         m_propgIOREdit->setText(op->paramName(2));
         {
-            auto* pop = dynamic_cast<PropagateWFOperation*>(op);
-            m_propgOffsetEdit->setText(QString::number(pop ? pop->offset() : 0.0, 'f', 6));
+            QVariant offVal = op->extraProperty(QStringLiteral("offset"));
+            m_propgOffsetEdit->setText(QString::number(offVal.isValid() ? offVal.toDouble() : 0.0, 'f', 6));
             m_propgOffsetEdit->setReadOnly(false);
         }
         m_propgResultEdit->setText(op->resultName());
@@ -561,8 +561,9 @@ void PropertiesWidget::onSavePropagate()
         oldParams << m_currentOperation->paramName(i);
     QString oldResultName = m_propgResultEdit->text();
     double oldOffset = 0.0;
-    if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_currentOperation))
-        oldOffset = pop->offset();
+    QVariant oldOffVal = m_currentOperation->extraProperty(QStringLiteral("offset"));
+    if (oldOffVal.isValid())
+        oldOffset = oldOffVal.toDouble();
 
     // New values from UI
     QString newName = m_propgNameEdit->text();
@@ -583,8 +584,7 @@ void PropertiesWidget::onSavePropagate()
         m_currentOperation->setAmountOfPoints(newQty);
         for (int i = 0; i < qMin(newParams.size(), m_currentOperation->paramCount()); ++i)
             m_currentOperation->setParamName(i, newParams[i]);
-        if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_currentOperation))
-            pop->setOffset(newOffset);
+        m_currentOperation->setExtraProperty(QStringLiteral("offset"), QVariant(newOffset));
     }
     emit operationModified(m_currentOperation);
 }

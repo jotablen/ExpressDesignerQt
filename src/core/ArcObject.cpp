@@ -78,6 +78,14 @@ QString ArcObject::toRhinoScript(bool exchangeYZ) const
         .arg(m_endAngle, 0, 'f', 8);
 }
 
+void ArcObject::applyTransformDelta(const QPointF& delta)
+{
+    // Translate control points, reference point (via base)
+    CustomObject::applyTransformDelta(delta);
+    // Also translate the Arc-specific center point
+    m_center += delta;
+}
+
 ArcObject* ArcObject::clone(QObject* parent) const
 {
     auto* obj = new ArcObject(m_name, isWavefront(), parent);

@@ -44,6 +44,16 @@ QString CustomOperation::paramPrefixOnTree(int index) const
     return QStringLiteral("Param%1").arg(index + 1);
 }
 
+QStringList CustomOperation::extraPropertyNames() const { return {}; }
+QVariant CustomOperation::extraProperty(const QString& name) const {
+    Q_UNUSED(name);
+    return QVariant();
+}
+void CustomOperation::setExtraProperty(const QString& name, const QVariant& value) {
+    Q_UNUSED(name);
+    Q_UNUSED(value);
+}
+
 int CustomOperation::errorCode() const { return m_errorCode; }
 QString CustomOperation::errorMessage() const { return m_errorMessage; }
 

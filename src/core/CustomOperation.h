@@ -36,6 +36,17 @@ public:
     virtual QString resultName() const = 0;
     virtual QString paramPrefixOnTree(int index) const;
 
+    // --- Extra properties (replaces dynamic_cast<PropagateWFOperation*> in commands) ---
+    /// Returns names of extra properties (e.g. "offset") for this operation type.
+    /// Used by ModifyOperationCommand for generic save/restore.
+    virtual QStringList extraPropertyNames() const;
+
+    /// Get the value of an extra property by name. Returns invalid QVariant if not found.
+    virtual QVariant extraProperty(const QString& name) const;
+
+    /// Set the value of an extra property by name.
+    virtual void setExtraProperty(const QString& name, const QVariant& value);
+
     // Error
     int errorCode() const;
     QString errorMessage() const;

@@ -60,6 +60,18 @@ public:
     void setSelectedColor(const QColor& color);
     QColor selectedColor() const;
 
+    // --- Transform helpers ---
+    /**
+     * @brief Apply a translation delta to this object.
+     *
+     * Base implementation translates control points and reference point.
+     * Subclasses (e.g. ArcObject) may override to also translate
+     * additional geometric properties like center, radius, angles, etc.
+     *
+     * This replaces manual qobject_cast<ArcObject*> in TranslateObjectCommand.
+     */
+    virtual void applyTransformDelta(const QPointF& delta);
+
     // --- Serialization ---
     void saveToJson(QJsonObject& json) const override;
     void loadFromJson(const QJsonObject& json) override;

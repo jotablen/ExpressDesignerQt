@@ -223,6 +223,22 @@ CustomObject* CustomObject::clone(QObject* parent) const
     return obj;
 }
 
+void CustomObject::applyTransformDelta(const QPointF& delta)
+{
+    // Translate control points
+    QVector<QPointF> newPts; newPts.reserve(m_controlPoints.size());
+    for (const QPointF& p : m_controlPoints)
+        newPts.append(p + delta);
+    m_controlPoints = newPts;
+
+    // Translate reference point
+    m_referencePoint += delta;
+
+    emit controlPointsChanged();
+    emit referencePointChanged(m_referencePoint);
+    emit objectModified(QStringLiteral("controlPoints"));
+}
+
 QString CustomObject::pointsToRhinoFormat(const QVector<QPointF>& pts, bool exchangeYZ) const
 {
     QStringList script;

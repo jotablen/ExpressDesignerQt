@@ -2,7 +2,6 @@
 #include "CustomObject.h"
 #include "CustomOperation.h"
 #include "Project.h"
-#include "ArcObject.h"
 #include "PropagateWFOperation.h"
 #include <QtMath>
 #include <QVariant>
@@ -69,6 +68,9 @@ ModifyObjectCommand::ModifyObjectCommand(CustomObject* obj, const QString& prop,
     : Command(QStringLiteral("Modify %1").arg(obj ? obj->name() : QString()))
     , m_obj(obj), m_property(prop), m_oldValue(oldVal), m_newValue(newVal) {}
 
+QString ModifyObjectCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
 bool ModifyObjectCommand::execute(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
@@ -102,6 +104,9 @@ ModifyObjectPropertiesCommand::ModifyObjectPropertiesCommand(CustomObject* obj,
 {
 }
 
+QString ModifyObjectPropertiesCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
 bool ModifyObjectPropertiesCommand::execute(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
@@ -130,6 +135,9 @@ ModifyControlPointsCommand::ModifyControlPointsCommand(CustomObject* obj,
     : Command(QStringLiteral("Edit points of ") + (obj ? obj->name() : QString()))
     , m_obj(obj), m_oldPoints(oldPts), m_newPoints(newPts) {}
 
+QString ModifyControlPointsCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
 bool ModifyControlPointsCommand::execute(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
@@ -149,6 +157,9 @@ bool ModifyControlPointsCommand::undo(Project* project) {
 ExecuteOperationCommand::ExecuteOperationCommand(CustomOperation* op)
     : Command(QStringLiteral("Execute ") + (op ? op->name() : QString())), m_op(op) {}
 
+QString ExecuteOperationCommand::modifiedObjectName() const {
+    return m_op ? m_op->resultName() : QString();
+}
 bool ExecuteOperationCommand::execute(Project* project) {
     TRACE_CAT(QStringLiteral("CMD"));
     if (!project || !m_op) { LOG_WARN(QStringLiteral("CMD"), QStringLiteral("ExecuteCMD: null project or op")); return false; }
@@ -226,6 +237,9 @@ bool RotateObjectCommand::execute(Project* project) {
     return true;
 }
 
+QString RotateObjectCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
 bool RotateObjectCommand::undo(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
@@ -240,30 +254,23 @@ TranslateObjectCommand::TranslateObjectCommand(CustomObject* obj, const QPointF&
     : Command(QStringLiteral("Translate ") + (obj ? obj->name() : QString()))
     , m_obj(obj), m_delta(delta) {}
 
+QString TranslateObjectCommand::modifiedObjectName() const {
+    return m_obj ? m_obj->name() : QString();
+}
+
 bool TranslateObjectCommand::execute(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
-    const auto& pts = m_obj->controlPoints();
-    QVector<QPointF> newPts; newPts.reserve(pts.size());
-    for (const QPointF& p : pts) newPts.append(p + m_delta);
-    m_obj->setControlPoints(newPts);
-    // Also translate Arc center point if applicable
-    if (auto* arc = qobject_cast<ArcObject*>(m_obj)) {
-        arc->setCenter(arc->center() + m_delta);
-    }
+    // Use virtual method — subclasses handle specialised geometry (e.g. ArcObject::center)
+    m_obj->applyTransformDelta(m_delta);
     return true;
 }
 
 bool TranslateObjectCommand::undo(Project* project) {
     Q_UNUSED(project);
     if (!m_obj) return false;
-    const auto& pts = m_obj->controlPoints();
-    QVector<QPointF> newPts; newPts.reserve(pts.size());
-    for (const QPointF& p : pts) newPts.append(p - m_delta);
-    m_obj->setControlPoints(newPts);
-    if (auto* arc = qobject_cast<ArcObject*>(m_obj)) {
-        arc->setCenter(arc->center() - m_delta);
-    }
+    // Reverse translation using the same virtual method
+    m_obj->applyTransformDelta(-m_delta);
     return true;
 }
 
@@ -284,6 +291,9 @@ ModifyOperationCommand::ModifyOperationCommand(CustomOperation* op,
 {
 }
 
+QString ModifyOperationCommand::modifiedObjectName() const {
+    return m_op ? m_op->resultName() : QString();
+}
 bool ModifyOperationCommand::execute(Project* project) {
     Q_UNUSED(project);
     if (!m_op) return false;
@@ -291,9 +301,12 @@ bool ModifyOperationCommand::execute(Project* project) {
     m_op->setAmountOfPoints(m_newQty);
     for (int i = 0; i < qMin(m_newParams.size(), m_op->paramCount()); ++i)
         m_op->setParamName(i, m_newParams[i]);
-    // offset handling: only for PropagateWFOperation
-    if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_op))
-        pop->setOffset(m_newOffset);
+    // Generic extra property handling — replaces dynamic_cast<PropagateWFOperation*>
+    QStringList extraProps = m_op->extraPropertyNames();
+    for (const QString& propName : extraProps) {
+        if (propName == QStringLiteral("offset"))
+            m_op->setExtraProperty(propName, QVariant(m_newOffset));
+    }
     return true;
 }
 bool ModifyOperationCommand::undo(Project* project) {
@@ -303,8 +316,12 @@ bool ModifyOperationCommand::undo(Project* project) {
     m_op->setAmountOfPoints(m_oldQty);
     for (int i = 0; i < qMin(m_oldParams.size(), m_op->paramCount()); ++i)
         m_op->setParamName(i, m_oldParams[i]);
-    if (auto* pop = dynamic_cast<PropagateWFOperation*>(m_op))
-        pop->setOffset(m_oldOffset);
+    // Generic extra property handling — replaces dynamic_cast<PropagateWFOperation*>
+    QStringList extraProps = m_op->extraPropertyNames();
+    for (const QString& propName : extraProps) {
+        if (propName == QStringLiteral("offset"))
+            m_op->setExtraProperty(propName, QVariant(m_oldOffset));
+    }
     return true;
 }
 
@@ -336,10 +353,12 @@ bool CommandHistory::undo(Project* project) {
     auto cmd = std::move(m_undoStack.back());
     LOG_INFO(QStringLiteral("CMD"), QStringLiteral("undo: %1 (undoStack=%2)").arg(cmd->description()).arg(m_undoStack.size() - 1));
     m_undoStack.pop_back();
+    m_lastUndoneObjName = cmd->modifiedObjectName();
     if (!cmd->undo(project)) {
         LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("undo: FAILED for '%1' — re-executing").arg(cmd->description()));
         cmd->execute(project);
         m_undoStack.push_back(std::move(cmd));
+        m_lastUndoneObjName.clear();
         return false;
     }
     m_redoStack.push_back(std::move(cmd));
@@ -354,9 +373,11 @@ bool CommandHistory::redo(Project* project) {
     auto cmd = std::move(m_redoStack.back());
     LOG_INFO(QStringLiteral("CMD"), QStringLiteral("redo: %1 (redoStack=%2)").arg(cmd->description()).arg(m_redoStack.size() - 1));
     m_redoStack.pop_back();
+    m_lastRedoneObjName = cmd->modifiedObjectName();
     if (!cmd->execute(project)) {
         LOG_ERROR(QStringLiteral("CMD"), QStringLiteral("redo: FAILED for '%1'").arg(cmd->description()));
         m_redoStack.push_back(std::move(cmd));
+        m_lastRedoneObjName.clear();
         return false;
     }
     m_undoStack.push_back(std::move(cmd));
@@ -376,9 +397,18 @@ QString CommandHistory::redoText() const {
     if (m_redoStack.empty()) return {};
     return tr("Redo %1").arg(m_redoStack.back()->description());
 }
+QString CommandHistory::lastUndoneModifiedObjectName() const {
+    return m_lastUndoneObjName;
+}
+QString CommandHistory::lastRedoneModifiedObjectName() const {
+    return m_lastRedoneObjName;
+}
+
 void CommandHistory::clear() {
     m_undoStack.clear();
     m_redoStack.clear();
+    m_lastUndoneObjName.clear();
+    m_lastRedoneObjName.clear();
     emit stackChanged();
 }
 

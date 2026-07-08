@@ -129,6 +129,24 @@ QString PropagateWFOperation::paramPrefixOnTree(int index) const
     }
 }
 
+QStringList PropagateWFOperation::extraPropertyNames() const
+{
+    return { QStringLiteral("offset") };
+}
+QVariant PropagateWFOperation::extraProperty(const QString& name) const
+{
+    if (name == QStringLiteral("offset"))
+        return QVariant(m_offset);
+    return CustomOperation::extraProperty(name);
+}
+void PropagateWFOperation::setExtraProperty(const QString& name, const QVariant& value)
+{
+    if (name == QStringLiteral("offset"))
+        m_offset = value.toDouble();
+    else
+        CustomOperation::setExtraProperty(name, value);
+}
+
 double PropagateWFOperation::offset() const { return m_offset; }
 void PropagateWFOperation::setOffset(double value) { m_offset = value; }
 

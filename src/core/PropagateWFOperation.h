@@ -17,6 +17,11 @@ public:
     QString resultName() const override;
     QString paramPrefixOnTree(int index) const override;
 
+    // Extra properties (eliminates dynamic_cast in ModifyOperationCommand)
+    QStringList extraPropertyNames() const override;
+    QVariant extraProperty(const QString& name) const override;
+    void setExtraProperty(const QString& name, const QVariant& value) override;
+
     double offset() const;
     void setOffset(double value);
 
