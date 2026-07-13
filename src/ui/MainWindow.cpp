@@ -20,6 +20,7 @@
 #include <ui/dialogs/ProjectHistoryDialog.h>
 #include <ui/dialogs/PreferencesDialog.h>
 #include <ui/widgets/ChartWidget.h>
+#include <geometry/SISLWrapper.h>
 #include <ui/widgets/PropertiesWidget.h>
 #include <io/ProjectSerializer.h>
 #include <io/TXTExporter.h>
@@ -1544,6 +1545,22 @@ void MainWindow::recalculateAll()
     for (auto* op : ops) {
         if (!op) continue;
         op->execute(m_currentProject);
+    }
+
+    // Apply outlier filter to result objects if enabled
+    QSettings settings;
+    if (settings.value(QStringLiteral("Preferences/filterOutlierPoints"), false).toBool()) {
+        double alphaDeg = settings.value(QStringLiteral("Preferences/outlierAlphaDegrees"), 30.0).toDouble();
+        for (auto* obj : m_currentProject->resultObjects()) {
+            if (!obj || !obj->isWavefront())
+                continue;
+            if (obj->controlPointCount() < 3)
+                continue;
+            QVector<QPointF> filtered = Geometry::Operations::filterOutlierPoints(
+                obj->controlPoints(), alphaDeg, obj->isNormalFlipped());
+            if (filtered.size() >= 2 && filtered.size() != obj->controlPointCount())
+                obj->setControlPoints(filtered);
+        }
     }
 
     // Rebuild dependency graph ONCE for UI queries (dialog, delete warnings)

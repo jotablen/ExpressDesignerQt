@@ -39,18 +39,34 @@ PreferencesDialog::PreferencesDialog(QWidget* parent)
     openLastChk->setChecked(settings.value(QStringLiteral("Preferences/openLastProjectAutomatically"), false).toBool());
     form->addRow(QStringLiteral("Open last project automatically:"), openLastChk);
 
+    auto* filterOutlierChk = new QCheckBox(this);
+    filterOutlierChk->setChecked(settings.value(QStringLiteral("Preferences/filterOutlierPoints"), false).toBool());
+    form->addRow(QStringLiteral("Filter outlier points (normal angle):"), filterOutlierChk);
+
+    auto* outlierAlphaSpin = new QDoubleSpinBox(this);
+    outlierAlphaSpin->setRange(0.1, 180.0);
+    outlierAlphaSpin->setDecimals(1);
+    outlierAlphaSpin->setValue(settings.value(QStringLiteral("Preferences/outlierAlphaDegrees"), 30.0).toDouble());
+    outlierAlphaSpin->setSuffix(QStringLiteral("°"));
+    outlierAlphaSpin->setEnabled(filterOutlierChk->isChecked());
+    form->addRow(QStringLiteral("Outlier Alpha (degrees):"), outlierAlphaSpin);
+
+    QObject::connect(filterOutlierChk, &QCheckBox::toggled, outlierAlphaSpin, &QDoubleSpinBox::setEnabled);
+
     layout->addLayout(form);
     layout->addStretch();
 
     auto* buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, this);
     layout->addWidget(buttons);
 
-    connect(buttons, &QDialogButtonBox::accepted, this, [this, autoZoomChk, normalsQtySpin, normalsLenSpin, openLastChk]() {
+    connect(buttons, &QDialogButtonBox::accepted, this, [this, autoZoomChk, normalsQtySpin, normalsLenSpin, openLastChk, filterOutlierChk, outlierAlphaSpin]() {
         QSettings settings;
         settings.setValue(QStringLiteral("Preferences/autoZoom"), autoZoomChk->isChecked());
         settings.setValue(QStringLiteral("Preferences/defaultNormalsQty"), normalsQtySpin->value());
         settings.setValue(QStringLiteral("Preferences/defaultNormalsLen"), normalsLenSpin->value());
         settings.setValue(QStringLiteral("Preferences/openLastProjectAutomatically"), openLastChk->isChecked());
+        settings.setValue(QStringLiteral("Preferences/filterOutlierPoints"), filterOutlierChk->isChecked());
+        settings.setValue(QStringLiteral("Preferences/outlierAlphaDegrees"), outlierAlphaSpin->value());
         accept();
     });
 

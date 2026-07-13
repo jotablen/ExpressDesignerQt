@@ -352,6 +352,19 @@ bool SISLSurface::isValid() const { return m_valid; }
 QPointF SISLSurface::evaluate(double, double) const { return {}; }
 
 // ============================================================================
+// angleBetweenNormalsDeg — signed angle between two 2D normal vectors
+// ============================================================================
+double angleBetweenNormalsDeg(const QPointF& n1, const QPointF& n2)
+{
+    double len1 = length(n1);
+    double len2 = length(n2);
+    if (len1 < 1e-12 || len2 < 1e-12) return 0.0;
+    double cosA = dot(n1, n2) / (len1 * len2);
+    cosA = qBound(-1.0, cosA, 1.0);
+    return qRadiansToDegrees(qAcos(cosA));
+}
+
+// ============================================================================
 // Operations
 // ============================================================================
 namespace Operations {
@@ -401,6 +414,44 @@ QVector<QPointF> discretizeArc(const QPointF& center, double radius, double star
         result.append(QPointF(center.x() + radius * qCos(angle), center.y() + radius * qSin(angle)));
     }
     return result;
+}
+
+QVector<QPointF> filterOutlierPoints(const QVector<QPointF>& points,
+                                      double alphaDegrees,
+                                      bool flipped)
+{
+    if (points.size() < 3) return points;
+
+    SISLCurve curve(points, 3, true);
+    if (!curve.isValid()) return points;
+
+    // Compute interpolated normals at each point via closest-parameter projection
+    QVector<QPointF> normals;
+    normals.reserve(points.size());
+    for (int i = 0; i < points.size(); ++i) {
+        double t;
+        curve.closestPoint(points[i], &t);
+        normals.append(curve.normal(t, flipped));
+    }
+
+    // Mark outliers: a point is an outlier if its normal angle differs from
+    // BOTH the previous AND the posterior neighbour by more than alphaDegrees.
+    // Endpoints (i=0 and i=last) are never removed to preserve curve extent.
+    QVector<bool> keep(points.size(), true);
+    for (int i = 1; i < points.size() - 1; ++i) {
+        double anglePrev = angleBetweenNormalsDeg(normals[i], normals[i - 1]);
+        double angleNext = angleBetweenNormalsDeg(normals[i], normals[i + 1]);
+        if (anglePrev > alphaDegrees && angleNext > alphaDegrees)
+            keep[i] = false;
+    }
+
+    QVector<QPointF> filtered;
+    filtered.reserve(points.size());
+    for (int i = 0; i < points.size(); ++i) {
+        if (keep[i])
+            filtered.append(points[i]);
+    }
+    return filtered;
 }
 
 } // namespace Operations

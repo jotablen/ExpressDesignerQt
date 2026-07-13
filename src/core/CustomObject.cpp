@@ -1,6 +1,8 @@
 #include "CustomObject.h"
 #include <QJsonArray>
 #include <QtMath>
+#include <QSettings>
+#include <geometry/SISLWrapper.h>
 
 namespace ExpressDesigner {
 
@@ -113,17 +115,31 @@ QVector<QPair<QPointF, QPointF>> CustomObject::computeNormals(int numPoints, dou
     if (m_controlPoints.size() < 2 || numPoints < 1)
         return result;
 
+    // Apply outlier filtering if enabled in preferences (only for wavefronts)
+    QVector<QPointF> filteredPoints;
+    const QVector<QPointF>* workPoints = &m_controlPoints;
+    if (isResult()) {
+        QSettings settings;
+        if (settings.value(QStringLiteral("Preferences/filterOutlierPoints"), false).toBool()) {
+            double alphaDeg = settings.value(QStringLiteral("Preferences/outlierAlphaDegrees"), 30.0).toDouble();
+            filteredPoints = Geometry::Operations::filterOutlierPoints(m_controlPoints, alphaDeg, m_normalFlipped);
+            if (filteredPoints.size() >= 2)
+                workPoints = &filteredPoints;
+        }
+    }
+
     // Discretize the curve into numPoints segments
     result.reserve(numPoints);
-    int totalSegments = m_controlPoints.size() - 1;
+    int totalSegments = workPoints->size() - 1;
+    if (totalSegments < 1) return result;
     for (int i = 0; i < numPoints; ++i) {
-        double t = static_cast<double>(i) / (numPoints - 1);
+        double t = numPoints > 1 ? static_cast<double>(i) / (numPoints - 1) : 0.0;
         double segFloat = t * totalSegments;
         int seg = qMin(static_cast<int>(segFloat), totalSegments - 1);
         double localT = segFloat - seg;
 
-        QPointF p0 = m_controlPoints[seg];
-        QPointF p1 = m_controlPoints[seg + 1];
+        QPointF p0 = (*workPoints)[seg];
+        QPointF p1 = (*workPoints)[seg + 1];
         QPointF pos = p0 + (p1 - p0) * localT;
 
         // Compute normal (perpendicular to segment direction)

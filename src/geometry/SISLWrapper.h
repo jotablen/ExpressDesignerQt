@@ -75,11 +75,23 @@ private:
     bool m_valid = false;
 };
 
+    /// Returns the signed angle (in degrees) between two 2D normals.
+    /// Range [0, 180]. Uses atan2 of the cross/dot to handle sign correctly.
+    double angleBetweenNormalsDeg(const QPointF& n1, const QPointF& n2);
+
 namespace Operations {
     QVector<QPointF> offsetCurve(const QVector<QPointF>& points, double distance);
     QVector<QPointF> intersectCurves(const QVector<QPointF>& a, const QVector<QPointF>& b);
     QVector<Normal> computeNormals2D(const QVector<QPointF>& points, int numRays, double rayLength, bool flipped);
     QVector<QPointF> discretizeArc(const QPointF& center, double radius, double startAngle, double endAngle, int numPoints);
+
+    /// Filter outlier points whose interpolated normal angle differs more than
+    /// alphaDegrees from both the previous and posterior neighbour normals.
+    /// Endpoints are never removed.
+    /// @param flipped  Whether to flip normals (passed to SISLCurve::normal).
+    QVector<QPointF> filterOutlierPoints(const QVector<QPointF>& points,
+                                          double alphaDegrees,
+                                          bool flipped = false);
 }
 
 } // namespace Geometry
