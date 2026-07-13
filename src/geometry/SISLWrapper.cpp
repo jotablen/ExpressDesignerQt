@@ -454,6 +454,66 @@ QVector<QPointF> filterOutlierPoints(const QVector<QPointF>& points,
     return filtered;
 }
 
+QVector<QPointF> filterByReferencePoint(const QVector<QPointF>& points,
+                                         const QPointF& refPoint,
+                                         double alphaDegrees,
+                                         bool flipped)
+{
+    if (points.size() < 3) return points;
+
+    // Build a SISLCurve to compute normals
+    SISLCurve curve(points, 3, true);
+    if (!curve.isValid()) return points;
+
+    // Find the anchor: index of the point closest to refPoint
+    int anchorIdx = 0;
+    double bestDistSq = 1e18;
+    for (int i = 0; i < points.size(); ++i) {
+        double d2 = distSq(points[i], refPoint);
+        if (d2 < bestDistSq) {
+            bestDistSq = d2;
+            anchorIdx = i;
+        }
+    }
+
+    // Compute normals for all points via closest-parameter projection
+    QVector<QPointF> normals;
+    normals.reserve(points.size());
+    for (int i = 0; i < points.size(); ++i) {
+        double t;
+        curve.closestPoint(points[i], &t);
+        normals.append(curve.normal(t, flipped));
+    }
+
+    // Track kept region: start with anchor
+    int keepLeft = anchorIdx;   // leftmost kept index (inclusive)
+    int keepRight = anchorIdx;  // rightmost kept index (inclusive)
+
+    // Walk left from anchor: stop at first point whose normal deviates too much
+    for (int i = anchorIdx - 1; i >= 0; --i) {
+        double angle = angleBetweenNormalsDeg(normals[i], normals[i + 1]);
+        if (angle > alphaDegrees)
+            break;  // discard this point and everything further left
+        keepLeft = i;
+    }
+
+    // Walk right from anchor: stop at first point whose normal deviates too much
+    for (int i = anchorIdx + 1; i < points.size(); ++i) {
+        double angle = angleBetweenNormalsDeg(normals[i], normals[i - 1]);
+        if (angle > alphaDegrees)
+            break;  // discard this point and everything further right
+        keepRight = i;
+    }
+
+    // Assemble the kept contiguous region
+    QVector<QPointF> filtered;
+    filtered.reserve(keepRight - keepLeft + 1);
+    for (int i = keepLeft; i <= keepRight; ++i)
+        filtered.append(points[i]);
+
+    return filtered;
+}
+
 } // namespace Operations
 } // namespace Geometry
 } // namespace ExpressDesigner

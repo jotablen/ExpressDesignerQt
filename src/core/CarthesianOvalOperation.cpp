@@ -4,6 +4,7 @@
 #include "CurveObject.h"
 #include <geometry/SISLWrapper.h>
 #include <geometry/VectorUtils.h>
+#include <QSettings>
 #include <QtMath>
 
 namespace ExpressDesigner {
@@ -174,6 +175,27 @@ bool CarthesianOvalOperation::execute(Project* project)
             // else: skip — normal validation failed
         }
         // else: skip — OPL didn't converge
+    }
+
+    if (ovalPts.size() < 3) {
+        delete result;
+        m_errorCode = 1;
+        m_errorMessage = tr("Cartesian oval produced less than 3 points — operation failed.");
+        emit operationExecuted(false);
+        return false;
+    }
+
+    // --- Bidirectional filter from reference point (COCs) ---
+    {
+        QSettings settings;
+        if (settings.value(QStringLiteral("Preferences/filterOutlierPoints"), false).toBool()) {
+            double alphaDeg = settings.value(QStringLiteral("Preferences/outlierAlphaDegrees"), 30.0).toDouble();
+            // Reference point: the COC reference point already computed above
+            QVector<QPointF> filtered = Geometry::Operations::filterByReferencePoint(
+                ovalPts, refPoint, alphaDeg, flip1);
+            if (filtered.size() >= 3)
+                ovalPts = filtered;
+        }
     }
 
     if (ovalPts.size() < 3) {

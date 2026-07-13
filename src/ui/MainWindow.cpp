@@ -1547,7 +1547,7 @@ void MainWindow::recalculateAll()
         op->execute(m_currentProject);
     }
 
-    // Apply outlier filter to result objects if enabled
+    // Apply bidirectional reference-point filter to result objects if enabled
     QSettings settings;
     if (settings.value(QStringLiteral("Preferences/filterOutlierPoints"), false).toBool()) {
         double alphaDeg = settings.value(QStringLiteral("Preferences/outlierAlphaDegrees"), 30.0).toDouble();
@@ -1556,8 +1556,17 @@ void MainWindow::recalculateAll()
                 continue;
             if (obj->controlPointCount() < 3)
                 continue;
-            QVector<QPointF> filtered = Geometry::Operations::filterOutlierPoints(
-                obj->controlPoints(), alphaDeg, obj->isNormalFlipped());
+            // Determine reference point: use object's own referencePoint if non-zero,
+            // otherwise fall back to the geometric centre of its control points
+            QPointF refPt = obj->referencePoint();
+            if (refPt.isNull()) {
+                double cx = 0.0, cy = 0.0;
+                const auto& pts = obj->controlPoints();
+                for (const auto& p : pts) { cx += p.x(); cy += p.y(); }
+                refPt = QPointF(cx / pts.size(), cy / pts.size());
+            }
+            QVector<QPointF> filtered = Geometry::Operations::filterByReferencePoint(
+                obj->controlPoints(), refPt, alphaDeg, obj->isNormalFlipped());
             if (filtered.size() >= 2 && filtered.size() != obj->controlPointCount())
                 obj->setControlPoints(filtered);
         }

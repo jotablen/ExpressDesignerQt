@@ -4,6 +4,7 @@
 #include <geometry/SISLWrapper.h>
 #include <geometry/VectorUtils.h>
 #include <optics/SnellLaw.h>
+#include <QSettings>
 #include <QtMath>
 #include <utils/Logger.h>
 
@@ -91,6 +92,20 @@ bool PropagateWFOperation::execute(Project* project)
 
         QPointF resultPt = surfHit + deflectedDir * remaining;
         propagatedPts.append(resultPt);
+    }
+
+    // --- Bidirectional filter from WF centre (reference point) ---
+    {
+        QSettings settings;
+        if (settings.value(QStringLiteral("Preferences/filterOutlierPoints"), false).toBool()) {
+            double alphaDeg = settings.value(QStringLiteral("Preferences/outlierAlphaDegrees"), 30.0).toDouble();
+            // Reference point: centre of the source WF curve
+            QPointF wfCenter = wfCurve.evaluate(0.5);
+            QVector<QPointF> filtered = Geometry::Operations::filterByReferencePoint(
+                propagatedPts, wfCenter, alphaDeg, flipWF);
+            if (filtered.size() >= 3)
+                propagatedPts = filtered;
+        }
     }
 
     if (propagatedPts.size() < 3) {

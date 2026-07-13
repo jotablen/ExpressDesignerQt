@@ -92,6 +92,22 @@ namespace Operations {
     QVector<QPointF> filterOutlierPoints(const QVector<QPointF>& points,
                                           double alphaDegrees,
                                           bool flipped = false);
+
+    /// Filter points bidirectionally from a reference point.
+    /// Starting from the point closest to @p refPoint (the "anchor"), walks
+    /// outward in both directions and keeps points while their normal angle
+    /// deviation from the previous kept point stays <= alphaDegrees.
+    /// Once a point fails the threshold, all points beyond it are discarded.
+    /// The result is a contiguous region centred on the reference point.
+    /// @param points      Input point list.
+    /// @param refPoint    Reference point (e.g. COCs for oval, WF centre for PropagateWF).
+    /// @param alphaDegrees  Maximum normal-angle deviation in degrees.
+    /// @param flipped     Whether normals are flipped.
+    /// @return            Contiguous filtered point list.
+    QVector<QPointF> filterByReferencePoint(const QVector<QPointF>& points,
+                                             const QPointF& refPoint,
+                                             double alphaDegrees,
+                                             bool flipped = false);
 }
 
 } // namespace Geometry
