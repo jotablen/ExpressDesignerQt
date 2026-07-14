@@ -1,5 +1,6 @@
 build/
 third_party/build/
+third_party/sisl/build/
 _deps/
 bin/project_1.json
 bin/ExpressDesigner.exe
