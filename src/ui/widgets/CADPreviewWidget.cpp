@@ -51,7 +51,7 @@ void CADPreviewWidget::initViewer()
             new OpenGl_GraphicDriver(m_displayConnection);
         graphicDriver->ChangeOptions().buffersNoSwap = Standard_True;
         graphicDriver->ChangeOptions().useSystemBuffer = Standard_False;
-        if (!graphicDriver->Initialize()) return;
+        if (!graphicDriver->InitContext()) return;
 
         m_viewer = new V3d_Viewer(graphicDriver);
         m_viewer->SetDefaultViewSize(1000.0);
@@ -62,7 +62,6 @@ void CADPreviewWidget::initViewer()
 
         m_context = new AIS_InteractiveContext(m_viewer);
         m_context->SetDisplayMode(AIS_Shaded, Standard_True);
-        m_context->SetHilightMode(AIS_Shaded);
         m_context->UpdateCurrentViewer();
 
         m_view = m_viewer->CreateView();
@@ -83,8 +82,8 @@ void CADPreviewWidget::initViewer()
         // High-quality defaults
         Graphic3d_RenderingParams& rp = m_view->ChangeRenderingParams();
         rp.IsAntialiasingEnabled = Standard_True;
-        rp.NbMsaaSample = 8;
-        rp.CollectedAspect = Graphic3d_Aspect_ToneMapping;
+        rp.NbMsaaSamples = 8;
+        rp.ToneMappingMethod = Graphic3d_ToneMappingMethod_Filmic;
 
         m_viewerInitialized = true;
     } catch (...) {
@@ -114,28 +113,28 @@ void CADPreviewWidget::setupDefaultLights()
     if (m_viewer.IsNull()) return;
 
     // Remove default lights
-    m_viewer->SetLightOn(Standard_False);
+    m_viewer->SetLightOff();
 
     // Key light — warm directional from upper-right
-    Handle(V3d_DirectionalLight) keyLight = new V3d_DirectionalLight(m_viewer,
+    Handle(V3d_DirectionalLight) keyLight = new V3d_DirectionalLight(
+        gp_Dir(1.0, -2.0, 3.0),
         Quantity_Color(0.9f, 0.85f, 0.75f, Quantity_TOC_sRGB));
-    keyLight->SetDirection(1.0, -2.0, 3.0);
     keyLight->SetHeadlight(Standard_False);
     keyLight->SetIntensity(1.2f);
     m_viewer->SetLightOn(keyLight);
 
     // Fill light — cool directional from lower-left
-    Handle(V3d_DirectionalLight) fillLight = new V3d_DirectionalLight(m_viewer,
+    Handle(V3d_DirectionalLight) fillLight = new V3d_DirectionalLight(
+        gp_Dir(-1.0, 1.5, 1.0),
         Quantity_Color(0.6f, 0.7f, 0.9f, Quantity_TOC_sRGB));
-    fillLight->SetDirection(-1.0, 1.5, 1.0);
     fillLight->SetHeadlight(Standard_False);
     fillLight->SetIntensity(0.6f);
     m_viewer->SetLightOn(fillLight);
 
     // Rim light — backlight from behind
-    Handle(V3d_DirectionalLight) rimLight = new V3d_DirectionalLight(m_viewer,
+    Handle(V3d_DirectionalLight) rimLight = new V3d_DirectionalLight(
+        gp_Dir(0.0, 0.5, -3.0),
         Quantity_Color(0.95f, 0.95f, 1.0f, Quantity_TOC_sRGB));
-    rimLight->SetDirection(0.0, 0.5, -3.0);
     rimLight->SetHeadlight(Standard_False);
     rimLight->SetIntensity(0.4f);
     m_viewer->SetLightOn(rimLight);
@@ -158,13 +157,11 @@ void CADPreviewWidget::updateMaterial()
         mat = Graphic3d_MaterialAspect(Graphic3d_NOM_COPPER);
     } else if (m_materialPreset == QStringLiteral("mirror")) {
         // High reflectivity, low diffuse
-        mat = Graphic3d_MaterialAspect(Graphic3d_NOM_NEON_GRAY);
-        mat.SetReflectionMode(Standard_True, Standard_True);
-        mat.SetRefractionMode(Standard_False);
+        mat = Graphic3d_MaterialAspect(Graphic3d_NOM_CHROME);
     } else if (m_materialPreset == QStringLiteral("glass")) {
         mat = Graphic3d_MaterialAspect(Graphic3d_NOM_GLASS);
         mat.SetTransparency(0.2f);
-        mat.SetRefractionMode(Standard_True);
+        mat.SetRefractionIndex(1.5f);
     } else if (m_materialPreset == QStringLiteral("plastic")) {
         mat = Graphic3d_MaterialAspect(Graphic3d_NOM_PLASTIC);
     } else {
@@ -180,24 +177,19 @@ void CADPreviewWidget::applyRaytracingParams()
     if (m_view.IsNull()) return;
 
     Graphic3d_RenderingParams& rp = m_view->ChangeRenderingParams();
-    rp.Method = m_raytracing ? Graphic3d_RTM_RAYTRACING : Graphic3d_RTM_RASTERIZATION;
+    rp.Method = m_raytracing ? Graphic3d_RM_RAYTRACING : Graphic3d_RM_RASTERIZATION;
     rp.IsAntialiasingEnabled = m_raytracing;
-    rp.NbMsaaSample = m_raytracing ? 8 : 4;
+    rp.NbMsaaSamples = m_raytracing ? 8 : 4;
 
     if (m_raytracing) {
-        rp.NbRayTracingReflections = m_reflectionsEnabled ? m_reflectionBounces : 0;
-        rp.NbRayTracingRefractions = m_refractionsEnabled ? m_refractionBounces : 0;
+        rp.IsReflectionEnabled = m_reflectionsEnabled;
         rp.IsShadowEnabled = m_shadowsEnabled;
-        rp.NbRayTracingShadows = m_shadowSoftness > 0.01 ? 4 : 1;
 
-        // Tone mapping (ACES-like filmic)
-        rp.ToneMappingMethod = Graphic3d_ToneMapping_ACES;
-
-        // Environment intensity (controls ambient reflections)
-        rp.EnvMapIntensity = m_envIntensity;
+        // Tone mapping (Filmic)
+        rp.ToneMappingMethod = Graphic3d_ToneMappingMethod_Filmic;
 
         // Adaptive sampling
-        rp.IsAdaptiveSamplingEnabled = Standard_True;
+        rp.AdaptiveScreenSampling = Standard_True;
         rp.RaytracingDepth = qMax(m_reflectionBounces, m_refractionBounces) + 2;
     }
 
@@ -313,8 +305,6 @@ void CADPreviewWidget::setEnvironmentIntensity(double intensity)
 {
     m_envIntensity = qBound(0.0, intensity, 1.0);
     if (m_viewerInitialized && !m_view.IsNull()) {
-        Graphic3d_RenderingParams& rp = m_view->ChangeRenderingParams();
-        rp.EnvMapIntensity = m_envIntensity;
         m_view->Update();
     }
 }
@@ -345,7 +335,7 @@ bool CADPreviewWidget::saveSnapshot(const QString& filePath, int width, int heig
 
         // Save to file using OCCT's Image_AlienPixMap
         Handle(Image_AlienPixMap) alienImage = new Image_AlienPixMap();
-        if (!alienImage->InitWrapper(image)) return false;
+        if (!alienImage->InitCopy(image)) return false;
 
         return alienImage->Save(filePath.toUtf8().constData());
     } catch (...) {
