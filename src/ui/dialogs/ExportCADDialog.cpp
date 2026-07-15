@@ -133,6 +133,10 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
 
     rightPanel->addStretch();
 
+    // ── Preview button ──
+    m_previewButton = new QPushButton(QStringLiteral("CAD Preview..."), this);
+    rightPanel->addWidget(m_previewButton);
+
     // ── Export button ──
     m_exportButton = new QPushButton(QStringLiteral("Export"), this);
     m_exportButton->setEnabled(false);
@@ -147,6 +151,32 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
     connect(m_rotationalCheck, &QCheckBox::toggled, this, &ExportCADDialog::onRotationalToggled);
     connect(m_linearCheck, &QCheckBox::toggled, this, &ExportCADDialog::onLinearToggled);
     connect(browseBtn, &QPushButton::clicked, this, &ExportCADDialog::onBrowse);
+    connect(m_previewButton, &QPushButton::clicked, this, [this]() {
+        QStringList names = selectedObjectNames();
+        if (names.isEmpty()) {
+            QMessageBox::warning(this, tr("No objects"), tr("Please select at least one object to preview."));
+            return;
+        }
+        // Build params from first selected object
+        CustomObject* obj = m_project->findObject(names.first());
+        if (!obj) return;
+
+        CADExportParams params;
+        params.controlPoints = obj->controlPoints();
+        params.wiresOnly      = m_wiresOnlyCheck->isChecked();
+        params.rotational     = m_rotationalCheck->isChecked();
+        params.rotationalAxis = rotationalAxis();
+        params.angleStart     = rotationalAngleStart();
+        params.angleEnd       = rotationalAngleEnd();
+        params.angularSteps   = static_cast<int>(rotationalAngularSteps());
+        params.linear         = m_linearCheck->isChecked();
+        params.linearDirection = linearDirection();
+        params.wideness       = linearWideness();
+
+        CADPreviewDialog preview(params, this);
+        preview.exec();
+    });
+
     connect(m_exportButton, &QPushButton::clicked, this, [this]() {
         if (m_fileNameEdit->text().trimmed().isEmpty()) {
             QMessageBox::warning(this, tr("No file"), tr("Please choose an output file."));

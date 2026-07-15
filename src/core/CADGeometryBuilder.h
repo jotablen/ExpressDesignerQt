@@ -13,6 +13,7 @@ namespace ExpressDesigner {
 struct CADExportParams {
     QString filePath;
     QVector<QPointF> controlPoints;
+    QVector<QVector<QPointF>> controlPointsList;  // one entry per object for multi-shape preview
     bool wiresOnly = false;
     bool rotational = false;
     QString rotationalAxis;       // "X", "Y", or "Z"
@@ -54,6 +55,16 @@ public:
                            TopoDS_Wire& wire,
                            TopoDS_Shape& outShape,
                            QString& err);
+
+    static bool buildShapeRotational(const CADExportParams& params,
+                                     TopoDS_Wire& wire,
+                                     TopoDS_Shape& outShape,
+                                     QString& err);
+
+    static bool buildShapeLinear(const CADExportParams& params,
+                                 TopoDS_Wire& wire,
+                                 TopoDS_Shape& outShape,
+                                 QString& err);
 
     /// Convert degrees to radians
     static double toRadians(double degrees) { return degrees * M_PI / 180.0; }

@@ -87,90 +87,111 @@ bool CADGeometryBuilder::buildShape(const CADExportParams& params,
         return true;
     }
 
-    if (params.rotational) {
-        gp_Ax1 rotAxis;
-        if (params.rotationalAxis == QStringLiteral("X"))
-            rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
-        else if (params.rotationalAxis == QStringLiteral("Z"))
-            rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1));
-        else
-            rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
-        double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
+    if (params.rotational)
+        return buildShapeRotational(params, wire, outShape, err);
 
-        // Re-sample for X-positive curves (rotational)
-        // If curve crosses or touches the axis, re-sample to X≥0 portion
-        QVector<QPointF> filteredPts;
-        for (const auto& pt : params.controlPoints) {
-            double checkVal = (params.rotationalAxis == QStringLiteral("Z")) ? pt.y() : pt.x();
-            if (checkVal >= -1e-6) filteredPts.append(pt);
-        }
-        if (filteredPts.size() != params.controlPoints.size()) {
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Curve clipped for rotation (%1 pts → %2 pts)")
-                     .arg(params.controlPoints.size()).arg(filteredPts.size()));
-        }
-        if (filteredPts.size() < 2) {
-            LOG_WARN(QStringLiteral("CAD"), QStringLiteral("Not enough points after axis clipping; exporting wire only."));
-            err = QStringLiteral("Not enough points after axis clipping.");
-            outShape = wire;
-            return false;
-        }
-        // Always rebuild wire from (possibly filtered) points
-        TopoDS_Wire clippedWire;
-        if (!buildWire(filteredPts, clippedWire, err)) {
-            outShape = wire;
-            return false;
-        }
-        TopoDS_Wire& workWire = clippedWire;
+    if (params.linear)
+        return buildShapeLinear(params, wire, outShape, err);
 
-        // Heal wire tolerance before building face/revol
-        ShapeFix_Wire wireFix(workWire, TopoDS_Face(), 1e-6);
-        wireFix.Perform();
-        TopoDS_Wire healedWire = wireFix.Wire();
-
-        // Try face first, then wire directly
-        BRepBuilderAPI_MakeFace faceMaker(healedWire);
-        faceMaker.Build();
-        if (faceMaker.IsDone()) {
-            BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
-            revol.Build();
-            if (revol.IsDone()) { outShape = revol.Shape(); return true; }
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Revol with face failed, trying healed wire..."));
-        }
-        // Fallback: extrude healed wire directly → produces shell
-        BRepPrimAPI_MakeRevol revolFromWire(healedWire, rotAxis, angleRad);
-        revolFromWire.Build();
-        if (revolFromWire.IsDone()) { outShape = revolFromWire.Shape(); return true; }
-        err = QStringLiteral("Rotational extrusion failed.");
-        outShape = wire;
-        return false;
-    }
-
-    if (params.linear) {
-        gp_Vec vec;
-        double len = params.wideness;
-        if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len, 0, 0);
-        else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0, len, 0);
-        else vec = gp_Vec(0, 0, len);
-
-        // Try face first, then wire directly
-        BRepBuilderAPI_MakeFace faceMaker(wire);
-        faceMaker.Build();
-        if (faceMaker.IsDone()) {
-            BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
-            prism.Build();
-            if (prism.IsDone()) { outShape = prism.Shape(); return true; }
-            LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Prism with face failed, trying wire..."));
-        }
-        // Fallback: extrude wire directly → produces shell
-        BRepPrimAPI_MakePrism prismFromWire(wire, vec);
-        prismFromWire.Build();
-        if (prismFromWire.IsDone()) { outShape = prismFromWire.Shape(); return true; }
-        err = QStringLiteral("Linear extrusion failed.");
-        outShape = wire;
-        return false;
-    }
     outShape = wire;
     return true;
+}
+
+// ============================================================================
+// buildShapeRotational
+// ============================================================================
+bool CADGeometryBuilder::buildShapeRotational(const CADExportParams& params,
+                                              TopoDS_Wire& wire,
+                                              TopoDS_Shape& outShape,
+                                              QString& err)
+{
+    gp_Ax1 rotAxis;
+    if (params.rotationalAxis == QStringLiteral("X"))
+        rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(1, 0, 0));
+    else if (params.rotationalAxis == QStringLiteral("Z"))
+        rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 0, 1));
+    else
+        rotAxis = gp_Ax1(gp_Pnt(0, 0, 0), gp_Dir(0, 1, 0));
+    double angleRad = (params.angleEnd - params.angleStart) * M_PI / 180.0;
+
+    // Re-sample for X-positive curves (rotational)
+    // If curve crosses or touches the axis, re-sample to X≥0 portion
+    QVector<QPointF> filteredPts;
+    for (const auto& pt : params.controlPoints) {
+        double checkVal = (params.rotationalAxis == QStringLiteral("Z")) ? pt.y() : pt.x();
+        if (checkVal >= -1e-6) filteredPts.append(pt);
+    }
+    if (filteredPts.size() != params.controlPoints.size()) {
+        LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Curve clipped for rotation (%1 pts → %2 pts)")
+                 .arg(params.controlPoints.size()).arg(filteredPts.size()));
+    }
+    if (filteredPts.size() < 2) {
+        LOG_WARN(QStringLiteral("CAD"), QStringLiteral("Not enough points after axis clipping; exporting wire only."));
+        err = QStringLiteral("Not enough points after axis clipping.");
+        outShape = wire;
+        return false;
+    }
+    // Always rebuild wire from (possibly filtered) points
+    TopoDS_Wire clippedWire;
+    if (!buildWire(filteredPts, clippedWire, err)) {
+        outShape = wire;
+        return false;
+    }
+    TopoDS_Wire& workWire = clippedWire;
+
+    // Heal wire tolerance before building face/revol
+    ShapeFix_Wire wireFix(workWire, TopoDS_Face(), 1e-6);
+    wireFix.Perform();
+    TopoDS_Wire healedWire = wireFix.Wire();
+
+    // Try face first, then wire directly
+    BRepBuilderAPI_MakeFace faceMaker(healedWire);
+    faceMaker.Build();
+    if (faceMaker.IsDone()) {
+        BRepPrimAPI_MakeRevol revol(faceMaker.Face(), rotAxis, angleRad);
+        revol.Build();
+        if (revol.IsDone()) { outShape = revol.Shape(); return true; }
+        LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Revol with face failed, trying healed wire..."));
+    }
+    // Fallback: extrude healed wire directly → produces shell
+    BRepPrimAPI_MakeRevol revolFromWire(healedWire, rotAxis, angleRad);
+    revolFromWire.Build();
+    if (revolFromWire.IsDone()) { outShape = revolFromWire.Shape(); return true; }
+    err = QStringLiteral("Rotational extrusion failed.");
+    outShape = wire;
+    return false;
+}
+
+// ============================================================================
+// buildShapeLinear
+// ============================================================================
+bool CADGeometryBuilder::buildShapeLinear(const CADExportParams& params,
+                                          TopoDS_Wire& wire,
+                                          TopoDS_Shape& outShape,
+                                          QString& err)
+{
+    gp_Vec vec;
+    double len = params.wideness;
+    if (params.linearDirection == QStringLiteral("X")) vec = gp_Vec(len, 0, 0);
+    else if (params.linearDirection == QStringLiteral("Y")) vec = gp_Vec(0, len, 0);
+    else vec = gp_Vec(0, 0, len);
+
+    // Try face first, then wire directly
+    BRepBuilderAPI_MakeFace faceMaker(wire);
+    faceMaker.Build();
+    if (faceMaker.IsDone()) {
+        BRepPrimAPI_MakePrism prism(faceMaker.Face(), vec);
+        prism.Build();
+        if (prism.IsDone()) { outShape = prism.Shape(); return true; }
+        LOG_INFO(QStringLiteral("CAD"), QStringLiteral("Prism with face failed, trying wire..."));
+    }
+    // Fallback: extrude wire directly → produces shell
+    BRepPrimAPI_MakePrism prismFromWire(wire, vec);
+    prismFromWire.Build();
+    if (prismFromWire.IsDone()) { outShape = prismFromWire.Shape(); return true; }
+    err = QStringLiteral("Linear extrusion failed.");
+    outShape = wire;
+    return false;
 }
 
 } // namespace ExpressDesigner

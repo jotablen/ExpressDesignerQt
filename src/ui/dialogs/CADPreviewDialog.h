@@ -48,7 +48,15 @@ private slots:
 
 private:
     void setupUi();
+    void setupExtrusionGroup(QWidget* parent);
+    void setupDisplayGroup(QWidget* parent);
+    void setupRaytracingGroup(QWidget* parent);
+    void setupButtons(QWidget* parent);
+    void setupConnections();
+
     void buildAndDisplayShape();
+    TopoDS_Shape buildCompoundFromList();
+    TopoDS_Shape buildSingleShape();
 
     // Preview widget
     CADPreviewWidget* m_previewWidget = nullptr;

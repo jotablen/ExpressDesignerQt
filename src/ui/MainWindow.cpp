@@ -27,6 +27,7 @@
 #include <io/TXTImporter.h>
 #include <io/RhinoExporter.h>
 #include <io/CADExporter.h>
+#include <utils/Logger.h>
 
 #include <QFileDialog>
 #include <QMessageBox>
@@ -206,6 +207,7 @@ void MainWindow::setupMenuBar()
     fileMenu->addAction(tr("&Import Object..."), this, &MainWindow::onImportObject);
     fileMenu->addAction(tr("&Export Object..."), this, &MainWindow::onExportObject);
     fileMenu->addAction(tr("Export &CAD (Step/IGES)..."), this, &MainWindow::onExportCAD);
+    fileMenu->addAction(tr("CAD Pre&view..."), this, &MainWindow::onCADPreview);
     fileMenu->addAction(tr("Export All to &Rhino..."), this, &MainWindow::onExportAllRhino);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("E&xit"), QKeySequence::Quit, this, &QWidget::close);
@@ -1060,6 +1062,62 @@ void MainWindow::onExportCAD()
     }
 }
 
+void MainWindow::onCADPreview()
+{
+    if (!m_currentProject) return;
+
+    // Collect control points from ALL visible objects (non-WF, non-Point)
+    // Each object keeps its own point array for multi-shape preview
+    QVector<QVector<QPointF>> allPtLists;
+    int objCount = 0;
+    QStringList objNames;
+
+    auto collectFrom = [&](const QVector<CustomObject*>& objects) {
+        for (auto* obj : objects) {
+            if (!obj) continue;
+            if (obj->objectType() == ObjectType::Point) continue;
+            if (isWavefront(obj->objectType())) continue;
+            if (obj->controlPointCount() >= 2) {
+                allPtLists.append(obj->controlPoints());
+                objNames.append(obj->name());
+                ++objCount;
+            }
+        }
+    };
+
+    collectFrom(m_currentProject->dataObjects());
+    collectFrom(m_currentProject->resultObjects());
+
+    LOG_INFO("CADPreview", QString("onCADPreview: %1 objects, %2 total curves")
+             .arg(objCount).arg(allPtLists.size()));
+
+    if (allPtLists.isEmpty()) {
+        if (m_selectedObject && !isWavefront(m_selectedObject->objectType())
+            && m_selectedObject->objectType() != ObjectType::Point
+            && m_selectedObject->controlPointCount() >= 2) {
+            allPtLists.append(m_selectedObject->controlPoints());
+            LOG_INFO("CADPreview", QString("onCADPreview: fallback to selected object '%1' (%2 pts)")
+                     .arg(m_selectedObject->name()).arg(m_selectedObject->controlPointCount()));
+        }
+        if (allPtLists.isEmpty()) {
+            QMessageBox::information(this, tr("Nothing to preview"),
+                tr("No objects with enough control points to preview.\n"
+                   "Please select an object in the object tree or create curves first."));
+            return;
+        }
+    }
+
+    CADExportParams params;
+    params.controlPointsList = allPtLists;
+    params.controlPoints = allPtLists.first();
+    params.wiresOnly     = false;
+    params.rotational    = false;
+    params.linear        = false;
+
+    CADPreviewDialog dlg(params, this);
+    dlg.exec();
+}
+
 void MainWindow::onExportAllRhino() {}
 
 void MainWindow::onCalculateOval()
@@ -1567,7 +1625,7 @@ void MainWindow::recalculateAll()
             }
             QVector<QPointF> filtered = Geometry::Operations::filterByReferencePoint(
                 obj->controlPoints(), refPt, alphaDeg, obj->isNormalFlipped());
-            if (filtered.size() >= 2 && filtered.size() != obj->controlPointCount())
+            if (filtered.size() >= 2)
                 obj->setControlPoints(filtered);
         }
     }
