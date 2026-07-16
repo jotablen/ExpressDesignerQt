@@ -423,7 +423,7 @@ void CADPreviewWidget::mouseMoveEvent(QMouseEvent* event)
 
     if (m_mouseButtons & Qt::LeftButton) {
         // Scale delta to reduce rotation sensitivity
-        m_view->Rotate(delta.x() * 0.15, delta.y() * 0.15, 0.0);
+        m_view->Rotate(delta.x() * 0.09, delta.y() * 0.09, 0.0);
     } else if (m_mouseButtons & Qt::MiddleButton) {
         m_view->Pan(delta.x(), delta.y());
     } else if (m_mouseButtons & Qt::RightButton) {
