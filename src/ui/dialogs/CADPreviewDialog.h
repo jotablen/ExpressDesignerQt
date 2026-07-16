@@ -9,6 +9,7 @@
 #include <QSpinBox>
 #include <QSlider>
 #include <QComboBox>
+#include <QSettings>
 #include <TopoDS_Shape.hxx>
 #include <core/CADGeometryBuilder.h>
 #include <ui/widgets/CADPreviewWidget.h>
@@ -54,6 +55,7 @@ private:
     void setupButtons(QWidget* parent);
     void setupConnections();
 
+    void saveSettings();
     void buildAndDisplayShape();
     TopoDS_Shape buildCompoundFromList();
     TopoDS_Shape buildSingleShape();

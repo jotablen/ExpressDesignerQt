@@ -15,6 +15,8 @@
 #include <BRep_Builder.hxx>
 #include <TopoDS_Compound.hxx>
 
+#include <QSettings>
+
 namespace ExpressDesigner {
 
 CADPreviewDialog::CADPreviewDialog(const CADExportParams& initialParams,
@@ -24,8 +26,40 @@ CADPreviewDialog::CADPreviewDialog(const CADExportParams& initialParams,
 {
     setWindowTitle(tr("CAD Preview — Raytracing"));
     resize(1200, 800);
+
+    // Load persisted extrusion settings if caller didn't set them
+    {
+        QSettings s;
+        const bool callerSetExtrusion = m_params.rotational || m_params.linear;
+        if (!callerSetExtrusion) {
+            m_params.rotational     = s.value("CADPreview/rotational", false).toBool();
+            m_params.rotationalAxis = s.value("CADPreview/rotationalAxis", "Y").toString();
+            m_params.angleStart     = s.value("CADPreview/angleStart", 0.0).toDouble();
+            m_params.angleEnd       = s.value("CADPreview/angleEnd", 360.0).toDouble();
+            m_params.angularSteps   = s.value("CADPreview/angularSteps", 36).toInt();
+            m_params.linear         = s.value("CADPreview/linear", false).toBool();
+            m_params.linearDirection = s.value("CADPreview/linearDirection", "Z").toString();
+            m_params.wideness       = s.value("CADPreview/wideness", 1.0).toDouble();
+            m_params.wiresOnly      = s.value("CADPreview/wiresOnly", false).toBool();
+        }
+    }
+
     setupUi();
     buildAndDisplayShape();
+}
+
+void CADPreviewDialog::saveSettings()
+{
+    QSettings s;
+    s.setValue("CADPreview/rotational", m_params.rotational);
+    s.setValue("CADPreview/rotationalAxis", m_params.rotationalAxis);
+    s.setValue("CADPreview/angleStart", m_params.angleStart);
+    s.setValue("CADPreview/angleEnd", m_params.angleEnd);
+    s.setValue("CADPreview/angularSteps", m_params.angularSteps);
+    s.setValue("CADPreview/linear", m_params.linear);
+    s.setValue("CADPreview/linearDirection", m_params.linearDirection);
+    s.setValue("CADPreview/wideness", m_params.wideness);
+    s.setValue("CADPreview/wiresOnly", m_params.wiresOnly);
 }
 
 CADPreviewDialog::~CADPreviewDialog() = default;
@@ -386,6 +420,7 @@ void CADPreviewDialog::onApplyExtrusion()
     m_params.linearDirection = m_linearDirCombo->currentText();
     m_params.wideness = m_linearWidenessSpin->value();
     m_params.wiresOnly = m_wiresOnlyCheck->isChecked();
+    saveSettings();
     buildAndDisplayShape();
 }
 

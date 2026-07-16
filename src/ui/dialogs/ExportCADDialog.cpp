@@ -157,21 +157,34 @@ ExportCADDialog::ExportCADDialog(QWidget* parent) : QDialog(parent)
             QMessageBox::warning(this, tr("No objects"), tr("Please select at least one object to preview."));
             return;
         }
-        // Build params from first selected object
-        CustomObject* obj = m_project->findObject(names.first());
-        if (!obj) return;
+        // Build params from all selected objects
+        QVector<QVector<QPointF>> ptLists;
+        QVector<QPointF> firstPts;
+        for (const QString& name : names) {
+            CustomObject* selObj = m_project->findObject(name);
+            if (selObj && selObj->controlPointCount() >= 2) {
+                QVector<QPointF> pts = selObj->controlPoints();
+                ptLists.append(pts);
+                if (firstPts.isEmpty()) firstPts = pts;
+            }
+        }
+        if (ptLists.isEmpty()) {
+            QMessageBox::warning(this, tr("No objects"), tr("No objects with enough control points."));
+            return;
+        }
 
         CADExportParams params;
-        params.controlPoints = obj->controlPoints();
-        params.wiresOnly      = m_wiresOnlyCheck->isChecked();
-        params.rotational     = m_rotationalCheck->isChecked();
-        params.rotationalAxis = rotationalAxis();
-        params.angleStart     = rotationalAngleStart();
-        params.angleEnd       = rotationalAngleEnd();
-        params.angularSteps   = static_cast<int>(rotationalAngularSteps());
-        params.linear         = m_linearCheck->isChecked();
-        params.linearDirection = linearDirection();
-        params.wideness       = linearWideness();
+        params.controlPointsList = ptLists;
+        params.controlPoints     = firstPts;
+        params.wiresOnly         = m_wiresOnlyCheck->isChecked();
+        params.rotational        = m_rotationalCheck->isChecked();
+        params.rotationalAxis    = rotationalAxis();
+        params.angleStart        = rotationalAngleStart();
+        params.angleEnd          = rotationalAngleEnd();
+        params.angularSteps      = static_cast<int>(rotationalAngularSteps());
+        params.linear            = m_linearCheck->isChecked();
+        params.linearDirection   = linearDirection();
+        params.wideness          = linearWideness();
 
         CADPreviewDialog preview(params, this);
         preview.exec();
